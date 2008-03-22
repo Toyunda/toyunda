@@ -1,4 +1,5 @@
 #include <QTextStream>
+#include <QDebug>
 #include <iostream>
 #include "toytype.h"
 extern QTextStream cout;
@@ -43,6 +44,8 @@ void    show_ToyText(ToyText t)
   std::cout << "stop : " << t.stop << "\n";
   std::cout << "text : " << t.text.toStdString() << "\n";
   std::cout << "nbpipe : " << t.nbpipe << "\n";
+  qDebug() << "Color : " << t.color1;
+  qDebug() << "Color : " << t.color2;
 }
 
 void    show_ToySyl(ToySyl t)
