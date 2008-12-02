@@ -1,4 +1,3 @@
-#include <QDebug>
 #include <QWidget>
 #include <QList>
 #include <QPainter>
@@ -18,11 +17,11 @@ QToyOSD::QToyOSD(QWidget *parent) : QWidget(parent)
   //spacingSize = fm.width("aa") - letterw * 2;
   letterh = fm.height();
   QImage origtoylogo("Toyunda logo.png");
+
   toylogo = origtoylogo.scaled(letterw * 1.5, letterw * 1.5);
   f.setFixedPitch(true);
   setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
-  //setAttribute(Qt::WA_NoSystemBackground, true);
-  //setWindowOpacity(0.1);
+  setWindowOpacity(0.1);
   setFixedSize(QSize(toyundaWidth * ratio, toyundaHeight * ratio));
 }
 
@@ -33,6 +32,7 @@ void	QToyOSD::setStream(ToyStream *s)
 
 void	QToyOSD::paintEvent(QPaintEvent *event)
 {
+  
   int h = toyundaHeight * ratio;
   int w = toyundaWidth * ratio;
   QPainter painter(this);
@@ -41,14 +41,11 @@ void	QToyOSD::paintEvent(QPaintEvent *event)
   // Text
   if (tmpt.isEmpty() == false) {
     QListIterator<ToyText> ittext(tmpt);
+
     while (ittext.hasNext()) {
       ToyText tmp = ittext.next();
       if (tmp.color1.isValid()) {
-        if (tmp.tmpcolor.isValid()) {
-	  painter.setPen(tmp.tmpcolor);
-	} else {
-          painter.setPen(tmp.color1);
-	}
+        painter.setPen(tmp.color1.darker());
       } else {
         painter.setPen(Qt::darkBlue);
       }

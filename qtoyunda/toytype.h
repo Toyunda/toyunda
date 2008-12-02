@@ -12,7 +12,6 @@ struct ToyText {
   QString	text;
   QColor	color1;
   QColor	color2;
-  QColor	tmpcolor;
 };
 
 struct ToySyl {

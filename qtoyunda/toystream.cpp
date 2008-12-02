@@ -1,4 +1,3 @@
-#include <QDebug>
 #include <QRegExp>
 #include <QFile>
 #include <iostream>
@@ -74,6 +73,7 @@ void	ToyStream::loadFile(QString filePath)
 	  newtext.text = optAndText;
 	}
         text.insert(newtext);
+	//show_ToyText(newtext);
       }
     }
   }
@@ -96,8 +96,7 @@ void	ToyStream::setCurrentFrame(int nb)
   ToySyl tmps;
   bool emitchange = false;
 
- 
-  std::cout << nb << std::endl;
+  
   // see if we have something to delete
   QMutableListIterator<ToySyl> i(currentSyl);
   while (i.hasNext()) {
@@ -107,35 +106,12 @@ void	ToyStream::setCurrentFrame(int nb)
     }
   }
   QMutableListIterator<ToyText> j(currentText);
-
   while (j.hasNext()) {
-    ToyText &tmp = j.next();
-    if (tmp.stop <= nb) {
+    if (j.next().stop <= nb) {
       j.remove();
       emitchange = true;
-    } 
-    else {
-      if (tmp.color1.isValid() and tmp.color2.isValid()) {
-	int r1, r2, g1, g2, b1, b2, a1, a2;
-	#define MYABS(x) ((x) < 0 ? - (x) : (x))
-	float rap = (float) (nb - tmp.start) / (float) (tmp.stop - tmp.start);
-	r1 = tmp.color1.red();
-	r2 = tmp.color2.red();
-	b1 = tmp.color1.blue();
-	b2 = tmp.color2.blue();
-	g1 = tmp.color1.green();
-	g2 = tmp.color2.green();
-	a1 = tmp.color1.alpha();
-	a2 = tmp.color2.alpha();
-	tmp.tmpcolor.setRed(r1 + rap * (r2 - r1));
-	tmp.tmpcolor.setBlue(b1 + rap * (b2 - b1));
-	tmp.tmpcolor.setGreen(g1 + rap * (g2 - g1));
-	tmp.tmpcolor.setAlpha(a1 + rap * (a2 - a1));
-	emitchange = true;
-      }
     }
   }
-
   // update the currentSyl and currentText
   for (std::set<ToySyl>::iterator iter = syl.begin(); iter != syl.end();) {
     if (nb < (*iter).start)
@@ -156,26 +132,26 @@ void	ToyStream::setCurrentFrame(int nb)
   }
 }
 
-// Enjoy the abgr format..
+// Enjoy the bgra format..
 
 QColor  ToyStream::toycolor2QColor(QString toycolor)
 {
   QChar a, b;
-  QString alp;
-  if (toycolor.size() == 8) {
-    alp[0] = toycolor[0];
-    alp[1] = toycolor[1];
-    toycolor.remove(0, 2);
-  }
   a = toycolor[0];
   b = toycolor[1];
   toycolor[0] = toycolor[4];
   toycolor[1] = toycolor[5];
   toycolor[4] = a;
   toycolor[5] = b;
+  if (toycolor.size() == 6) {
+    return QColor(QString("#" + toycolor));
+  }
+  QString alp;
+  alp[0] = toycolor[6];
+  alp[1] = toycolor[7];
+  toycolor.remove(6, 2);
   QColor toret("#" + toycolor);
-  if (alp.isEmpty() == false)
-    toret.setAlpha(alp.toInt((bool*) 0, 16));
+  toret.setAlpha(alp.toInt((bool*) 0, 16));
   return toret;
 }
 
