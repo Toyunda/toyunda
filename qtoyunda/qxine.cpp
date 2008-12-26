@@ -18,8 +18,17 @@ void	QXine::init()
   xine_init(xine);
   cout << "open video driver\n";
   vo_port = xine_open_video_driver(xine, NULL, XINE_VISUAL_TYPE_NONE, NULL);
+  if (vo_port == NULL) {
+    cout << "probleme video driver\n";
+    exit(1);
+  }
+   
   cout << "open audio driver\n";
   ao_port = xine_open_audio_driver(xine , "alsa", NULL);
+  if (ao_port == NULL) {
+    cout << "probleme audio driver\n";
+    exit(1);
+  }
   stream = xine_stream_new(xine, ao_port, vo_port);
 }
 
@@ -27,7 +36,8 @@ void	QXine::start(QString mfile)
 {
   const char* file = mfile.toLocal8Bit().constData();
   if (!xine_open(stream, file) || !xine_play(stream, 0, 0)) {
-     cout << "unable to open mrl : " << mfile;
+     cout << xine_get_error(stream) << "\n";
+     cout << "unable to open mrl : " << mfile << "\n";
         exit(1);
   }
   duree_moisie = xine_get_stream_info(stream, XINE_STREAM_INFO_FRAME_DURATION);
