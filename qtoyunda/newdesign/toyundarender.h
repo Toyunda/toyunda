@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <QApplication>
 #include <QWidget>
+#include "toyundadrawer.h"
 #include "toyundasubstream.h"
 
 
@@ -36,15 +37,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 class ToyundaRender : public QObject
 {
-  Q_OBJECT
+  Q_OBJECT;
   public:
-	/** 
-	* @brief definne this function if you need special QApplication construct
-	* 
-	* Some renderer need to overwrite this to init some internal thing in Qt
-	* @param app : the QApplication reference
-    * @param ac : argument count
-    * @param ag : argument
+        /** 
+        * @brief definne this function if you need special QApplication construct
+        * 
+        * Some renderer need to overwrite this to init some internal thing in Qt
+        * @param app : the QApplication reference
+        * @param ac : argument count
+        * @param ag : argument
 	*/
     virtual void    init(QApplication &app);
 
@@ -62,13 +63,13 @@ class ToyundaRender : public QObject
     QString getIdentifier();
 
   public slots:
-    virtual void    renderUpdate(void)
+    virtual void    renderUpdate(void) = 0;
 
   protected:
     ToyundaRender();
     QString             identifier; /*!< The name of the renderer */
     ToyundaSubStream    *toySubStream; /*!< The Toyunda subtitle Stream */
-	ToyundaDrawer       toyDrawer; /*!< The Toyunda drawer */
+    ToyundaDrawer       toyDrawer; /*!< The Toyunda drawer */
 };
 
 #endif

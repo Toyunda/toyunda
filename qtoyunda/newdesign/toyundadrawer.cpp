@@ -15,32 +15,57 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
+#include <QList>
+#include <QPoint>
 #include "toyundadrawer.h"
  
 ToyundaDrawer::ToyundaDrawer()
 {
-  ;
+  width = ToyundaWidth;
+  height = ToyundaHeight;
+  ratio = 1.0;
 }
 
-ToyundaDrawer::draw(QPainter &painter, const QList<ToyundaText> &textSub, const QList<ToyundaSyl> &sylSub)
+void	ToyundaDrawer::setRatio(float newratio)
 {
+  ratio = newratio;
+  width = ToyundaWidth * ratio;
+  height = ToyundaHeight * ratio;
+}
+
+void	ToyundaDrawer::setFont(QFont newFont)
+{
+  font = newFont;
+  QFontMetrics fm(font);
+  letterWidth = fm.width("a");
+  letterHeight = fm.height();
+}
+
+void	ToyundaDrawer::setLogo(QImage img)
+{
+  toyundaLogo = img;
+}
+
+void	ToyundaDrawer::draw(QPainter &painter, const QList<ToyundaText> &textSub, const QList<ToyundaSyl> &sylSub)
+{
+  
   if (textSub.isEmpty() == false) {
-    QListIterator<ToyText> ittext(textSub);
+    QListIterator<ToyundaText> ittext(textSub);
     while (ittext.hasNext()) {
-      ToyText tmp = ittext.next();
+      ToyundaText tmp = ittext.next();
       if (tmp.color1.isValid()) {
-        if (tmp.tmpcolor.isValid()) {
-      painter.setPen(tmp.tmpcolor);
-    } else {
+        if (tmp.fadingcolor.isValid()) {
+          painter.setPen(tmp.fadingcolor);
+        } else {
           painter.setPen(tmp.color1);
-    }
+        }
       } else {
         painter.setPen(Qt::darkBlue);
       }
       if (tmp.posx == -1) {
-        //QPoint s((w - (tmp.text.size() * letterw) - (tmp.text.size() - 1) * spacingSize) / 2,
-        QPoint s((w - tmp.text.size() * letterw) / 2,
-        30 + tmp.nbpipe * letterh);
+        //QPoint s((w - (tmp.text.size() * letterWidth) - (tmp.text.size() - 1) * spacingSize) / 2,
+        QPoint s((width - tmp.text.size() * letterWidth) / 2,
+        30 + tmp.pipeNumber * letterHeight);
         painter.drawText(s, tmp.text);
       } else {
         painter.drawText((int) tmp.posx / ratio, (int )((int) tmp.posy / ratio) / 2, tmp.text);
@@ -49,15 +74,16 @@ ToyundaDrawer::draw(QPainter &painter, const QList<ToyundaText> &textSub, const 
   }
   // Syl
   if (sylSub.isEmpty() == false) {
-    QListIterator<ToySyl> itsyl(sylSub);
+    QListIterator<ToyundaSyl> itsyl(sylSub);
 
     while (itsyl.hasNext()) {
-      ToySyl tmp = itsyl.next();
+      ToyundaSyl tmp = itsyl.next();
       painter.setPen(Qt::black);
-      //QPoint s((w - tmp.length * letterw - (tmp.length - 1) * spacingSize) / 2 + tmp.pos * (letterw + spacingSize),
-      QPoint s((w - tmp.length * letterw) / 2 + tmp.pos * letterw,
-      letterh + (tmp.nbpipe - 1) * letterh);
-      painter.drawImage(s, toylogo);
+      //QPoint s((w - tmp.length * letterWidth - (tmp.length - 1) * spacingSize) / 2 + tmp.pos * (letterWidth + spacingSize),
+      QPoint s((width - tmp.length * letterWidth) / 2 + tmp.pos * letterWidth,
+      letterHeight + (tmp.pipeNumber - 1) * letterHeight);
+      painter.drawImage(s, toyundaLogo);
       //painter.drawText(s, "n");
     }
+  }
 }

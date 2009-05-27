@@ -15,24 +15,28 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
+#ifndef H_DEBUGRENDER
+#define H_DEBUGRENDER
+
+#include <QTextStream>
 #include "toyundarender.h"
 
-ToyundaRender::ToyundaRender()
-{
-  identifier = "This should be set";
-}
+/** @class DebugRender
+* @brief A debug renderer
+*
+* This render is designed to debug. It print
+* verbose information about sub currently playing
+* Indentifiant : debug
+*/
 
-void    ToyundaRender::init(QApplication &app)
+class DebugRender : public ToyundaRender
 {
-  ;
-}
+  public:
+    DebugRender();
 
-void    ToyundaRender::setToyundaSubStream(ToyundaSubStream *toyStream)
-{
-  toySubStream = toyStream;
-}
+  public slots:
+    void    renderUpdate(void);
+};
 
-QString ToyundaRender::getIdentifier()
-{
-  return identifier;
-}
+
+#endif
