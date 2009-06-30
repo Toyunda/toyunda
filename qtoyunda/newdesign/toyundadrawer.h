@@ -8,10 +8,11 @@ class ToyundaDrawer
 {
   public:
     ToyundaDrawer();
-    void	draw(QPainter &painter, const QList<ToyundaText> &textSub, const QList<ToyundaSyl> &sylSub);
-    void	setRatio(float nratio);
-    void	setFont(QFont nFont);
-    void	setLogo(QImage img);
+    void	draw(QPainter &painter, const QList<ToyundaText> &textSub, const QList<ToyundaSyl> &sylSub) const;
+    void	setRatio(const float hRat, const float vRat);
+    void	setRatio(const float ratio);
+    void	setFont(const QFont nFont);
+    void	setLogo(const QImage img);
   private:
     unsigned int	width;
     unsigned int	height;
@@ -19,7 +20,8 @@ class ToyundaDrawer
     unsigned int	letterHeight;
     QImage		toyundaLogo;
     QFont		font;
-    float	ratio;
+    float	horizontalRatio;
+    float	verticalRatio;
 };
 
 #endif

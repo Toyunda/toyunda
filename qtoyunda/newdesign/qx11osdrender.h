@@ -19,6 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define H_QX11OSDRENDER
 
 #include "toyundarender.h"
+#include "toyundadrawer.h"
 #include <QWidget>
 
 /** @class QX11OSDRemder
@@ -35,19 +36,15 @@ class QX11OSDRender : public QWidget, ToyundaRender
   Q_OBJECT;
   public:
     QX11OSDRender(QWidget *parent = 0);
-    void    init(QApplication &app);
- 
+
+  public slot:
+    void	renderUpdate(void);
+
   protected:
     void	paintEvent(QPaintEvent*);
 
   private:
-    QSize           m_size;
-    QImage          toylogo;
-    float           ratio;
-    unsigned int    fontSize;
-    unsigned int    letterWidth;
-    unsigned int    letterHeight;
-    int             spacingSize;
+    ToyundaDrawer	toyundaDrawer;
 };
 
 #endif

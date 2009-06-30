@@ -23,17 +23,24 @@ ToyundaDrawer::ToyundaDrawer()
 {
   width = ToyundaWidth;
   height = ToyundaHeight;
-  ratio = 1.0;
+  horizontalRatio = 1.0;
+  verticalRatio = 1.0;
 }
 
-void	ToyundaDrawer::setRatio(float newratio)
+void	ToyundaDrawer::setRatio(const float hRat, const float vRat)
 {
-  ratio = newratio;
-  width = ToyundaWidth * ratio;
-  height = ToyundaHeight * ratio;
+  width = ToyundaWidth * hRat;
+  horizontalRatio = hRat;
+  height = ToyundaHeight * vRat;
+  verticalRatio = vRat;
 }
 
-void	ToyundaDrawer::setFont(QFont newFont)
+void	ToyundaDrawer::setRatio(const float ratio)
+{
+  setRatio(ratio, ratio);
+}
+
+void	ToyundaDrawer::setFont(const QFont newFont)
 {
   font = newFont;
   QFontMetrics fm(font);
@@ -41,7 +48,7 @@ void	ToyundaDrawer::setFont(QFont newFont)
   letterHeight = fm.height();
 }
 
-void	ToyundaDrawer::setLogo(QImage img)
+void	ToyundaDrawer::setLogo(const QImage img)
 {
   toyundaLogo = img;
 }
@@ -65,10 +72,10 @@ void	ToyundaDrawer::draw(QPainter &painter, const QList<ToyundaText> &textSub, c
       if (tmp.posx == -1) {
         //QPoint s((w - (tmp.text.size() * letterWidth) - (tmp.text.size() - 1) * spacingSize) / 2,
         QPoint s((width - tmp.text.size() * letterWidth) / 2,
-        30 + tmp.pipeNumber * letterHeight);
+        (tmp.pipeNumber + 1) * letterHeight * verticalRatio);
         painter.drawText(s, tmp.text);
       } else {
-        painter.drawText((int) tmp.posx / ratio, (int )((int) tmp.posy / ratio) / 2, tmp.text);
+        painter.drawText((int) (tmp.posx * horizontalRatio), (int )(tmp.posy * verticalRatio), tmp.text);
       }
     }
   }
