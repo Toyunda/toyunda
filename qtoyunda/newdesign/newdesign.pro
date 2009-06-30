@@ -8,17 +8,17 @@ DEPENDPATH += .
 INCLUDEPATH += .
 
 # Input
-HEADERS += debugrender.h \
+HEADERS += debugrenderer.h \
            fakeplayer.h \
            fileplayer.h \
            rawsubstream.h \
-           toyundarender.h \
+           toyundarenderer.h \
            toyundasub.h \
            toyundasubstream.h
 SOURCES += debugmain.cpp \
-           debugrender.cpp \
+           debugrenderer.cpp \
            toyundadrawer.cpp \
-           toyundarender.cpp \
+           toyundarenderer.cpp \
            toyundasub.cpp \
 	   fakeplayer.cpp \
 	   rawsubstream.cpp \

@@ -15,17 +15,29 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#ifndef H_RAWTOYUNDASTREAM
-#define H_RAWTOYUNDASTREAM
+#include "toyundasub.h"
+#include "debugrenderer.h"
 
-class RawToyundaStream : public ToyundaSubStream
+DebugRenderer::DebugRenderer()
 {
-  Q_OBJECT;
-  public:
-    RawToyundaStream();
-    RawToyundaStream(QString);
+  
+}
 
-    void	createFromFile(const QString);
-};
+void	DebugRenderer::renderUpdate()
+{
+  QList<ToyundaText> subText = toySubStream->getCurrentTextSubtitle();
+  QList<ToyundaSyl> subSyl = toySubStream->getCurrentSylSubtitle();
 
-#endif
+  QTextStream cout(stdout);
+  QTextStream cerr(stderr);
+  if (subText.isEmpty()) {
+    cout << "no current text to display\n";
+  } else {
+    cout << "----" << toySubStream->getCurrentFrame() << "----\n";
+    QListIterator<ToyundaText> itText(subText);
+    while (itText.hasNext())
+    {
+      //cout << (ToyundaText) itText.next();
+    }
+  }
+}

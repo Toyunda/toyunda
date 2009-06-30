@@ -21,36 +21,33 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <QApplication>
 #include <QWidget>
-#include "toyundadrawer.h"
 #include "toyundasubstream.h"
 
 
-/** @class ToyundaRender
-* @brief Define the render to paint the toyunda sub in
+/** @class ToyundaRenderer
+* @brief The base class of all renderer
 *
 * For creating Toyunda renderer you must inherit this class
-* You only need to set you render specification, to draw the sub
-* you just need to call the paint function of the ToyundaPainter
-* by passing a QPainter pointer see ToyundaPainter documentation
-* for more informations.
+* If you creating a renderer using Qt you can use the ToyundaDrawer class
+* to draw on your QPainter.
 */
 
-class ToyundaRender : public QObject
+class ToyundaRenderer : public QObject
 {
   Q_OBJECT;
   public:
         /** 
-        * @brief definne this function if you need special QApplication construct
+        * @brief define this function if you need special QApplication construct
         * 
         * Some renderer need to overwrite this to init some internal thing in Qt
-        * @param app : the QApplication reference
         * @param ac : argument count
-        * @param ag : argument
+        * @param ag : arguments
+	* @return : The QApplication
 	*/
-    virtual void    init(QApplication &app);
+    virtual QApplication    *init(int ac, char *ag[]);
 
 	/** 
-	* @brief Set the stream to work on it
+	* @brief Set the Toyunda Stream to work on it
 	* 
 	* @param toyStream : the toyundastream
 	*/
@@ -60,16 +57,18 @@ class ToyundaRender : public QObject
     * @brief Get the identifier of the renderer
     *
     */
-    QString getIdentifier();
+    QString getIdentifier() const;
 
   public slots:
-    virtual void    renderUpdate(void) = 0;
+    /**
+     * this function tell the render to update the display of subtitle
+     */
+    virtual void    renderUpdate() = 0;
 
   protected:
-    ToyundaRender();
+    ToyundaRenderer();
     QString             identifier; /*!< The name of the renderer */
     ToyundaSubStream    *toySubStream; /*!< The Toyunda subtitle Stream */
-    ToyundaDrawer       toyDrawer; /*!< The Toyunda drawer */
 };
 
 #endif
