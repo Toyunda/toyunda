@@ -18,26 +18,27 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef H_QX11OSDRENDER
 #define H_QX11OSDRENDER
 
-#include "toyundarender.h"
+#include "toyundarenderer.h"
 #include "toyundadrawer.h"
 #include <QWidget>
 
-/** @class QX11OSDRemder
-* @brief A Fake OSD toyunda render using XRender
+/** @class QX11OSDRenderer
+* @brief A Fake OSD toyunda renderer using XRender
 *
 * This render use x11 xrender extension to draw the subtitle
 * on top of all application. It's just a QWidget using
 * a special X11 visual
-* Identifiant : xrender
+* Identifiant : qx11osdrenderer
 */
 
-class QX11OSDRender : public QWidget, ToyundaRender
+class QX11OSDRenderer : public QWidget, public ToyundaRenderer
 {
   Q_OBJECT;
   public:
-    QX11OSDRender(QWidget *parent = 0);
+    QX11OSDRenderer(QWidget *parent = 0);
+    QApplication  *init(int &ac, char *ag[]);
 
-  public slot:
+  public slots:
     void	renderUpdate(void);
 
   protected:

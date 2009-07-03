@@ -53,7 +53,7 @@ void	ToyundaDrawer::setLogo(const QImage img)
   toyundaLogo = img;
 }
 
-void	ToyundaDrawer::draw(QPainter &painter, const QList<ToyundaText> &textSub, const QList<ToyundaSyl> &sylSub)
+void	ToyundaDrawer::draw(QPainter &painter, const QList<ToyundaText> &textSub, const QList<ToyundaSyl> &sylSub) const
 {
   
   if (textSub.isEmpty() == false) {

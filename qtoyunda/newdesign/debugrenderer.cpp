@@ -37,7 +37,7 @@ void	DebugRenderer::renderUpdate()
     QListIterator<ToyundaText> itText(subText);
     while (itText.hasNext())
     {
-      //cout << (ToyundaText) itText.next();
+      cout << (ToyundaText) itText.next();
     }
   }
 }

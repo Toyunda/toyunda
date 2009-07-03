@@ -44,7 +44,7 @@ class ToyundaRenderer : public QObject
         * @param ag : arguments
 	* @return : The QApplication
 	*/
-    virtual QApplication    *init(int ac, char *ag[]);
+    virtual QApplication    *init(int &ac, char *ag[]);
 
 	/** 
 	* @brief Set the Toyunda Stream to work on it

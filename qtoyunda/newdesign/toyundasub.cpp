@@ -51,16 +51,13 @@ bool    operator<(const ToyundaSyl syl, const ToyundaSyl syl2)
     return true;
 }
 
-QDataStream	&operator<<(QDataStream &ts, const ToyundaText &tt)
+
+QTextStream	&operator<<(QTextStream &ts, const ToyundaText &tt)
 {
-  ;
+  ts << tt.text << "\n";
+  return ts;
 }
-/*
-QTextStream	&operator<<(QTextStream &ts, const ToyundaSyl &tt)
-{
-  ;
-}
-*/
+
 QDebug		operator<<(QDebug dbg, const ToyundaText &tt)
 {
   dbg.nospace() << "Text : " << tt.text << "\n";

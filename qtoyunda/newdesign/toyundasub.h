@@ -53,8 +53,7 @@ bool    operator<(const ToyundaSyl, const ToyundaSyl);
 QDebug	operator<<(QDebug, const ToyundaText&);
 QDebug	operator<<(QDebug, const ToyundaSyl&);
 
-QDataStream	operator<<(QDataStream &, const ToyundaText);
-//QTextStream	&operator<(QTextStream &, const ToyundaSyl);
+QTextStream	&operator<<(QTextStream &, const ToyundaText &);
 
 QColor	toyundaColor2QColor(QString toycolor);
 

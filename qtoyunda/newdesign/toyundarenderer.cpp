@@ -22,7 +22,7 @@ ToyundaRenderer::ToyundaRenderer()
   identifier = "This should be set";
 }
 
-QApplication    *ToyundaRenderer::init(int ac, char *ag[])
+QApplication    *ToyundaRenderer::init(int &ac, char *ag[])
 {
   QApplication *toret = new QApplication(ac, ag);
   return toret;

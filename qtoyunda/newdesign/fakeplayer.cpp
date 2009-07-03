@@ -8,7 +8,10 @@ FakePlayer::FakePlayer() : FilePlayer()
 
 void	FakePlayer::init(const QStringList opt)
 {
-  interval = opt[0].toInt();
+  if (opt.empty())
+    interval = 50;
+  else
+    interval = opt[0].toInt();
   frameNumber = 0;
 }
 
