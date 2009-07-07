@@ -55,7 +55,7 @@ void	ToyundaDrawer::setLogo(const QImage img)
 
 void	ToyundaDrawer::draw(QPainter &painter, const QList<ToyundaText> &textSub, const QList<ToyundaSyl> &sylSub) const
 {
-  
+  painter.setFont(font);
   if (textSub.isEmpty() == false) {
     QListIterator<ToyundaText> ittext(textSub);
     while (ittext.hasNext()) {
@@ -89,8 +89,8 @@ void	ToyundaDrawer::draw(QPainter &painter, const QList<ToyundaText> &textSub, c
       //QPoint s((w - tmp.length * letterWidth - (tmp.length - 1) * spacingSize) / 2 + tmp.pos * (letterWidth + spacingSize),
       QPoint s((width - tmp.length * letterWidth) / 2 + tmp.pos * letterWidth,
       letterHeight + (tmp.pipeNumber - 1) * letterHeight);
-      painter.drawImage(s, toyundaLogo);
-      //painter.drawText(s, "n");
+      //painter.drawImage(s, toyundaLogo);
+      painter.drawText(s, "n");
     }
   }
 }
