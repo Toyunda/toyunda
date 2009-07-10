@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 const	unsigned int ToyundaHeight = 600;
 const	unsigned int ToyundaWidth = 800;
 
-const unsigned int ToyundaFontSize = 32;
+const unsigned int ToyundaFontSize = 18;
 const QString  ToyundaFontName = "Bitstream Vera Sans Mono Bold";
 
 struct ToyundaText {

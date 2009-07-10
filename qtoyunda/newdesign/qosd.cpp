@@ -1,31 +1,31 @@
-#include "qx11osdrenderer.h"
+#include "qosd.h"
 #include <QPaintEvent>
-#include <X11/extensions/Xrender.h>
 
-QX11OSDRenderer::QX11OSDRenderer(QWidget *parent) : QWidget(parent), ToyundaRenderer()
+
+QOSD::QOSD(QWidget *parent) : QWidget(parent), ToyundaRenderer()
 {
   setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
   setAttribute(Qt::WA_NoSystemBackground, true);
+  setAttribute(Qt::WA_TranslucentBackground, true);
   //setAutoFillBackground(true);
   //  /*QPixmap pix("fond.png");
   //    setMask(pix.mask());*/
   //      //setWindowOpacity(0.1);
   setFixedSize(QSize(ToyundaWidth, ToyundaHeight));
  
-  identifier = "qx11osdrenderer";
+  identifier = "qosd";
   QFont f(ToyundaFontName, ToyundaFontSize);
   f.setFixedPitch(true);
   toyundaDrawer.setFont(f);
 }
 
-QApplication *QX11OSDRenderer::init(int &ac, char *ag[])
+bool  QOSD::init(QStringList opt)
 {
-  QApplication *toret;
   show();
-  return toret;
+  return true;
 }
 
-void	QX11OSDRenderer::paintEvent(QPaintEvent *event)
+void	QOSD::paintEvent(QPaintEvent *event)
 {
   QPainter painter(this);
   // Magic from QtLabs.
@@ -38,13 +38,13 @@ void	QX11OSDRenderer::paintEvent(QPaintEvent *event)
   //    it's important!
   painter.save();
   painter.setCompositionMode(QPainter::CompositionMode_Source);
-  painter.fillRect(rect(), Qt::blue);
+  painter.fillRect(rect(), Qt::transparent);
   painter.restore();
 
   toyundaDrawer.draw(painter, toySubStream->getCurrentTextSubtitle(), toySubStream->getCurrentSylSubtitle());
 }
 
-void	QX11OSDRenderer::renderUpdate(void)
+void	QOSD::renderUpdate(void)
 {
   update();
 }

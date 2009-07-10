@@ -15,28 +15,28 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#ifndef H_QX11OSDRENDER
-#define H_QX11OSDRENDER
+#ifndef H_QOSD
+#define H_QOSD
 
 #include "toyundarenderer.h"
 #include "toyundadrawer.h"
 #include <QWidget>
 
-/** @class QX11OSDRenderer
-* @brief A Fake OSD toyunda renderer using XRender
+/** @class QOSD
+* @brief A Fake OSD toyunda renderer
 *
-* This render use x11 xrender extension to draw the subtitle
+* This render use display sub in somethink that look an overlay
 * on top of all application. It's just a QWidget using
-* a special X11 visual
-* Identifiant : qx11osdrenderer
+* special attribute
+* Identifiant : qosd
 */
 
-class QX11OSDRenderer : public QWidget, public ToyundaRenderer
+class QOSD : public QWidget, public ToyundaRenderer
 {
   Q_OBJECT;
   public:
-    QX11OSDRenderer(QWidget *parent = 0);
-    QApplication  *init(int &ac, char *ag[]);
+    QOSD(QWidget *parent = 0);
+    bool  init(QStringList opt = QStringList());
 
   public slots:
     void	renderUpdate(void);

@@ -22,10 +22,9 @@ ToyundaRenderer::ToyundaRenderer()
   identifier = "This should be set";
 }
 
-QApplication    *ToyundaRenderer::init(int &ac, char *ag[])
+bool  ToyundaRenderer::init(QStringList opt)
 {
-  QApplication *toret = new QApplication(ac, ag);
-  return toret;
+  return true;
 }
 
 void    ToyundaRenderer::setToyundaSubStream(ToyundaSubStream *toyStream)

@@ -37,8 +37,9 @@ class FilePlayer : public QObject
 		 * Call this method first to init the player. The options are specific to
 		 * the Player you use, see it documentation.
 		 * @param optionList : The list of option the player can need.
+                 * @return : true if the initialisation success
 		 */
-		virtual void	init(const QStringList optionList = QStringList()) = 0;
+		virtual bool	init(const QStringList optionList = QStringList()) = 0;
 
 	public slots:
 		/**

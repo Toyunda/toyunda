@@ -13,9 +13,12 @@ HEADERS += debugrenderer.h \
            fileplayer.h \
            rawsubstream.h \
            toyundarenderer.h \
+           qosd.h \
            toyundasub.h \
            toyundasubstream.h \
-           qx11osdrenderer.h
+           qtoyunda.h \
+ allplayer.h \
+ allrenderer.h
 
 SOURCES += main.cpp \
            debugrenderer.cpp \
@@ -26,5 +29,6 @@ SOURCES += main.cpp \
 	   rawsubstream.cpp \
 	   toyundasubstream.cpp \
 	   fileplayer.cpp \
-           qx11osdrenderer.cpp
+           qosd.cpp \
+           qtoyunda.cpp
 

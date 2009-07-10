@@ -36,26 +36,23 @@ class ToyundaRenderer : public QObject
 {
   Q_OBJECT;
   public:
-        /** 
-        * @brief define this function if you need special QApplication construct
-        * 
-        * Some renderer need to overwrite this to init some internal thing in Qt
-        * @param ac : argument count
-        * @param ag : arguments
-	* @return : The QApplication
-	*/
-    virtual QApplication    *init(int &ac, char *ag[]);
+   /** 
+   * @brief Init stuff in the renderer
+   *
+   * Define this function if you need some initialisation 
+   * @param optionList : Options the renderer can need.
+   * @return : true if the initialisation success
+   */
+    virtual bool  init(QStringList optionList = QStringList());
 
 	/** 
-	* @brief Set the Toyunda Stream to work on it
-	* 
+	* Set the Toyunda Stream to work on it
 	* @param toyStream : the toyundastream
 	*/
-    void setToyundaSubStream(ToyundaSubStream *toyStream);
+    void  setToyundaSubStream(ToyundaSubStream *toyStream);
 
     /**
-    * @brief Get the identifier of the renderer
-    *
+    * Get the identifier of the renderer
     */
     QString getIdentifier() const;
 

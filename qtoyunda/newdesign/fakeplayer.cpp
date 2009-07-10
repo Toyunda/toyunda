@@ -6,19 +6,21 @@ FakePlayer::FakePlayer() : FilePlayer()
 {
 }
 
-void	FakePlayer::init(const QStringList opt)
+bool	FakePlayer::init(const QStringList opt)
 {
   if (opt.empty())
     interval = 50;
   else
     interval = opt[0].toInt();
   frameNumber = 0;
+  return true;
 }
 
-void	FakePlayer::init(const unsigned int interv)
+bool	FakePlayer::init(const unsigned int interv)
 {
   interval = interv;
   frameNumber = 0;
+  return true;
 }
 
 void	FakePlayer::open(const QString file)
