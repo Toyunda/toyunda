@@ -1,0 +1,6 @@
+{0}{0}
+{1}{1000}this a very long text phrase to test the auto resizing feature of the toyunda
+{1}{100}|                      ÿ                                                      
+{100}{150}|                       ÿ                                                     
+{150}{200}|                        ÿ                                                    
+{200}{250}|                         ÿ                                                   
