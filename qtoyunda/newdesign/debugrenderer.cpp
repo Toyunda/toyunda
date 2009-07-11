@@ -40,4 +40,13 @@ void	DebugRenderer::renderUpdate()
       cout << (ToyundaText) itText.next();
     }
   }
+  if (subSyl.isEmpty()) {
+    cout << "no current Syl to display\n";
+  } else {
+    QListIterator<ToyundaSyl> itSyl(subSyl);
+    while (itSyl.hasNext())
+    {
+      cout << (ToyundaSyl) itSyl.next();
+    }
+  }
 }

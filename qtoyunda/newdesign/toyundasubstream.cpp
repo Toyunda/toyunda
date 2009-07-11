@@ -62,7 +62,7 @@ void	ToyundaSubStream::setCurrentFrame(const int cf)
 	int r1, r2, g1, g2, b1, b2, a1, a2;
         #define MYABS(x) ((x) < 0 ? - (x) : (x))
 	float rap = (float) (currentFrame - tmp.start) / (float) (tmp.stop - tmp.start);
-	qDebug() << "before tmp : rap : " << rap << tmp.color1 << tmp.color2 << currentFrame;
+	//qDebug() << "before tmp : rap : " << rap << tmp.color1 << tmp.color2 << currentFrame;
 	r1 = tmp.color1.red();
 	r2 = tmp.color2.red();
 	b1 = tmp.color1.blue();

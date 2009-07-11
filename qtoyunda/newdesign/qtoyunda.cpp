@@ -35,6 +35,7 @@ void  QToyunda::init()
 {
   selectPlayer();
   selectRenderer();
+  //DebugRenderer *Debugrenderer = new DebugRenderer();
   toyundaSub = new RawSubStream();
   qDebug() << "Init player";
   player->init(s_playerOption);
@@ -43,6 +44,7 @@ void  QToyunda::init()
   qDebug() << "Connect signal/slots";
   QObject::connect(player, SIGNAL(frameChanged(int)), toyundaSub, SLOT(setCurrentFrame(int)));
   QObject::connect(toyundaSub, SIGNAL(currentSubChanged(void)), renderer, SLOT(renderUpdate(void)));
+  //QObject::connect(toyundaSub, SIGNAL(currentSubChanged(void)), Debugrenderer, SLOT(renderUpdate(void)));
   renderer->setToyundaSubStream(toyundaSub);
 }
 

@@ -35,8 +35,9 @@ class ToyundaDrawer
     unsigned int	height;
     unsigned int	letterWidth;
     unsigned int	letterHeight;
+    unsigned int        maxLetterNumber;
     QImage		toyundaLogo;
-    QFont		font;
+    QFont		s_font;
     float	horizontalRatio;
     float	verticalRatio;
 };

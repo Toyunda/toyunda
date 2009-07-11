@@ -17,6 +17,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "toyundasub.h"
 
+
+const unsigned int ToyundaHeight = 600;
+const unsigned int ToyundaWidth = 800;
+
+const unsigned int ToyundaFontSize = 28;
+const QString  ToyundaFontName = "Bitstream Vera Sans Mono Bold";
+
+
 bool    operator<(const ToyundaText toy, const ToyundaText toy2)
 {
   if (toy.start > toy2.start)
@@ -54,31 +62,57 @@ bool    operator<(const ToyundaSyl syl, const ToyundaSyl syl2)
 
 QTextStream	&operator<<(QTextStream &ts, const ToyundaText &tt)
 {
-  ts << tt.text << "\n";
+  printToyundaText(ts, tt);
+  return ts;
+}
+
+QTextStream	&operator<<(QTextStream &ts, const ToyundaSyl &tsyl)
+{
+  printToyundaSyl(ts, tsyl);
   return ts;
 }
 
 QDebug		operator<<(QDebug dbg, const ToyundaText &tt)
 {
-  dbg.nospace() << "Text : " << tt.text << "\n";
-  dbg.nospace() << "Frame  : (" << tt.start << ", " << tt.stop << ")\n";
-  dbg.nospace() << "Number of pipe : " << tt.pipeNumber << "\n";
-  dbg.nospace() << "Position : (" << tt.posx << ", " << tt.posy << ")\n";
-  dbg.nospace() << "Size : " << tt.size << "\n";
-  dbg.nospace() << "Colors : -- " << tt.color1;
-  if (tt.color2.isValid())
-  {
-    dbg.nospace() << " -- " << tt.color2 << " -- " << tt.fadingcolor;
-  }
+  printToyundaText(dbg.nospace(), tt);
   return dbg;
+}
+
+template<class T> void printToyundaText(T &stream, const ToyundaText &tt)
+{
+  stream << "Text : " << tt.text << "\n";
+  stream << "Frame  : (" << tt.start << ", " << tt.stop << ")\n";
+  stream << "Number of pipe : " << tt.pipeNumber << "\n";
+  stream << "Position : (" << tt.posx << ", " << tt.posy << ")\n";
+  stream << "Size : " << tt.size << "\n";
+  stream << "Colors : -- " << tt.color1.red() << 
+                    "," << tt.color1.green() <<
+                    "," << tt.color1.blue() <<
+                    "," << tt.color1.alpha() << "\n";
+  if (tt.color2.isValid()) {
+    stream << " -- " << tt.color2.red() << 
+                    "," << tt.color2.green() <<
+                    "," << tt.color2.blue() <<
+                    "," << tt.color2.alpha();
+    stream << " -- " << tt.fadingcolor.red() << 
+                    "," << tt.fadingcolor.green() <<
+                    "," << tt.fadingcolor.blue() <<
+                    "," << tt.fadingcolor.alpha() << "\n";
+  }
 }
 
 
 QDebug		operator<<(QDebug dbg, const ToyundaSyl &ts)
 {
-  dbg.nospace() << "Frame  : (" << ts.start << ", " << ts.stop << ")\n";
-  dbg.nospace() << "Number of pipe : " << ts.pipeNumber << "\n";
-  dbg.nospace() << "Position : " << ts.pos << "\n";
+  printToyundaSyl(dbg.nospace(), ts);
+  return dbg;
+}
+
+template<class T> void  printToyundaSyl(T &stream, const ToyundaSyl &ts)
+{
+  stream << "Frame  : (" << ts.start << ", " << ts.stop << ")\n";
+  stream << "Number of pipe : " << ts.pipeNumber << "\n";
+  stream << "Position : " << ts.pos << "\n";
 }
 
 // Enjoy the bgra format

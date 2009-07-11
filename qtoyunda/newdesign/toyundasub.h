@@ -23,11 +23,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <QColor>
 
 
-const	unsigned int ToyundaHeight = 600;
-const	unsigned int ToyundaWidth = 800;
+extern const unsigned int ToyundaHeight;
+extern const unsigned int ToyundaWidth;
 
-const unsigned int ToyundaFontSize = 18;
-const QString  ToyundaFontName = "Bitstream Vera Sans Mono Bold";
+extern const unsigned int ToyundaFontSize;
+extern const QString  ToyundaFontName;
 
 struct ToyundaText {
   int		start;
@@ -57,6 +57,10 @@ QDebug	operator<<(QDebug, const ToyundaText&);
 QDebug	operator<<(QDebug, const ToyundaSyl&);
 
 QTextStream	&operator<<(QTextStream &, const ToyundaText &);
+QTextStream	&operator<<(QTextStream &, const ToyundaSyl &);
+
+template<class T> void printToyundaText(T &stream, const ToyundaText &);
+template<class T> void printToyundaSyl(T &stream, const ToyundaSyl &);
 
 QColor	toyundaColor2QColor(QString toycolor);
 

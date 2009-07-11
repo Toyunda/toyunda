@@ -17,6 +17,7 @@ QOSD::QOSD(QWidget *parent) : QWidget(parent), ToyundaRenderer()
   QFont f(ToyundaFontName, ToyundaFontSize);
   f.setFixedPitch(true);
   toyundaDrawer.setFont(f);
+  toyundaDrawer.setLogo(QImage("Toyunda logo.png"));
 }
 
 bool  QOSD::init(QStringList opt)
