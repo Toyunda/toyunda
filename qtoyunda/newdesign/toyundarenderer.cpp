@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 ToyundaRenderer::ToyundaRenderer()
 {
-  identifier = "This should be set";
+  s_identifier = "This should be set";
 }
 
 bool  ToyundaRenderer::init(QStringList opt)
@@ -32,7 +32,7 @@ void    ToyundaRenderer::setToyundaSubStream(ToyundaSubStream *toyStream)
   toySubStream = toyStream;
 }
 
-QString ToyundaRenderer::getIdentifier() const
+QString ToyundaRenderer::identifier() const
 {
-  return identifier;
+  return s_identifier;
 }

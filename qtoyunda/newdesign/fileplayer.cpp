@@ -21,3 +21,8 @@ FilePlayer::FilePlayer(QObject *parent) : QObject(parent)
 {
   ;
 }
+
+QString FilePlayer::identifier() const
+{
+  return s_identifier;
+}

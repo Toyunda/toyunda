@@ -54,12 +54,20 @@ void	ToyundaDrawer::setFont(const QFont newFont)
 void	ToyundaDrawer::setLogo(const QImage img)
 {
   toyundaLogo = img;
-  toyundaLogo = toyundaLogo.scaled(letterHeight, letterHeight);
+  toyundaLogo = toyundaLogo.scaled(letterHeight * 0.8, letterHeight * 0.8);
+}
+
+void    ToyundaDrawer::drawGrid(QPainter &painter) const
+{
+  for (unsigned int i = 0; i < width / letterHeight; i++) {
+    painter.drawLine(0, i * letterHeight, width, i * letterHeight);
+  }
 }
 
 void	ToyundaDrawer::draw(QPainter &painter, const QList<ToyundaText> &textSub, const QList<ToyundaSyl> &sylSub) const
 {
   painter.setFont(s_font);
+  drawGrid(painter);
   if (textSub.isEmpty() == false) {
     QListIterator<ToyundaText> ittext(textSub);
     while (ittext.hasNext()) {
@@ -78,7 +86,7 @@ void	ToyundaDrawer::draw(QPainter &painter, const QList<ToyundaText> &textSub, c
         QPoint s;
         s.setY((tmp.pipeNumber + 1) * letterHeight * verticalRatio);
         // Handle long text
-        if (tmp.text.size() > maxLetterNumber) {
+        if ((unsigned) tmp.text.size() > maxLetterNumber) {
           QFont cfont = s_font;
           //qDebug() << maxLetterNumber << tmp.text.size();
           //qDebug() << (float (maxLetterNumber) / tmp.text.size());
@@ -93,7 +101,7 @@ void	ToyundaDrawer::draw(QPainter &painter, const QList<ToyundaText> &textSub, c
           painter.drawText(s, tmp.text);
         }
       } else {
-        painter.drawText((int) (tmp.posx * horizontalRatio), (int )(tmp.posy * verticalRatio), tmp.text);
+        painter.drawText((int) (tmp.posx * horizontalRatio), letterHeight + (int )(tmp.posy * verticalRatio), tmp.text);
       }
     }
   }
@@ -105,8 +113,8 @@ void	ToyundaDrawer::draw(QPainter &painter, const QList<ToyundaText> &textSub, c
       ToyundaSyl tmp = itsyl.next();
       painter.setPen(Qt::black);
       QPoint s;
-      s.setY((tmp.pipeNumber) * letterHeight);
-      if (tmp.length > maxLetterNumber) {
+      s.setY((tmp.pipeNumber) * letterHeight + (letterHeight - toyundaLogo.size().height()));
+      if ((unsigned) tmp.length > maxLetterNumber) {
           QFont cfont = s_font;
           cfont.setPointSize(s_font.pointSize() * (float (maxLetterNumber) / tmp.length));
           painter.setFont(cfont);

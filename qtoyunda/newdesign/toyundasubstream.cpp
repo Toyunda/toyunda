@@ -43,16 +43,15 @@ void	ToyundaSubStream::setCurrentFrame(const int cf)
   // See if we have syl/text to remove
   QMutableListIterator<ToyundaSyl> i(currentSyl);
   while (i.hasNext()) {
-    if (i.next().stop < currentFrame) {
+    if (i.next().stop <= currentFrame) {
       i.remove();
       emitChange = true;
     }
   }
-
   QMutableListIterator<ToyundaText> j(currentText);
   while (j.hasNext()) {
     ToyundaText &tmp = j.next();
-    if (tmp.stop < currentFrame) {
+    if (tmp.stop <= currentFrame) {
       j.remove();
       emitChange = true;
     }
@@ -75,7 +74,6 @@ void	ToyundaSubStream::setCurrentFrame(const int cf)
 	tmp.fadingcolor.setBlue(b1 + rap * (b2 - b1));
 	tmp.fadingcolor.setGreen(g1 + rap * (g2 - g1));
 	tmp.fadingcolor.setAlpha(a1 + rap * (a2 - a1));
-	qDebug() << "after tmp" << tmp.fadingcolor;
 	emitChange = true;
       }
     }

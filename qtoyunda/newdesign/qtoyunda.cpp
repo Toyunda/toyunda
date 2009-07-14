@@ -69,6 +69,10 @@ void  QToyunda::selectPlayer()
 {
   if (s_playerName == "fake")
     player = new FakePlayer;
+#ifdef Q_WS_X11
+  if (s_playerName == "xineaudio")
+    player = new XineAudioPlayer;
+#endif
 }
 
 void  QToyunda::selectRenderer()

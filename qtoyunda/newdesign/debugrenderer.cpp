@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 DebugRenderer::DebugRenderer()
 {
-  
+  s_identifier = "debug";
 }
 
 void	DebugRenderer::renderUpdate()
@@ -40,6 +40,7 @@ void	DebugRenderer::renderUpdate()
       cout << (ToyundaText) itText.next();
     }
   }
+  cout << "== Syl ==" << "\n";
   if (subSyl.isEmpty()) {
     cout << "no current Syl to display\n";
   } else {

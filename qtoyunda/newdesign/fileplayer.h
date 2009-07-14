@@ -40,6 +40,7 @@ class FilePlayer : public QObject
                  * @return : true if the initialisation success
 		 */
 		virtual bool	init(const QStringList optionList = QStringList()) = 0;
+                QString identifier() const;
 
 	public slots:
 		/**
@@ -80,6 +81,9 @@ class FilePlayer : public QObject
 		 * @param frame : the number of the frame
 		 */
 		void	frameChanged(int frame);
+
+        protected:
+          QString s_identifier;
 };
 
 #endif

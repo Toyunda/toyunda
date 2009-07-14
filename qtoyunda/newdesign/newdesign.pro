@@ -6,6 +6,7 @@ TEMPLATE = app
 TARGET = qtoyunda 
 DEPENDPATH += .
 INCLUDEPATH += .
+LIBS += -lxine
 
 # Input
 HEADERS += debugrenderer.h \
@@ -18,7 +19,8 @@ HEADERS += debugrenderer.h \
            toyundasubstream.h \
            qtoyunda.h \
  allplayer.h \
- allrenderer.h
+ allrenderer.h \
+ xineaudioplayer.h
 
 SOURCES += main.cpp \
            debugrenderer.cpp \
@@ -30,5 +32,6 @@ SOURCES += main.cpp \
 	   toyundasubstream.cpp \
 	   fileplayer.cpp \
            qosd.cpp \
-           qtoyunda.cpp
+           qtoyunda.cpp \
+ xineaudioplayer.cpp
 

@@ -6,14 +6,12 @@ QOSD::QOSD(QWidget *parent) : QWidget(parent), ToyundaRenderer()
 {
   setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
   setAttribute(Qt::WA_NoSystemBackground, true);
+#if QT_VERSION >= 0x040500
   setAttribute(Qt::WA_TranslucentBackground, true);
-  //setAutoFillBackground(true);
-  //  /*QPixmap pix("fond.png");
-  //    setMask(pix.mask());*/
-  //      //setWindowOpacity(0.1);
+#endif
   setFixedSize(QSize(ToyundaWidth, ToyundaHeight));
- 
-  identifier = "qosd";
+
+  s_identifier = "qosd";
   QFont f(ToyundaFontName, ToyundaFontSize);
   f.setFixedPitch(true);
   toyundaDrawer.setFont(f);

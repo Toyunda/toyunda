@@ -54,7 +54,7 @@ class ToyundaRenderer : public QObject
     /**
     * Get the identifier of the renderer
     */
-    QString getIdentifier() const;
+    QString identifier() const;
 
   public slots:
     /**
@@ -64,7 +64,7 @@ class ToyundaRenderer : public QObject
 
   protected:
     ToyundaRenderer();
-    QString             identifier; /*!< The name of the renderer */
+    QString             s_identifier; /*!< The name of the renderer */
     ToyundaSubStream    *toySubStream; /*!< The Toyunda subtitle Stream */
 };
 
