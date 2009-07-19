@@ -6,6 +6,7 @@ TEMPLATE = app
 TARGET = qtoyunda 
 DEPENDPATH += .
 INCLUDEPATH += .
+VERSION = 0.1
 LIBS += -lxine
 
 # Input
@@ -13,6 +14,7 @@ HEADERS += debugrenderer.h \
            fakeplayer.h \
            fileplayer.h \
            rawsubstream.h \
+	   toyundadrawer.h \
            toyundarenderer.h \
            qosd.h \
            toyundasub.h \
