@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <QApplication>
 #include <QWidget>
 #include "toyundasubstream.h"
-
+#include "scomponent.h"
 
 /** @class ToyundaRenderer
 * @brief The base class of all renderer
@@ -32,7 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 * to draw on your QPainter.
 */
 
-class ToyundaRenderer : public QObject
+class ToyundaRenderer : public QObject, SComponent
 {
   Q_OBJECT;
   public:
@@ -51,11 +51,6 @@ class ToyundaRenderer : public QObject
 	*/
     void  setToyundaSubStream(ToyundaSubStream *toyStream);
 
-    /**
-    * Get the identifier of the renderer
-    */
-    QString identifier() const;
-
   public slots:
     /**
      * this function tell the render to update the display of subtitle
@@ -64,7 +59,6 @@ class ToyundaRenderer : public QObject
 
   protected:
     ToyundaRenderer();
-    QString             s_identifier; /*!< The name of the renderer */
     ToyundaSubStream    *toySubStream; /*!< The Toyunda subtitle Stream */
 };
 

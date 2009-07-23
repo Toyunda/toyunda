@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <QObject>
 #include <QStringList>
+#include "scomponent.h"
 #include "toyundasub.h"
 #include "toyundarenderer.h"
 #include "fileplayer.h"
@@ -40,21 +41,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 * toyunda.play();
 * \endcode
 */
-class QToyunda : public QObject
+class QToyunda : public QObject, SComponent
 {
   Q_OBJECT;
 
   public:
     /**
-     * Create a toyunda player with the renderer and the player.
-     * @param playerNam : The name of the player
-     * @param rendererNam : The name of the renderer
-     * @param playerOpt : The option for the player
-     * @param rendererOpt : The option for the renderer
+     * Create a toyunda player
      */
-    QToyunda(QString playerNam, QString rendererNam, 
-             QStringList playerOpt = QStringList(),
-             QStringList rendererOpt = QStringList());
+    QToyunda(QStringList arg);
 
 // Accessors
     /**

@@ -15,24 +15,33 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include "toyundarenderer.h"
+#include "sqarg.h"
 
-ToyundaRenderer::ToyundaRenderer() : SComponent()
+SComponent::SComponent()
 {
-  setIdentifier("This should be set");
+  optionDesc["help"] = SQOpt("help", "help", false, "display help", "display help", false, true);
 }
 
-bool  ToyundaRenderer::init(QStringList opt)
+void	SComponent::handleOption(QString listArg)
 {
-  return true;
+  if (optionDesc.isEmpty()) {
+    qCritical() << "You must define optionDesc before call SComponent::handleOption";
+    exit(1);
+  }
+  SQArg::fillWithDesc(optionValue, listArg, optionDesc);
 }
 
-void    ToyundaRenderer::setToyundaSubStream(ToyundaSubStream *toyStream)
+void	SComponent::showOptionHelp()
 {
-  toySubStream = toyStream;
+  SQArg::generateLongHelp(optionDesc);
 }
 
-QString ToyundaRenderer::identifier() const
+QString	SComponent::identifier() const
 {
   return s_identifier;
+}
+
+void	SComponet::setIdentifier(QString id)
+{
+  s_identifier = id;
 }

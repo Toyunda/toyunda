@@ -17,12 +17,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "fileplayer.h"
 
-FilePlayer::FilePlayer(QObject *parent) : QObject(parent)
+FilePlayer::FilePlayer(QObject *parent) : QObject(parent), SComponent()
 {
-  ;
-}
-
-QString FilePlayer::identifier() const
-{
-  return s_identifier;
+  setIdentifier("This should be set");
 }

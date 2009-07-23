@@ -15,33 +15,37 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#ifndef H_FAKEPLAYER
-#define H_FAKEPLAYER
+#ifndef H_SQARG
+#define H_SQARG
+#include <QMap>
+#include <QVariant>
+#include <QStringList>
 
-#include <QTimer>
-#include "fileplayer.h"
-
-class FakePlayer : public FilePlayer
+struct SQOpt
 {
-  Q_OBJECT;
-  public:
-    FakePlayer();
-
-    bool	init(const QStringList opt);
-
-  public slots:
-    void	open(const QString);
-    void	play();
-    void	stop();
-    void	seek(const int);
-
-  private slots:
-    void	newTick();
-
+  SQOpt(QString f, QString s, QVariant def, QString desc, QString l, bool m = true, bool sk = false);
+  SQOpt();
+  QString	fullName;
+  QString	shortName;
+  QVariant	defaultValue;
+  QString	description;
+  QString	longHelp;
+  bool		mandatory;
+  bool		skipAll;
+  bool		isNull() const;
   private:
-    unsigned int interval;
-    QTimer	timer;
-    int		frameNumber;
+    bool s_null;
 };
+
+typedef QMap<QString, SQOpt> SQArgDescMap;
+
+namespace SQArg
+{
+  void	fillWithDesc(QMap<QString, QVariant> &toFill, QStringList listArg, SQArgDescMap desc);
+  bool	findByShortName(QString optName, SQArgDescMap desc, SQOpt &opt);
+  void	generateShortHelp(SQArgDescMap desc);
+  void	generateLongHelp(SQArgDescMap desc);
+};
+
 
 #endif

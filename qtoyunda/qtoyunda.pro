@@ -22,7 +22,9 @@ HEADERS += debugrenderer.h \
            qtoyunda.h \
  allplayer.h \
  allrenderer.h \
- xineaudioplayer.h
+ xineaudioplayer.h \
+ scomponent.h \
+ sqarg.h
 
 SOURCES += main.cpp \
            debugrenderer.cpp \
@@ -35,5 +37,7 @@ SOURCES += main.cpp \
 	   fileplayer.cpp \
            qosd.cpp \
            qtoyunda.cpp \
- xineaudioplayer.cpp
+ xineaudioplayer.cpp \
+ sqarg.cpp \
+ scomponent.cpp
 

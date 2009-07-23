@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <QObject>
 #include <QStringList>
+#include "scomponent.h"
 
 /** @class FilePlayer
 * @brief The class that play the file.
@@ -28,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 *
 * To create a FilePlayer just inherit this class and define all methods.
 */
-class FilePlayer : public QObject
+class FilePlayer : public QObject, SComponent
 {
 	Q_OBJECT;
 	public:
@@ -40,7 +41,6 @@ class FilePlayer : public QObject
                  * @return : true if the initialisation success
 		 */
 		virtual bool	init(const QStringList optionList = QStringList()) = 0;
-                QString identifier() const;
 
 	public slots:
 		/**
@@ -81,9 +81,6 @@ class FilePlayer : public QObject
 		 * @param frame : the number of the frame
 		 */
 		void	frameChanged(int frame);
-
-        protected:
-          QString s_identifier;
 };
 
 #endif

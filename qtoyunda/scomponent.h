@@ -15,24 +15,24 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include "toyundarenderer.h"
 
-ToyundaRenderer::ToyundaRenderer() : SComponent()
-{
-  setIdentifier("This should be set");
-}
+#ifndef H_SCOMPONENT
+#define H_SCOMPONENT
+#include "sqarg.h"
 
-bool  ToyundaRenderer::init(QStringList opt)
+class SComponent 
 {
-  return true;
-}
+  public:
+    SComponent();
+    void	handleOption(QStringList listArg);
+    QString	identifier() const;
+    void	showOptionHelp();
 
-void    ToyundaRenderer::setToyundaSubStream(ToyundaSubStream *toyStream)
-{
-  toySubStream = toyStream;
-}
+  protected:
+    void	setIdentifier(QString id);
+    QMap<QString, QVariant> optionValue;
+    SQArgDescMap	    optionDesc;
+    QString		    s_identifier;
+};
 
-QString ToyundaRenderer::identifier() const
-{
-  return s_identifier;
-}
+#endif

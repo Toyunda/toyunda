@@ -7,17 +7,6 @@ int	main(int ac, char *ag[])
   QToyunda              *toyunda;
   QApplication		*qapp;
 
-  qDebug() << "Parsing command line argument";
-  if (ac != 5) {
-    qCritical() << "Invalid arguments, syntax : qtoyunda playername renderername video subtitle";
-    exit(1);
-  }
-  QString		playerName = ag[1];
-  QString		rendererName = ag[2];
-  QString               videofile = ag[3];
-  QString		subfile = ag[4];
-
-  toyunda = new QToyunda(playerName, rendererName);
 // Special Initialisation for the qosd renderer on old QT 4.x version
 #ifdef Q_WS_X11
 #if QT_VERSION < 0x040500
@@ -76,7 +65,9 @@ int	main(int ac, char *ag[])
   }
 #endif
 #endif
-
+  QStringList arg = qapp->arguments();
+  arg.removeFirst();
+  toyunda = new QToyunda(arg);
   qDebug() << "Init toyunda";
   toyunda->init();
   qDebug() << "Load files";
