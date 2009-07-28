@@ -32,7 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 * to draw on your QPainter.
 */
 
-class ToyundaRenderer : public QObject, SComponent
+class ToyundaRenderer : public QObject, public SComponent
 {
   Q_OBJECT;
   public:

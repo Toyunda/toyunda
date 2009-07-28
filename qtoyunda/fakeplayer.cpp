@@ -4,13 +4,14 @@
 
 FakePlayer::FakePlayer() : FilePlayer()
 {
-  optionDesc["interval"] = SQOpt("interval", "inter", QString("50"), "time in mlsec", "The time in mlsec between two tick", false);
+  setIdentifier("fake");
+  addOption("interval", QString("50"), "The time in mlsec between two tick");
 }
 
 bool	FakePlayer::init(const QStringList opt)
 {
-  setOption(opt, optionDesc);
-  interval = optionValue["interval"];
+  handleOption(opt);
+  interval = optionValue["interval"].toInt();
   frameNumber = 0;
   return true;
 }

@@ -46,12 +46,18 @@ class QToyunda : public QObject, SComponent
   Q_OBJECT;
 
   public:
-    /**
-     * Create a toyunda player
+   /**
+     * Create a toyunda player with the renderer and the player.
+     * @param playerNam : The name of the player
+     * @param rendererNam : The name of the renderer
+     * @param playerOpt : The option for the player
+     * @param rendererOpt : The option for the renderer
      */
-    QToyunda(QStringList arg);
+    QToyunda(QString playerNam, QString rendererNam, 
+             QStringList playerOpt = QStringList(),
+             QStringList rendererOpt = QStringList());
 
-// Accessors
+    // Accessors
     /**
      * @brief Get the player options.
      * @return the player options.
@@ -122,7 +128,14 @@ class QToyunda : public QObject, SComponent
      * You must call this to intialise some internal stuff
      */
     void  init();
-
+    /**
+     * Display the player option
+     */
+    void  showPlayerOption();
+    /**
+     * Display the renderer option
+     */
+    void  showRendererOption();
     /**
      * play the file
      */

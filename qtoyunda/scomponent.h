@@ -26,13 +26,15 @@ class SComponent
     SComponent();
     void	handleOption(QStringList listArg);
     QString	identifier() const;
-    void	showOptionHelp();
+    void	showOption();
 
   protected:
-    void	setIdentifier(QString id);
+    void	            setIdentifier(const QString id);
     QMap<QString, QVariant> optionValue;
+    void		    addOption(QString name, QVariant defaultvalue, QString description, bool mandatory = false);
+    QString		    m_identifier;
+  private:
     SQArgDescMap	    optionDesc;
-    QString		    s_identifier;
 };
 
 #endif

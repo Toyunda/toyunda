@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 *
 * To create a FilePlayer just inherit this class and define all methods.
 */
-class FilePlayer : public QObject, SComponent
+class FilePlayer : public QObject, public SComponent
 {
 	Q_OBJECT;
 	public:

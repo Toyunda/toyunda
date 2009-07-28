@@ -32,7 +32,3 @@ void    ToyundaRenderer::setToyundaSubStream(ToyundaSubStream *toyStream)
   toySubStream = toyStream;
 }
 
-QString ToyundaRenderer::identifier() const
-{
-  return s_identifier;
-}

@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 DebugRenderer::DebugRenderer()
 {
-  s_identifier = "debug";
+  setIdentifier("debug");
 }
 
 void	DebugRenderer::renderUpdate()

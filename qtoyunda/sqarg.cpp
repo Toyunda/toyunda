@@ -16,11 +16,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 #include <QDebug>
 #include <QRegExp>
+#include <QTextStream>
 #include "sqarg.h"
 
 SQOpt::SQOpt(QString f, QString s, QVariant def, QString desc, QString l, bool m, bool sk) :
   fullName(f), shortName(s), defaultValue(def), description(desc), longHelp(l), mandatory(m),
-  skillAll(sk)
+  skipAll(sk)
 {
   s_null = false;
 }
@@ -50,25 +51,25 @@ bool	SQArg::findByShortName(QString optName, SQArgDescMap desc, SQOpt &opt)
 
 void	SQArg::generateShortHelp(SQArgDescMap desc)
 {
-  QTextStream cout(cout);
-  QMapIterator<QString, QVariant> it(desc);
+  QTextStream cout(stdout);
+  QMapIterator<QString, SQOpt> it(desc);
   while (it.hasNext()) {
     it.next();
-    cout << it.value().longName << " : " << it.value().description << "\n";
+    cout << it.value().fullName << " : " << it.value().description << "\n";
   }
 }
 
 void	SQArg::generateLongHelp(SQArgDescMap desc)
 {
-  QTextStream cout(cout);
-  QMapIterator<QString, QVariant> it(desc);
+  QTextStream cout(stdout);
+  QMapIterator<QString, SQOpt> it(desc);
   while (it.hasNext()) {
     it.next();
-    cout << it.value().longName << " : \n  " << it.value().longHelp << "\n";
+    cout << "-" << it.value().shortName << ", --" << it.value().fullName << "\n  " << it.value().longHelp << "\n\n";
   }
 }
 
-void	SQArg::fillWithDesc(QMap<QString, QVariant> &toFill, QStringList listOpt, SQArgDescMap desc)
+bool	SQArg::fillWithDesc(QMap<QString, QVariant> &toFill, QStringList listOpt, SQArgDescMap desc)
 {
   QListIterator<QString> i(listOpt);
   QRegExp  isLong("^--(.*)");
@@ -80,7 +81,11 @@ void	SQArg::fillWithDesc(QMap<QString, QVariant> &toFill, QStringList listOpt, S
   SQOpt opt;
   bool  shortOpt;
   bool  longOpt;
-  while (i.hasNext()) {
+  bool	skip = false;
+  // Correct Empty list
+  if (listOpt.size() == 1 and listOpt.at(0) == "")
+    listOpt.clear();
+  while (!listOpt.isEmpty() and i.hasNext()) {
     QString item = i.next();
     optValue.clear();
     longOpt = false;
@@ -96,7 +101,7 @@ void	SQArg::fillWithDesc(QMap<QString, QVariant> &toFill, QStringList listOpt, S
     }
     else {
       qCritical() << "invalid usage of option";
-      exit(1);
+      return false;
     }
     // check for opt=value form
     if (isLValue.exactMatch(optName)) {
@@ -107,7 +112,7 @@ void	SQArg::fillWithDesc(QMap<QString, QVariant> &toFill, QStringList listOpt, S
     if (shortOpt) {
       if (findByShortName(optName, desc, opt) == false) {
         qCritical() << "Can't find option" << optName;
-        exit(1);
+        return false;
       }
      optName = opt.fullName;
     }
@@ -116,27 +121,29 @@ void	SQArg::fillWithDesc(QMap<QString, QVariant> &toFill, QStringList listOpt, S
         opt = desc[optName];
       else {
         qCritical() << "Can't find option" << optName;
-        exit(1);
+        return false;
       }
     }
     // we have the opt!
     if (opt.defaultValue.type() == QVariant::Bool) {
       toFill[optName] = true;
+      if (opt.skipAll) {
+        skip = true;
+        break;
+      }
       continue;
     }
-    if (opt.skipAll)
-      break;
     if (opt.defaultValue.canConvert(QVariant::String)) {
       if (optValue.isEmpty()) {
         if (i.hasNext())
           item = i.next();
         else {
           qCritical() << "Missing value for option : " << optName;
-          exit(1);
+          return false;
         }
         if (isLong.exactMatch(item) or isShort.exactMatch(item)) {
           qCritical() << "Missing value for option : " << optName;
-          exit(1);
+          return false;
         }
         toFill[optName] = item;
         continue;
@@ -150,14 +157,15 @@ void	SQArg::fillWithDesc(QMap<QString, QVariant> &toFill, QStringList listOpt, S
   QMapIterator<QString, SQOpt> it(desc);
   while (it.hasNext()) {
     it.next();
-    if (it.value().mandatory == true) {
+    if (!skip and it.value().mandatory == true) {
       if (!toFill.contains(it.value().fullName)) {
         qCritical() << "Missing mandatory option " << it.value().fullName;
-        exit(1);
+        return false;
       }
     } else {
       if (!toFill.contains(it.value().fullName))
         toFill[it.key()] = it.value().defaultValue;
     }
   }
+  return true;
 }

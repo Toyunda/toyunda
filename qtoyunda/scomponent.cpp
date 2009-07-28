@@ -15,33 +15,49 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include "sqarg.h"
+#include <QTextStream>
+#include "scomponent.h"
 
 SComponent::SComponent()
 {
-  optionDesc["help"] = SQOpt("help", "help", false, "display help", "display help", false, true);
+  //optionDesc["help"] = SQOpt("help", "help", false, "display help", "display help", false, true);
 }
 
-void	SComponent::handleOption(QString listArg)
+void	SComponent::handleOption(QStringList listArg)
 {
-  if (optionDesc.isEmpty()) {
-    qCritical() << "You must define optionDesc before call SComponent::handleOption";
-    exit(1);
-  }
+  if (listArg.size() == 1 and listArg.at(0) == "")
+    listArg.clear();
+  if (optionDesc.isEmpty())
+    return;
+  listArg.replaceInStrings(QRegExp("^(.*)$"), "--\\1");
   SQArg::fillWithDesc(optionValue, listArg, optionDesc);
 }
 
-void	SComponent::showOptionHelp()
+void	SComponent::addOption(QString name, QVariant defaultvalue, QString description, bool mandatory)
 {
-  SQArg::generateLongHelp(optionDesc);
+  optionDesc[name] = SQOpt(name, name, defaultvalue, description, description, mandatory, false);
+}
+
+void	SComponent::showOption()
+{
+  QTextStream cout(stdout);
+  if (optionDesc.isEmpty()) {
+   cout << "No option for " << identifier() << "\n";
+   cout.flush();
+  }
+  else {
+  cout << "Option for " << identifier() << " :\n";
+  cout.flush();
+  SQArg::generateShortHelp(optionDesc);
+  }
 }
 
 QString	SComponent::identifier() const
 {
-  return s_identifier;
+  return m_identifier;
 }
 
-void	SComponet::setIdentifier(QString id)
+void	SComponent::setIdentifier(QString id)
 {
-  s_identifier = id;
+  m_identifier = id;
 }

@@ -41,7 +41,7 @@ typedef QMap<QString, SQOpt> SQArgDescMap;
 
 namespace SQArg
 {
-  void	fillWithDesc(QMap<QString, QVariant> &toFill, QStringList listArg, SQArgDescMap desc);
+  bool	fillWithDesc(QMap<QString, QVariant> &toFill, QStringList listArg, SQArgDescMap desc);
   bool	findByShortName(QString optName, SQArgDescMap desc, SQOpt &opt);
   void	generateShortHelp(SQArgDescMap desc);
   void	generateLongHelp(SQArgDescMap desc);

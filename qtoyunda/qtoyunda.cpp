@@ -21,29 +21,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rawsubstream.h"
 
 
-QToyunda::QToyunda(QStringList arg) : QObject()
+QToyunda::QToyunda(QString playerNam, QString rendererNam, QStringList playerOpt, QStringList rendererOpt) : QObject()
 {
-  optionDesc["renderer"] = SQOpt("renderer" "r", QString(""),
-    "Set the renderer", "Set the renderer, use --rendererlist to have the list", true);
-  optionDesc["player"] = SQOpt("player" "p", QString(""),
-    "Set the player", "Set the player, use --playerlist to have the list", true);
-
-  optionDesc["rendererlist"] = SQOpt("rendererlist" "rl", false,
-    "Show all available renderer", "Show all available renderer", false, true);
-  optionDesc["playerlist"] = SQOpt("playerlist" "pl", false,
-    "Show all available player", "Show all available player", false, true);
-
-  optionDesc["rendereroption"] = SQOpt("rendereroption" "ro", QString(""),
-    "Set the renderer option", "Set the renderer's options, format : opt1=value1,opt2=value2", false);
-  optionDesc["playeroption"] = SQOpt("playeroption" "po", QString(""), "Set the player option",
-    "Set the player's options, format : opt1=value1,opt2=value2", false);
-  optionDesc["subtitle"] = SQOpt("subtitle", "sub", QString("none"), "Set the subtitle file",
-    "Set the subtitle file", true);
-  optionDesc["video"] = SQOpt("video", "vid", QString("none"), "Set the video file",
-    "Set the video file", true);
-  handleOption(arg);
-  if (optionValue["help"])
-    showOptionHelp();
+  s_playerName = playerNam;
+  s_rendererName = rendererNam;
+  s_playerOption = playerOpt;
+  s_rendererOption = rendererOpt;
+  player = NULL;
+  renderer = NULL;
 }
 
 void  QToyunda::init()
@@ -96,4 +81,18 @@ void  QToyunda::selectRenderer()
     renderer = new DebugRenderer;
   if (s_rendererName == "qosd")
     renderer = new QOSD;
+}
+
+void	QToyunda::showPlayerOption()
+{
+  if (player == NULL)
+    selectPlayer();
+  player->showOption();
+}
+
+void	QToyunda::showRendererOption()
+{
+  if (renderer == NULL)
+    selectRenderer();
+  renderer->showOption();
 }

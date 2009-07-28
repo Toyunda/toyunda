@@ -11,7 +11,7 @@ QOSD::QOSD(QWidget *parent) : QWidget(parent), ToyundaRenderer()
 #endif
   setFixedSize(QSize(ToyundaWidth, ToyundaHeight));
 
-  s_identifier = "qosd";
+  setIdentifier("qosd");
   QFont f(ToyundaFontName, ToyundaFontSize);
   f.setFixedPitch(true);
   toyundaDrawer.setFont(f);
