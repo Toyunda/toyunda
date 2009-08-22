@@ -41,3 +41,5 @@ SOURCES += main.cpp \
  sqarg.cpp \
  scomponent.cpp
 
+FORMS += qtoyundaui.ui
+

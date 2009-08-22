@@ -21,17 +21,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  
 ToyundaDrawer::ToyundaDrawer()
 {
-  width = ToyundaWidth;
-  height = ToyundaHeight;
+  m_width = ToyundaWidth;
+  m_height = ToyundaHeight;
   horizontalRatio = 1.0;
   verticalRatio = 1.0;
 }
 
 void	ToyundaDrawer::setRatio(const float hRat, const float vRat)
 {
-  width = ToyundaWidth * hRat;
+  m_width = ToyundaWidth * hRat;
   horizontalRatio = hRat;
-  height = ToyundaHeight * vRat;
+  m_height = ToyundaHeight * vRat;
   verticalRatio = vRat;
 }
 
@@ -40,14 +40,25 @@ void	ToyundaDrawer::setRatio(const float ratio)
   setRatio(ratio, ratio);
 }
 
+unsigned int ToyundaDrawer::width() const
+{
+  return m_width;
+}
+
+unsigned int ToyundaDrawer::height() const
+{
+  return m_height;
+}
+
 void	ToyundaDrawer::setFont(const QFont newFont)
 {
   s_font = newFont;
+  qDebug() << newFont;
   QFontMetrics fm(s_font);
   s_font.setBold(true);
   letterWidth = fm.size(Qt::TextSingleLine, "l").width();
   letterHeight = fm.size(Qt::TextSingleLine, "l").height();
-  maxLetterNumber = int (width / letterWidth);
+  maxLetterNumber = int (m_width / letterWidth);
   qDebug() << letterHeight << letterWidth;
 }
 
@@ -59,8 +70,8 @@ void	ToyundaDrawer::setLogo(const QImage img)
 
 void    ToyundaDrawer::drawGrid(QPainter &painter) const
 {
-  for (unsigned int i = 0; i < width / letterHeight; i++) {
-    painter.drawLine(0, i * letterHeight, width, i * letterHeight);
+  for (unsigned int i = 0; i < m_width / letterHeight; i++) {
+    painter.drawLine(0, i * letterHeight, m_width, i * letterHeight);
   }
 }
 
@@ -93,11 +104,11 @@ void	ToyundaDrawer::draw(QPainter &painter, const QList<ToyundaText> &textSub, c
           //cfont.setStretch(100 * (float (maxLetterNumber) / tmp.text.size()));
           cfont.setPointSize(s_font.pointSize() * (float (maxLetterNumber) / tmp.text.size()));
           painter.setFont(cfont);
-          s.setX((width - tmp.text.size() * painter.fontMetrics().size(Qt::TextSingleLine, "l").width()) / 2);
+          s.setX((m_width - tmp.text.size() * painter.fontMetrics().size(Qt::TextSingleLine, "l").width()) / 2);
           painter.drawText(s, tmp.text);
           painter.setFont(s_font);
         } else {
-          s.setX((width - tmp.text.size() * letterWidth) / 2);
+          s.setX((m_width - tmp.text.size() * letterWidth) / 2);
           painter.drawText(s, tmp.text);
         }
       } else {
@@ -118,13 +129,13 @@ void	ToyundaDrawer::draw(QPainter &painter, const QList<ToyundaText> &textSub, c
           QFont cfont = s_font;
           cfont.setPointSize(s_font.pointSize() * (float (maxLetterNumber) / tmp.length));
           painter.setFont(cfont);
-          s.setX((width - tmp.length * painter.fontMetrics().size(Qt::TextSingleLine, "l").width()) / 2 +
+          s.setX((m_width - tmp.length * painter.fontMetrics().size(Qt::TextSingleLine, "l").width()) / 2 +
           tmp.pos * painter.fontMetrics().size(Qt::TextSingleLine, "l").width());
           painter.drawImage(s, toyundaLogo);
           //painter.drawText(s, "N");
           painter.setFont(s_font);
         } else {
-          s.setX((width - tmp.length * letterWidth) / 2 + tmp.pos * letterWidth);
+          s.setX((m_width - tmp.length * letterWidth) / 2 + tmp.pos * letterWidth);
           //painter.drawText(s, "N");
           painter.drawImage(s, toyundaLogo);
         }

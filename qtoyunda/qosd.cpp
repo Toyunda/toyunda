@@ -4,23 +4,27 @@
 
 QOSD::QOSD(QWidget *parent) : QWidget(parent), ToyundaRenderer()
 {
+  addOption("ratio", 1.0, "Global ratio for ToyundaDrawer, overwrite vratio and hratio");
+  addOption("vratio", 1.0, "Vertical ratio for ToyundaDrawer");
+  addOption("hratio", 1.0, "Horizontal ratio for ToyundaDrawer");
   setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
   setAttribute(Qt::WA_NoSystemBackground, true);
 #if QT_VERSION >= 0x040500
   setAttribute(Qt::WA_TranslucentBackground, true);
 #endif
-  setFixedSize(QSize(ToyundaWidth, ToyundaHeight));
-
   setIdentifier("qosd");
-  QFont f(ToyundaFontName, ToyundaFontSize);
-  f.setFixedPitch(true);
-  toyundaDrawer.setFont(f);
-  toyundaDrawer.setLogo(QImage("Toyunda logo.png"));
 }
 
 bool  QOSD::init(QStringList opt)
 {
+  handleOption(opt);
   show();
+  toyundaDrawer.setRatio(optionValue["ratio"].toDouble());
+  setFixedSize(QSize(toyundaDrawer.width(), toyundaDrawer.height()));
+  QFont f(ToyundaFontName, (int) ToyundaFontSize * optionValue["ratio"].toDouble());
+  f.setFixedPitch(true);
+  toyundaDrawer.setFont(f);
+  toyundaDrawer.setLogo(QImage("Toyunda logo.png"));
   return true;
 }
 

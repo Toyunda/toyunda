@@ -30,10 +30,12 @@ class ToyundaDrawer
     void	setRatio(const float ratio);
     void	setFont(const QFont nFont);
     void	setLogo(const QImage img);
+    unsigned int width() const;
+    unsigned int height() const;
     void        drawGrid(QPainter &painter) const;
   private:
-    unsigned int	width;
-    unsigned int	height;
+    unsigned int	m_width;
+    unsigned int	m_height;
     unsigned int	letterWidth;
     unsigned int	letterHeight;
     unsigned int        maxLetterNumber;
