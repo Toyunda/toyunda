@@ -18,13 +18,14 @@ QOSD::QOSD(QWidget *parent) : QWidget(parent), ToyundaRenderer()
 bool  QOSD::init(QStringList opt)
 {
   handleOption(opt);
-  show();
   toyundaDrawer.setRatio(optionValue["ratio"].toDouble());
   setFixedSize(QSize(toyundaDrawer.width(), toyundaDrawer.height()));
   QFont f(ToyundaFontName, (int) ToyundaFontSize * optionValue["ratio"].toDouble());
   f.setFixedPitch(true);
   toyundaDrawer.setFont(f);
   toyundaDrawer.setLogo(QImage("Toyunda logo.png"));
+  qDebug() << toyundaDrawer.width() << toyundaDrawer.height();
+  show();
   return true;
 }
 

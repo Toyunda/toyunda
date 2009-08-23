@@ -6,13 +6,14 @@ FakePlayer::FakePlayer() : FilePlayer()
 {
   setIdentifier("fake");
   addOption("interval", QString("50"), "The time in mlsec between two tick");
+  addOption("start", 0, "The start time in frame number");
 }
 
 bool	FakePlayer::init(const QStringList opt)
 {
   handleOption(opt);
   interval = optionValue["interval"].toInt();
-  frameNumber = 0;
+  frameNumber = optionValue["start"].toInt();
   return true;
 }
 

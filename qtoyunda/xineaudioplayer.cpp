@@ -31,7 +31,7 @@ bool  XineAudioPlayer::init(QStringList opt)
   xine = xine_new();
   xine_init(xine);
  
-  //xine_engine_set_param(xine, XINE_ENGINE_PARAM_VERBOSITY, XINE_VERBOSITY_DEBUG);
+  xine_engine_set_param(xine, XINE_ENGINE_PARAM_VERBOSITY, XINE_VERBOSITY_DEBUG);
   qDebug() << "open video driver";
   vo_port = xine_open_video_driver(xine, NULL, XINE_VISUAL_TYPE_NONE, NULL);
   if (vo_port == NULL) {

@@ -124,6 +124,13 @@ class QToyunda : public QObject, SComponent
      * @param subtitleFil the subtitle file name
      */
     void  load(QString videofil, QString subtitleFil); 
+    
+     /**
+     * Load a init file
+     * @param initFile : the .ini file name
+     */
+    void  load(QString initFile); 
+ 
     /**
      * You must call this to intialise some internal stuff
      */

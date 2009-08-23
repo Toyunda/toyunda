@@ -19,7 +19,7 @@ int	main(int ac, char *ag[])
 // Special Initialisation for the qosd renderer on old QT 4.x version
 #ifdef Q_WS_X11
 #if QT_VERSION < 0x040500
-  if (rendererName == "qosd") {
+  //if (rendererName == "qosd") {
     qWarning("Please make sure you're running a composition manager!");
     bool  argbVisual=false;
     Display *dpy = XOpenDisplay(0); // open default display
@@ -65,13 +65,9 @@ int	main(int ac, char *ag[])
     }
     qapp = new QApplication(dpy, ac, ag,
                   Qt::HANDLE(visual), Qt::HANDLE(colormap));
-  } else {
-#endif
-#endif
+  //} else {
+#else
     qapp = new QApplication(ac, ag);
-#ifdef Q_WS_X11
-#if QT_VERSION < 0x040500
-  }
 #endif
 #endif
   // Handle arguments

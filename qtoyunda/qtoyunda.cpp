@@ -61,6 +61,7 @@ void  QToyunda::load(QString videoFil, QString subtitleFil)
 
 void  QToyunda::play()
 {
+  qDebug() << "Playing the video";
   player->play();
 }
 
