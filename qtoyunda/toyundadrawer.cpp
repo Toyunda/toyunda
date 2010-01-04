@@ -25,6 +25,7 @@ ToyundaDrawer::ToyundaDrawer()
   m_height = ToyundaHeight;
   horizontalRatio = 1.0;
   verticalRatio = 1.0;
+  lineIntervalRatio = 1.0;
 }
 
 void	ToyundaDrawer::setRatio(const float hRat, const float vRat)
@@ -33,12 +34,23 @@ void	ToyundaDrawer::setRatio(const float hRat, const float vRat)
   horizontalRatio = hRat;
   m_height = ToyundaHeight * vRat;
   verticalRatio = vRat;
-  lineInterval = int (m_height / 12);
+  fixRatio();
+}
+
+void	ToyundaDrawer::fixRatio()
+{
+  lineInterval = int (m_height / 12) * lineIntervalRatio;
 }
 
 void	ToyundaDrawer::setRatio(const float ratio)
 {
   setRatio(ratio, ratio);
+}
+
+void	ToyundaDrawer::setIntervalRatio(const float rat)
+{
+  lineIntervalRatio = rat;
+  fixRatio();
 }
 
 unsigned int ToyundaDrawer::width() const
@@ -67,7 +79,7 @@ void	ToyundaDrawer::setFont(const QFont newFont)
 void	ToyundaDrawer::setLogo(const QImage img)
 {
   toyundaLogo = img;
-  toyundaLogo = toyundaLogo.scaled(letterHeight * 0.8, letterHeight * 0.8);
+  toyundaLogo = toyundaLogo.scaled(lineInterval * 0.8, lineInterval * 0.8);
 }
 
 void    ToyundaDrawer::drawGrid(QPainter &painter) const

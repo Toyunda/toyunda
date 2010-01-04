@@ -39,6 +39,7 @@ struct SQOpt
 
 typedef QMap<QString, SQOpt> SQArgDescMap;
 
+
 namespace SQArg
 {
   bool	fillWithDesc(QMap<QString, QVariant> &toFill, QStringList listArg, SQArgDescMap desc);

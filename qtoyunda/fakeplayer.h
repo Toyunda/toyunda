@@ -21,6 +21,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <QTimer>
 #include "fileplayer.h"
 
+/** @class FakePlayer
+* @brief a fake player using a timer
+*
+* This is a fake player that use a QTimer to simulate the progress of video frame
+*/
+
 class FakePlayer : public FilePlayer
 {
   Q_OBJECT;

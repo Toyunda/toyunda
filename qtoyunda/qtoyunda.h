@@ -124,7 +124,7 @@ class QToyunda : public QObject, SComponent
      * @param subtitleFil the subtitle file name
      */
     void  load(QString videofil, QString subtitleFil); 
-    
+
      /**
      * Load a init file
      * @param initFile : the .ini file name
@@ -147,6 +147,13 @@ class QToyunda : public QObject, SComponent
      * play the file
      */
     void  play();
+
+  private slots:
+    /**
+     * Quit the application
+     */
+    void  quit();
+
   private:
     ToyundaRenderer   *renderer;
     FilePlayer        *player;

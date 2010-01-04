@@ -32,6 +32,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 * Identifier : xineaudio
 */
 
+extern "C" void xine_audio_play_event_listener(void *user_data, const xine_event_t *event);
+
+
 class XineAudioPlayer : public FilePlayer
 {
   Q_OBJECT;
@@ -44,6 +47,12 @@ class XineAudioPlayer : public FilePlayer
     void  play();
     void  seek(const int step);
     void  stop();
+    /**
+     * Function called by xine when a xine's event occur (see xine documentation)
+     * @param user_data data given in the xine function that create event thread, here is the class itself (this)
+     * @param event the xine event
+     */
+    friend void xine_audio_play_event_listener(void *user_data, const xine_event_t *event);
 
   private slots:
     void  checkFrame();
@@ -54,5 +63,7 @@ class XineAudioPlayer : public FilePlayer
     xine_stream_t *stream;
     int           duree_moisie;
 };
+
+
 
 #endif

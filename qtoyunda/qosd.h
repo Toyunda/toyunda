@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /** @class QOSD
 * @brief A Fake OSD toyunda renderer
 *
-* This render use display sub in somethink that look an overlay
+* This render display subs in something that look an overlay
 * on top of all application. It's just a QWidget using
 * special attribute
 * Identifiant : qosd

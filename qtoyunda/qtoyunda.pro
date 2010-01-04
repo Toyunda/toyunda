@@ -42,3 +42,7 @@ SOURCES += main.cpp \
  scomponent.cpp
 
 
+DISTFILES += ../../java/partie1.java
+
+FORMS += qtoyundagui.ui
+

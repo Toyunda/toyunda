@@ -28,6 +28,7 @@ class ToyundaDrawer
     void	draw(QPainter &painter, const QList<ToyundaText> &textSub, const QList<ToyundaSyl> &sylSub) const;
     void	setRatio(const float hRat, const float vRat);
     void	setRatio(const float ratio);
+    void	setIntervalRatio(const float rat);
     void	setFont(const QFont nFont);
     void	setLogo(const QImage img);
     unsigned int width() const;
@@ -40,10 +41,12 @@ class ToyundaDrawer
     unsigned int	letterHeight;
     unsigned int        maxLetterNumber;
     unsigned int	lineInterval;
+    float		lineIntervalRatio;
     QImage		toyundaLogo;
     QFont		s_font;
     float	horizontalRatio;
     float	verticalRatio;
+    void	fixRatio();
 };
 
 #endif
