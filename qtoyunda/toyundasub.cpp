@@ -60,6 +60,41 @@ bool    operator<(const ToyundaSyl syl, const ToyundaSyl syl2)
 }
 
 
+bool    operator==(const ToyundaText t1, const ToyundaText t2)
+{
+  bool toret = false;
+  toret = (t1.start == t2.start);
+  toret = toret && (t1.stop == t2.stop);
+  toret = toret && (t1.pipeNumber == t2.pipeNumber);
+  toret = toret && (t1.posy == t2.posx);
+  toret = toret && (t1.posy == t2.posy);
+  toret = toret && (t1.size == t2.size);
+  toret = toret && (t1.text == t2.text);
+  toret = toret && (t1.color1 == t2.color1);
+  toret = toret && (t1.color2 == t2.color2);
+  toret = toret && (t1.fadingcolor == t2.fadingcolor);
+  return toret;
+}
+
+bool    operator==(const ToyundaSyl s1, const ToyundaSyl s2)
+{
+  bool toret = false;
+  toret = (s1.start == s2.start);
+  toret = toret && (s1.stop == s2.stop);
+  toret = toret && (s1.pipeNumber == s2.pipeNumber);
+  toret = toret && (s1.length == s2.length);
+  toret = toret && (s1.pos == s2.pos);
+  return toret;
+}
+
+
+QDataStream	&operator<<(QDataStream &ts, const ToyundaText &tt)
+{
+  printToyundaText(ts, tt);
+  return ts;
+}
+
+
 QTextStream	&operator<<(QTextStream &ts, const ToyundaText &tt)
 {
   printToyundaText(ts, tt);
@@ -72,33 +107,18 @@ QTextStream	&operator<<(QTextStream &ts, const ToyundaSyl &tsyl)
   return ts;
 }
 
+
+QDataStream	&operator<<(QDataStream &ts, const ToyundaSyl &tsyl)
+{
+  printToyundaSyl(ts, tsyl);
+  return ts;
+}
+
+
 QDebug		operator<<(QDebug dbg, const ToyundaText &tt)
 {
   printToyundaText(dbg.nospace(), tt);
   return dbg;
-}
-
-template<class T> void printToyundaText(T &stream, const ToyundaText &tt)
-{
-  stream << "Text : " << tt.text << "\n";
-  stream << "Frame  : (" << tt.start << ", " << tt.stop << ")\n";
-  stream << "Number of pipe : " << tt.pipeNumber << "\n";
-  stream << "Position : (" << tt.posx << ", " << tt.posy << ")\n";
-  stream << "Size : " << tt.size << "\n";
-  stream << "Colors : -- " << tt.color1.red() << 
-                    "," << tt.color1.green() <<
-                    "," << tt.color1.blue() <<
-                    "," << tt.color1.alpha() << "\n";
-  if (tt.color2.isValid()) {
-    stream << " -- " << tt.color2.red() << 
-                    "," << tt.color2.green() <<
-                    "," << tt.color2.blue() <<
-                    "," << tt.color2.alpha();
-    stream << " -- " << tt.fadingcolor.red() << 
-                    "," << tt.fadingcolor.green() <<
-                    "," << tt.fadingcolor.blue() <<
-                    "," << tt.fadingcolor.alpha() << "\n";
-  }
 }
 
 
@@ -108,12 +128,6 @@ QDebug		operator<<(QDebug dbg, const ToyundaSyl &ts)
   return dbg;
 }
 
-template<class T> void  printToyundaSyl(T &stream, const ToyundaSyl &ts)
-{
-  stream << "Frame  : (" << ts.start << ", " << ts.stop << ")\n";
-  stream << "Number of pipe : " << ts.pipeNumber << "\n";
-  stream << "Position : " << ts.pos << "\n";
-}
 
 // Enjoy the bgra format
 QColor  toyundaColor2QColor(QString toycolor)

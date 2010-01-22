@@ -24,7 +24,8 @@ HEADERS += debugrenderer.h \
  allrenderer.h \
  xineaudioplayer.h \
  scomponent.h \
- sqarg.h
+ sqarg.h \
+ toyundasub.hxx
 
 SOURCES += main.cpp \
            debugrenderer.cpp \
@@ -42,7 +43,6 @@ SOURCES += main.cpp \
  scomponent.cpp
 
 
-DISTFILES += ../../java/partie1.java
 
 FORMS += qtoyundagui.ui
 

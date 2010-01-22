@@ -22,17 +22,34 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 * @brief Handle file of pure toyunda sub
 *
 * This class handle raw toyunda sub file
-* The toyunda format look like {start}{stop}{l:option}
+* The toyunda format look like {start}{stop}{l:option}blahblah
 * See ToyundaSubStream documentation for more information
 */
 class RawSubStream : public ToyundaSubStream
 {
   Q_OBJECT;
+  private :
+  struct GenLineDesc {
+	uint	start;
+	uint	stop;
+	uint	pipeNumber;
+	int	posx;
+	int	posy;
+	int	lenght;
+	int	size;
+	uint	pos;
+	QString	text;
+	QColor	color;
+	QColor	color2;
+  };
+ QList<GenLineDesc> parseToyundaLine(QString);
+ void	parsePipe(QString &, GenLineDesc &);
+ void	parseOption(QString &, GenLineDesc &);
+
   public :
     RawSubStream();
     RawSubStream(const QString);
     void	createFromFile(const QString);
-    void	handleToyundaOption(QString &toh, ToyundaText &text);
 };
 
 

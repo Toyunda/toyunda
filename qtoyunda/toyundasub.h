@@ -59,9 +59,15 @@ QDebug	operator<<(QDebug, const ToyundaSyl&);
 QTextStream	&operator<<(QTextStream &, const ToyundaText &);
 QTextStream	&operator<<(QTextStream &, const ToyundaSyl &);
 
-template<class T> void printToyundaText(T &stream, const ToyundaText &);
-template<class T> void printToyundaSyl(T &stream, const ToyundaSyl &);
+QDataStream	&operator<<(QDataStream &, const ToyundaText &);
+QDataStream	&operator<<(QDataStream &, const ToyundaSyl &);
+bool    operator==(const ToyundaText t1, const ToyundaText t2);
+bool    operator==(const ToyundaSyl s1, const ToyundaSyl s2);
+
+template<typename T> void printToyundaText(T &stream, const ToyundaText &);
+template<typename T> void printToyundaSyl(T &stream, const ToyundaSyl &);
 
 QColor	toyundaColor2QColor(QString toycolor);
 
+#include "toyundasub.hxx"
 #endif

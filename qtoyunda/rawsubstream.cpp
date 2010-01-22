@@ -16,6 +16,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include <QFile>
+#include <QList>
 #include "rawsubstream.h"
 
 RawSubStream::RawSubStream() : ToyundaSubStream()
@@ -46,73 +47,127 @@ void	RawSubStream::createFromFile(QString filePath)
   }
   while (!toyfile.atEnd()) {
     QByteArray line = toyfile.readLine();
-    if (isToyLine.exactMatch(line)) {
-      QString optAndText = isToyLine.cap(3);
-      //Syl
-      if (isLogoLine.indexIn(optAndText) != -1) {
-	ToyundaSyl newsyl;
-	newsyl.pos = isLogoLine.cap(2).size();
-	findPipe.exactMatch(optAndText);
-	newsyl.pipeNumber = findPipe.cap(1).size();
-	newsyl.length = findPipe.cap(2).size();
-	newsyl.start = isToyLine.cap(1).toInt();
-	newsyl.stop = isToyLine.cap(2).toInt();
-	allSyl.insert(newsyl);
-      }
-      //Text
-      else {
-	ToyundaText newtext;
-	newtext.start = isToyLine.cap(1).toInt();
-	newtext.stop = isToyLine.cap(2).toInt();
-	newtext.pipeNumber = 0;
-	newtext.posx = -1;
-	newtext.posy = -1;
-	newtext.size = -1;
-	// Options
-	handleToyundaOption(optAndText, newtext);
-        // Pipe
-	if (findPipe.exactMatch(optAndText)) {
-	  newtext.text = findPipe.cap(2);
-	  newtext.pipeNumber = findPipe.cap(1).size();
-	}
+    QList<GenLineDesc> lg = parseToyundaLine(line);
+    QListIterator<GenLineDesc> it(lg);
+    while (it.hasNext()) {
+      GenLineDesc g = it.next();
+      // Text
+      if (g.lenght == -1) {
+        ToyundaText text;
+        text.start = g.start;
+        text.stop = g.stop;
+        text.color1 = g.color;
+        text.color2 = g.color2;
+	text.posx = g.posx;
+	text.posy = g.posy;
+	text.text = g.text;
+	text.size = g.size;
+	text.pipeNumber = g.pipeNumber;
+        allText.insert(text);
+      } // Syl
 	else {
-	  newtext.text = optAndText;
-	}
-	// multiline is line like {}{}plop||nyo
-	if (findMultiLine.exactMatch(optAndText)) {
-	  newtext.text = findMultiLine.cap(2);
-	  newtext.pipeNumber = findMultiLine.cap(1).size();
-	  ToyundaText new2 = newtext;
-	  new2.pipeNumber = findMultiLine.cap(3).size();
-	  QString tmptext = findMultiLine.cap(4);
-	  handleToyundaOption(tmptext, new2);
-	  new2.text = tmptext;
-	  allText.insert(new2);
-	}
-	allText.insert(newtext);
+        ToyundaSyl syl;
+	syl.start = g.start;
+	syl.stop = g.stop;
+	//syl.posx = g.posx;
+	//syl.posy = g.posy;
+	syl.length = g.lenght;
+	syl.pos = g.pos;
+	syl.pipeNumber = g.pipeNumber;
+	allSyl.insert(syl);
       }
     }
   }
-  currentItSyl = allSyl.begin();
+    currentItSyl = allSyl.begin();
   currentItText = allText.begin();
 }
 
-void	RawSubStream::handleToyundaOption(QString &toh, ToyundaText &text)
+QList<RawSubStream::GenLineDesc>	RawSubStream::parseToyundaLine(QString line)
 {
+  QRegExp	rToyLine("^\\s*\\{(\\d+)\\}\\{(\\d+)\\}\\s*");
+  QRegExp	isToyLine("^\\s*\\{(\\d+)\\}\\{(\\d+)\\}.*");
+  QRegExp	isSylLine("^(\\s*)\xff.*");
+  QRegExp	notPipe("^([^|]+)");
+
+  QList<GenLineDesc> list;
+  if (isToyLine.exactMatch(line)) {
+    GenLineDesc	newline;
+    newline.pipeNumber = 0;
+    newline.size = -1;
+    newline.posx = -1;
+    newline.posy = -1;
+    newline.lenght = -1;
+    newline.start = isToyLine.cap(1).toInt();
+    newline.stop = isToyLine.cap(2).toInt();
+    line.replace(rToyLine, "");
+    line.replace(QRegExp("\\n$"), "");
+    parseOption(line, newline);
+    parsePipe(line, newline);
+    parseOption(line, newline);
+    if (isSylLine.exactMatch(line)) {
+      notPipe.indexIn(line);
+      newline.lenght = notPipe.cap(1).size();
+      newline.pos = isSylLine.cap(1).size();
+      list.append(newline);
+      return list;
+    } else {
+	QRegExp	rText("^([^|]+)");
+	if (rText.indexIn(line) != -1) {
+	  newline.text = rText.cap(1);
+	  line.replace(rText, "");
+          list.append(newline);
+	  if (line[0] == '|') {
+            GenLineDesc newline2;
+	    newline2.pipeNumber = 0;
+            newline2.size = -1;
+            newline2.posx = -1;
+            newline2.posy = -1;
+            newline2.lenght = -1;
+	    newline2.start = newline.start;
+	    newline2.stop = newline.stop;
+	    parsePipe(line, newline2);
+	    parseOption(line, newline2);
+	    newline2.text = line;
+	    list.append(newline2);
+	  }
+        }
+	return list;
+    }
+  }
+  else 
+    return list;
+}
+
+void	RawSubStream::parseOption(QString &line, GenLineDesc &linedesc)
+{
+  QRegExp rOpt("^(\\{(.*)\\})+");
+  QRegExp isOpt("^(\\{(.*)\\})+.*");
   QRegExp OptColor("\\{c:\\$([0-9A-F]+):?\\$?([0-9A-F]*)\\}");
   QRegExp OptPos("\\{o:(\\d+),(\\d+)\\}");
-  QRegExp findOpt("^(\\{(.*)\\})*");
 
-  // Color
-  if (OptColor.indexIn(toh) != -1) {
-      text.color1 = toyundaColor2QColor(OptColor.cap(1));
-    if (!OptColor.cap(2).isEmpty())
-      text.color2 = toyundaColor2QColor(OptColor.cap(2));
+  if (isOpt.exactMatch(line)) {
+    if (OptColor.indexIn(line) != -1) {
+      linedesc.color = toyundaColor2QColor(OptColor.cap(1));
+      if (!OptColor.cap(2).isEmpty())
+        linedesc.color2 = toyundaColor2QColor(OptColor.cap(2));
+    }
+    // Pos
+    if (OptPos.indexIn(line) != -1) {
+      linedesc.posx = OptPos.cap(1).toInt();
+      linedesc.posy = OptPos.cap(2).toInt();
+    }
   }
-  // Pos
-  if (OptPos.indexIn(toh) != -1) {
-    text.posx = OptPos.cap(1).toInt();
-    text.posy = OptPos.cap(2).toInt();
-  }
-  toh.replace(findOpt, "");
+  line.replace(rOpt, "");
 }
+
+void	RawSubStream::parsePipe(QString &line, GenLineDesc &linedesc)
+{
+  QRegExp  rPipe("^\\s*(\\|+)");
+  QRegExp  isPipe("^\\s*(\\|+).*");
+
+  if (isPipe.exactMatch(line)) {
+    linedesc.pipeNumber = isPipe.cap(1).size();
+    line.replace(rPipe, "");
+  }
+}
+
