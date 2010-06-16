@@ -15,6 +15,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
+#include <QApplication>
 #include "qtoyunda.h"
 #include "allplayer.h"
 #include "allrenderer.h"
@@ -43,7 +44,7 @@ void  QToyunda::init()
   renderer->init(s_rendererOption);
   qDebug() << "Connect signal/slots";
   QObject::connect(player, SIGNAL(frameChanged(int)), toyundaSub, SLOT(setCurrentFrame(int)));
-  QObject::connect(toyundaSub, SIGNAL(currentSubChanged(void)), renderer, SLOT(renderUpdate(void)));
+  QObject::connect(toyundaSub, SIGNAL(currentSubChanged(void)), dynamic_cast<QObject*> (renderer), SLOT(renderUpdate(void)));
   QObject::connect(player, SIGNAL(finished()), this, SLOT(quit()));
   //QObject::connect(toyundaSub, SIGNAL(currentSubChanged(void)), Debugrenderer, SLOT(renderUpdate(void)));
   renderer->setToyundaSubStream(toyundaSub);

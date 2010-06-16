@@ -19,8 +19,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef H_TOYUNDA_RENDER
 #define H_TOYUNDA_RENDER
 
-#include <QApplication>
-#include <QWidget>
 #include "toyundasubstream.h"
 #include "scomponent.h"
 
@@ -32,9 +30,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 * to draw on your QPainter.
 */
 
-class ToyundaRenderer : public QObject, public SComponent
+class ToyundaRenderer : public SComponent
 {
-  Q_OBJECT;
   public:
    /** 
    * @brief Init stuff in the renderer
@@ -51,7 +48,7 @@ class ToyundaRenderer : public QObject, public SComponent
 	*/
     void  setToyundaSubStream(ToyundaSubStream *toyStream);
 
-  public slots:
+  public:
     /**
      * this function tell the render to update the display of subtitle
      */

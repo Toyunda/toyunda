@@ -18,6 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef H_DEBUGRENDER
 #define H_DEBUGRENDER
 
+#include <QObject>
 #include <QTextStream>
 #include "toyundarenderer.h"
 
@@ -29,8 +30,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 * Indentifiant : debug
 */
 
-class DebugRenderer : public ToyundaRenderer
+class DebugRenderer : public QObject, public ToyundaRenderer
 {
+  Q_OBJECT;
   public:
     DebugRenderer();
 
