@@ -134,7 +134,6 @@ QColor  toyundaColor2QColor(QString toycolor)
 {
   QChar a, b;
   QString alp;
-  qDebug() << toycolor;
   if (toycolor.size() == 8) {
     alp[0] = toycolor[0];
     alp[1] = toycolor[1];

@@ -6,6 +6,8 @@ TEMPLATE = app
 TARGET = qtoyunda 
 DEPENDPATH += .
 INCLUDEPATH += .
+CONFIG += link_pkgconfig
+PKGCONFIG += gstreamer-0.10 QtGStreamer-0.10
 VERSION = 0.1
 LIBS += -lxine
 
@@ -23,9 +25,12 @@ HEADERS += debugrenderer.h \
  allplayer.h \
  allrenderer.h \
  xineaudioplayer.h \
+ gstaudioplayer.h \
  scomponent.h \
  sqarg.h \
- toyundasub.hxx
+ qgstaudioplayer.h \
+ toyundasub.hxx 
+# vlcaudioplayer.h
 
 SOURCES += main.cpp \
            debugrenderer.cpp \
@@ -39,8 +44,11 @@ SOURCES += main.cpp \
            qosd.cpp \
            qtoyunda.cpp \
  xineaudioplayer.cpp \
+ gstaudioplayer.cpp \
+ qgstaudioplayer.cpp \
  sqarg.cpp \
- scomponent.cpp
+ scomponent.cpp 
+# vlcaudioplayer.cpp
 
 
 

@@ -72,6 +72,7 @@ void  XineAudioPlayer::open(QString filename)
 
 void  XineAudioPlayer::play()
 {
+  qDebug() << "=============================" << stream;
   if (!xine_play(stream, 0, 0)) {
     qCritical() << xine_get_error(stream);
   }
@@ -101,6 +102,7 @@ void  XineAudioPlayer::checkFrame()
   t = m2 * 90 / duree_moisie + 0.5;
   if ((int) t != framenb) {
     framenb = t;
+    qDebug() <<"frame";
     emit frameChanged(framenb);
   }
 }

@@ -16,60 +16,7 @@ int	main(int ac, char *ag[])
   QMap<QString, QVariant> option;
 
   defineOption(optionDesc);
-// Special Initialisation for the qosd renderer on old QT 4.x version
-#ifdef Q_WS_X11
-#if QT_VERSION < 0x040500
-  //if (rendererName == "qosd") {
-    qWarning("Please make sure you're running a composition manager!");
-    bool  argbVisual=false;
-    Display *dpy = XOpenDisplay(0); // open default display
-    if (!dpy) {
-          qWarning("Cannot connect to the X server");
-          exit(1);
-    }
-
-    int screen = DefaultScreen(dpy);
-    Colormap colormap = 0;
-    Visual *visual = 0;
-    int eventBase, errorBase;
-
-    if (XRenderQueryExtension(dpy, &eventBase, &errorBase)) {
-          int nvi;
-          XVisualInfo templ;
-          templ.screen  = screen;
-          templ.depth   = 32;
-          templ.c_class = TrueColor;
-          XVisualInfo *xvi = XGetVisualInfo(dpy, VisualScreenMask |
-                                          VisualDepthMask |
-                                          VisualClassMask, &templ, &nvi);
-
-          for (int i = 0; i < nvi; ++i) {
-          XRenderPictFormat *format = XRenderFindVisualFormat(dpy,
-                                                                  xvi[i].visual);
-          if (format->type == PictTypeDirect && format->direct.alphaMask) {
-                  visual = xvi[i].visual;
-                  colormap = XCreateColormap(dpy, RootWindow(dpy, screen),
-                                          visual, AllocNone);
-                  argbVisual=true;
-                  break;
-          }
-
-          }
-    }
-    if (argbVisual == true) {
-          qWarning("Found ARGB visual. Starting app...");
-    }
-    else  {
-          qWarning("Couldn't find ARGB visual... Exiting.");
-          exit(1);
-    }
-    qapp = new QApplication(dpy, ac, ag,
-                  Qt::HANDLE(visual), Qt::HANDLE(colormap));
-  //} else {
-#else
-    qapp = new QApplication(ac, ag);
-#endif
-#endif
+  qapp = new QApplication(ac, ag);
   // Handle arguments
   QStringList arg = qapp->arguments();
   arg.removeFirst();

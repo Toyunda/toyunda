@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <QPaintEvent>
 
 
-QOSD::QOSD(QWidget *parent) : QWidget(parent), ToyundaRenderer()
+QOSD::QOSD(QWidget *parent) : ToyundaRenderer(), QWidget(parent)
 {
   addOption("ratio", 1.0, "Global ratio for ToyundaDrawer, overwrite vratio and hratio");
   addOption("vratio", 1.0, "Vertical ratio for ToyundaDrawer");
@@ -30,9 +30,7 @@ QOSD::QOSD(QWidget *parent) : QWidget(parent), ToyundaRenderer()
   addOption("logo", "Toyunda logo.png", "Set the logo file");
   setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
   setAttribute(Qt::WA_NoSystemBackground, true);
-#if QT_VERSION >= 0x040500
   setAttribute(Qt::WA_TranslucentBackground, true);
-#endif
   setIdentifier("qosd");
 }
 

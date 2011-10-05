@@ -85,14 +85,14 @@ void	ToyundaDrawer::setLogo(const QImage img)
 void    ToyundaDrawer::drawGrid(QPainter &painter) const
 {
   for (unsigned int i = 0; i < 12; i++) {
-    painter.drawLine(0, i * lineInterval, m_width, i * letterHeight);
+    painter.drawLine(0, i * lineInterval, m_width, i * lineInterval);
   }
 }
 
 void	ToyundaDrawer::draw(QPainter &painter, const QList<ToyundaText> &textSub, const QList<ToyundaSyl> &sylSub) const
 {
   painter.setFont(s_font);
-  //drawGrid(painter);
+  drawGrid(painter);
   if (textSub.isEmpty() == false) {
     QListIterator<ToyundaText> ittext(textSub);
     while (ittext.hasNext()) {

@@ -38,9 +38,9 @@ void  QToyunda::init()
   selectRenderer();
   //DebugRenderer *Debugrenderer = new DebugRenderer();
   toyundaSub = new RawSubStream();
-  qDebug() << "Init player";
+  qDebug() << "===============Init player=================";
   player->init(s_playerOption);
-  qDebug() << "Init renderer";
+  qDebug() << "===============Init renderer===============";
   renderer->init(s_rendererOption);
   qDebug() << "Connect signal/slots";
   QObject::connect(player, SIGNAL(frameChanged(int)), toyundaSub, SLOT(setCurrentFrame(int)));
@@ -55,27 +55,34 @@ void  QToyunda::load(QString videoFil, QString subtitleFil)
 {
   s_subtitleFile = subtitleFil;
   s_videoFile = videoFil;
-  qDebug() << "Load subtitle";
+  qDebug() << "===============Load subtitle===============";
   toyundaSub->createFromFile(s_subtitleFile);
-  qDebug() << "Open video";
+  qDebug() << "===============Open video==================";
   player->open(s_videoFile);
 }
 
 void  QToyunda::play()
 {
-  qDebug() << "Playing the video";
+  qDebug() << "===============Playing the video===========";
   player->play();
 }
 
 // Must find another way to find the good class
 void  QToyunda::selectPlayer()
 {
-  if (s_playerName == "fake")
-    player = new FakePlayer;
-#ifdef Q_WS_X11
-  if (s_playerName == "xineaudio")
-    player = new XineAudioPlayer;
+	if (s_playerName == "fake")
+	{
+		player = new FakePlayer;
+		return ;
+	}
+#ifdef QGSTREAMER_HERE
+	if (s_playerName == "qgstaudio")
+	{
+		player = new QGstAudioPlayer;
+		return ;
+	}
 #endif
+	qCritical() << "No player found";
 }
 
 void  QToyunda::selectRenderer()
