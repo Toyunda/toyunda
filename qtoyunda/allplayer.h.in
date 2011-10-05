@@ -3,7 +3,7 @@
 #define H_ALLPLAYER
 
 #include "fakeplayer.h"
-#if @QTGSTREAMER_FOUND@
+#if @QTGSTREAMER_FOUND@ == 1
 #include "qgstaudioplayer.h"
 #define QTGSTREAMER_HERE
 #endif

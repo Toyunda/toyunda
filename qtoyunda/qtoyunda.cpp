@@ -75,7 +75,7 @@ void  QToyunda::selectPlayer()
 		player = new FakePlayer;
 		return ;
 	}
-#ifdef QGSTREAMER_HERE
+#ifdef QTGSTREAMER_HERE
 	if (s_playerName == "qgstaudio")
 	{
 		player = new QGstAudioPlayer;
