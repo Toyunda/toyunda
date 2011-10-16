@@ -48,7 +48,6 @@ void	QGstAudioPlayer::new_decoded_pad(const QGst::PadPtr &pad, const int gbool)
 	videopad = m_videobin->getStaticPad("sink");
 	caps = pad->caps();
 	str = caps->internalStructure(0);
-	qDebug() << caps;
 	if (str->name().contains("audio"))
 	{
 	  qDebug() << "Audio linked";
@@ -79,15 +78,22 @@ void	QGstAudioPlayer::onBusMessage(const QGst::MessagePtr &message)
 {
     switch (message->type()) {
     case QGst::MessageEos: //End of stream. We reached the end of the file.
-        stop();
+	m_pipeline->setState(QGst::StateNull);
+	emit finished();
         break;
     case QGst::MessageError: //Some error occurred.
         qCritical() << message.staticCast<QGst::ErrorMessage>()->error();
         stop();
         break;
     case QGst::MessageStateChanged: //The element in message->source() has changed state
-	qDebug() << "changing state : " << message->source()->name() << " - State : " <<
+	//qDebug() << "changing state : " << message->source()->name() << " - State : " <<
 	message.staticCast<QGst::StateChangedMessage>()->newState();
+	if ((message->source() == m_pipeline) and  (message.staticCast<QGst::StateChangedMessage>()->newState() == QGst::StatePlaying))
+		emit played();
+	if ((message->source() == m_pipeline) and  (message.staticCast<QGst::StateChangedMessage>()->newState() == QGst::StatePaused))
+		emit paused();
+	if ((message->source() == m_pipeline) and  (message.staticCast<QGst::StateChangedMessage>()->newState() == QGst::StateNull))
+		emit stopped();
         break;
     default:
         break;
@@ -153,36 +159,24 @@ void	QGstAudioPlayer::play()
 		qDebug() << "Failed to change state";
 	QTimer *timer = new QTimer(this);
 	connect(timer, SIGNAL(timeout()), this, SLOT(checkFrame()));
-	timer->start(50);
+	m_framenb = -1;
+	timer->start(20);
 }
 
 void	QGstAudioPlayer::stop()
 {
-	exit(1);
+
 }
 
 void	QGstAudioPlayer::checkFrame()
 {
-	static int framenb = -1;
-	/*QGst::CapsPtr caps = m_videobin->getStaticPad("sink")->caps();
-	QGst::StructurePtr str = caps->internalStructure(0);
-	qDebug() << caps;
-	if (str->hasField("framerate"))
-	{
-		qDebug() << str->value("framerate");
-		const QGst::FractionRange plop = str->value("framerate").get<QGst::FractionRange>();
-		qDebug() << plop.start.numerator << "/" << plop.start.denominator;
-		qDebug() << plop.end.numerator << "/" << plop.end.denominator;
-	}*/
-	
-	
 	QGst::PositionQueryPtr query = QGst::PositionQuery::create(QGst::FormatTime);
         m_pipeline->query(query);
         int tmp = ((query->position() / 1000000) * framerate) / 1000;
-	if (framenb != tmp)
+	if (m_framenb != tmp)
 	{
-		framenb = tmp;
-		emit frameChanged(framenb);
+		m_framenb = tmp;
+		emit frameChanged(m_framenb);
 	}
 }
 

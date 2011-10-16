@@ -28,8 +28,10 @@ QOSD::QOSD(QWidget *parent) : ToyundaRenderer(), QWidget(parent)
   addOption("iratio", 1.0, "Interline ratio for ToyundaDrawer");
   addOption("logoratio", 0.8, "Scaling of the logo, the default size of the logo is the interline sizex0.8, 0.8 is this option");
   addOption("logo", "Toyunda logo.png", "Set the logo file");
-  setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+  setWindowFlags(Qt::Window | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
+  setAttribute(Qt::WA_NoBackground, true);
   setAttribute(Qt::WA_NoSystemBackground, true);
+  setStyleSheet("background:transparent;");
   setAttribute(Qt::WA_TranslucentBackground, true);
   setIdentifier("qosd");
 }
@@ -43,9 +45,8 @@ bool  QOSD::init(QStringList opt)
   QFont f(ToyundaFontName, (int) ToyundaFontSize * optionValue["ratio"].toDouble());
   f.setFixedPitch(true);
   toyundaDrawer.setFont(f);
-  toyundaDrawer.setLogo(QImage("Toyunda logo.png"));
+  toyundaDrawer.setLogo(QImage(optionValue["logo"].toString()));
   qDebug() << toyundaDrawer.width() << toyundaDrawer.height();
-  show();
   return true;
 }
 
@@ -67,6 +68,17 @@ void	QOSD::paintEvent(QPaintEvent *event)
 
   toyundaDrawer.draw(painter, toySubStream->getCurrentTextSubtitle(), toySubStream->getCurrentSylSubtitle());
 }
+
+void	QOSD::hide()
+{
+	QWidget::hide();
+}
+
+void	QOSD::show()
+{
+	QWidget::show();
+}
+
 
 void	QOSD::renderUpdate(void)
 {

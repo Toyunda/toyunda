@@ -41,10 +41,15 @@ void	RawSubStream::createFromFile(QString filePath)
   QFile toyfile(filePath);
   QTextStream cerr(stderr);
 
+  currentFrame = 0;
   if (!toyfile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    cerr << "Can't read : " << filePath << "\n";
-    exit(1);
+    qCritical() << "Can't read : " << filePath;
+    return ;
   }
+  allSyl.clear();
+  allText.clear();
+  currentItSyl = allSyl.begin();
+  currentItText = allText.begin();
   while (!toyfile.atEnd()) {
     QByteArray line = toyfile.readLine();
     QList<GenLineDesc> lg = parseToyundaLine(line);

@@ -2,8 +2,10 @@ project(qtoyunda)
 cmake_minimum_required(VERSION 2.6)
 find_package(Qt4 REQUIRED)
 find_package(PkgConfig REQUIRED)
+set(QTGSTREAMER 1)
 pkg_check_modules(GSTREAMER QUIET gstreamer-0.10)
 pkg_check_modules(QTGSTREAMER QUIET QtGStreamer-0.10)
+
 IF (GSTREAMER_FOUND)
 Message("Gstreamer found")
 ENDIF (GSTREAMER_FOUND)
@@ -13,8 +15,13 @@ Message("QtGstreamer found")
 Message(${QTGSTREAMER_INCLUDE_DIRS})
 Message(${QTGSTREAMER_LIBRARIES})
 ENDIF (QTGSTREAMER_FOUND)
+set(FAKEPLAYER 1)
+set(DEBUGRENDERER 1)
+set(QTOSD 1)
+
 
 CONFIGURE_FILE("${PROJECT_SOURCE_DIR}/allplayer.h.in" "${PROJECT_SOURCE_DIR}/allplayer.h")
+CONFIGURE_FILE("${PROJECT_SOURCE_DIR}/allrenderer.h.in" "${PROJECT_SOURCE_DIR}/allrenderer.h")
 
 include_directories(${QT_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR})
 

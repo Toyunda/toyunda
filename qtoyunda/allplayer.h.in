@@ -2,9 +2,14 @@
 #ifndef H_ALLPLAYER
 #define H_ALLPLAYER
 
-#include "fakeplayer.h"
 #if @QTGSTREAMER_FOUND@ == 1
-#include "qgstaudioplayer.h"
-#define QTGSTREAMER_HERE
+	#include "qgstaudioplayer.h"
+	#define QTGSTREAMER_HERE
 #endif
+
+#if @FAKEPLAYER@ == 1
+	#include "fakeplayer.h"
+	#define FAKEPLAYER_HERE
+#endif
+
 #endif

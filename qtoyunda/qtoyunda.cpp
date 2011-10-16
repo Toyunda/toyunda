@@ -45,9 +45,22 @@ void  QToyunda::init()
   qDebug() << "Connect signal/slots";
   QObject::connect(player, SIGNAL(frameChanged(int)), toyundaSub, SLOT(setCurrentFrame(int)));
   QObject::connect(toyundaSub, SIGNAL(currentSubChanged(void)), dynamic_cast<QObject*> (renderer), SLOT(renderUpdate(void)));
-  QObject::connect(player, SIGNAL(finished()), this, SLOT(quit()));
+  QObject::connect(player, SIGNAL(finished()), this, SIGNAL(finished()));
+  QObject::connect(player, SIGNAL(paused()), this, SIGNAL(paused()));
+  QObject::connect(player, SIGNAL(stopped()), this, SIGNAL(stopped()));
+  QObject::connect(player, SIGNAL(played()), this, SIGNAL(played()));
   //QObject::connect(toyundaSub, SIGNAL(currentSubChanged(void)), Debugrenderer, SLOT(renderUpdate(void)));
   renderer->setToyundaSubStream(toyundaSub);
+}
+
+void QToyunda::hideRenderer()
+{
+	renderer->hide();
+}
+
+void QToyunda::showRenderer()
+{
+	renderer->show();
 }
 
 
@@ -70,11 +83,13 @@ void  QToyunda::play()
 // Must find another way to find the good class
 void  QToyunda::selectPlayer()
 {
+#ifdef FAKEPLAYER_HERE
 	if (s_playerName == "fake")
 	{
 		player = new FakePlayer;
 		return ;
 	}
+#endif
 #ifdef QTGSTREAMER_HERE
 	if (s_playerName == "qgstaudio")
 	{
@@ -87,10 +102,21 @@ void  QToyunda::selectPlayer()
 
 void  QToyunda::selectRenderer()
 {
-  if (s_rendererName == "debug")
-    renderer = new DebugRenderer;
-  if (s_rendererName == "qosd")
-    renderer = new QOSD;
+#ifdef DEBUGRENDERER_HERE
+	if (s_rendererName == "debug")
+	{
+		renderer = new DebugRenderer;
+		return ;
+	}
+#endif
+#ifdef QOSD_HERE
+	if (s_rendererName == "qosd")
+	{
+		renderer = new QOSD;
+		return ;
+	}
+#endif
+	qCritical() << "No renderer found";
 }
 
 void	QToyunda::showPlayerOption()

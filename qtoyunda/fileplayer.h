@@ -71,11 +71,15 @@ class FilePlayer : public QObject, public SComponent
 		/**
 		 * This signal is emit when the stream is started
 		 */
-		void	started();
+		void	played();
 		/**
 		 * This signal is emit when the stream is finished
 		 */
 		void	finished();
+		/**
+		 * This signal is emit when the stream is paused
+		 */
+		void	paused();
 		/**
 		 * This signal is emit when a new frame is read
 		 * @param frame : the number of the frame

@@ -146,8 +146,21 @@ class QToyunda : public QObject, SComponent
     /**
      * play the file
      */
-    void  play();
+	void  play();
 
+	void pause();
+
+	void stop();
+	
+	void	hideRenderer();
+	void	showRenderer();
+
+
+	signals:
+		void	stopped();
+		void	paused();
+		void	played();
+		void	finished();
   private slots:
     /**
      * Quit the application

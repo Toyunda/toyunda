@@ -51,6 +51,7 @@ class QGstAudioPlayer : public FilePlayer
 		QGst::ElementPtr	m_vsink;
 		QGst::BinPtr		m_audiobin;
 		QGst::BinPtr		m_videobin;
+		int			m_framenb;
 		double			framerate;
 
 };

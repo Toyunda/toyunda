@@ -53,6 +53,9 @@ class ToyundaRenderer : public SComponent
      * this function tell the render to update the display of subtitle
      */
     virtual void    renderUpdate() = 0;
+    
+    virtual void	show() = 0;
+    virtual void	hide() = 0;
 
   protected:
     ToyundaRenderer();
