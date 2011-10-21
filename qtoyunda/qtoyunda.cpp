@@ -17,8 +17,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <QApplication>
 #include "qtoyunda.h"
-#include "allplayer.h"
-#include "allrenderer.h"
 #include "rawsubstream.h"
 
 
@@ -38,9 +36,9 @@ void  QToyunda::init()
   selectRenderer();
   //DebugRenderer *Debugrenderer = new DebugRenderer();
   toyundaSub = new RawSubStream();
-  qDebug() << "===============Init player=================";
+  qDebug() << "===============Init player=================" << player->identifier();
   player->init(s_playerOption);
-  qDebug() << "===============Init renderer===============";
+  qDebug() << "===============Init renderer===============" << renderer->identifier();
   renderer->init(s_rendererOption);
   qDebug() << "Connect signal/slots";
   QObject::connect(player, SIGNAL(frameChanged(int)), toyundaSub, SLOT(setCurrentFrame(int)));
@@ -135,5 +133,28 @@ void	QToyunda::showRendererOption()
 
 void	QToyunda::quit()
 {
-  qApp->exit(0);
+    qApp->exit(0);
+}
+
+bool    QToyunda::loadPlugins()
+{
+    QDir    pluginDir = qApp->applicationDirPath();
+    #if defined(Q_OS_WIN)
+     if (pluginsDir.dirName().toLower() == "debug" || pluginsDir.dirName().toLower() == "release")
+         pluginsDir.cdUp();
+    #endif
+    pluginDir.cd("plugins");
+    foreach(QString fileName, pluginDir.entryList(QDir::Files))
+    {
+        qDebug() << "PLUGINS : Loading " << fileName;
+        QPluginLoader loader(pluginDir.absolutePath(fileName));
+        QObject *plugin = loader.instance();
+        if (plugin)
+        {
+            s_pluginList.append(plugin);
+        }
+    }
+    if (s_pluginList.size() > 0)
+        return true;
+    return false;
 }

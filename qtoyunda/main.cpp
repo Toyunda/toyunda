@@ -56,6 +56,7 @@ int	main(int ac, char *ag[])
   toyunda->load(option["video"].toString(), option["subtitle"].toString());
   qDebug() << "Play the video";
   toyunda->play();
+  toyunda->showRenderer();
   return qapp->exec();
 }
 

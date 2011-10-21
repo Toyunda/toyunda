@@ -21,3 +21,8 @@ FilePlayer::FilePlayer(QObject *parent) : QObject(parent), SComponent()
 {
   setIdentifier("This should be set");
 }
+
+FilePlayer* FilePlayer::getMe()
+{
+    return this;
+}

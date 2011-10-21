@@ -15,30 +15,40 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#ifndef H_DEBUGRENDER
-#define H_DEBUGRENDER
+#ifndef H_FAKEPLAYER
+#define H_FAKEPLAYER
 
-#include <QObject>
-#include <QTextStream>
-#include "toyundarenderer.h"
+#include <QTimer>
+#include "fileplayer.h"
 
-/** @class DebugRenderer
-* @brief A debug renderer
+/** @class FakePlayer
+* @brief a fake player using a timer
 *
-* This render is designed to debug. It print
-* verbose information about sub currently playing
-* Indentifiant : debug
+* This is a fake player that use a QTimer to simulate the progress of video frame
 */
 
-class DebugRenderer : public QObject, public ToyundaRenderer
+class FakePlayer : public FilePlayer
 {
-  Q_OBJECT;
+  Q_OBJECT
+  Q_INTERFACES(AbstractFilePlayer)
   public:
-    DebugRenderer();
+    FakePlayer();
+
+    bool	init(const QStringList opt);
 
   public slots:
-    void    renderUpdate(void);
-};
+    void	open(const QString);
+    void	play();
+    void	stop();
+    void	seek(const int);
 
+  private slots:
+    void	newTick();
+
+  private:
+    unsigned int interval;
+    QTimer	timer;
+    int		frameNumber;
+};
 
 #endif

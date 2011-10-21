@@ -182,6 +182,9 @@ class QToyunda : public QObject, SComponent
     QString           s_subtitleFile; /*!< The name of the subtitle file */
     void              selectPlayer();
     void              selectRenderer();
+    QList<QObject *>            s_pluginList;
+    QList<FilePlayer *>         s_filePlayerPlugins;
+    QList<ToyundaRenderer *>    s_toyundaRendererPlugins;
 };
 
 #endif

@@ -51,3 +51,11 @@ void	DebugRenderer::renderUpdate()
     }
   }
 }
+
+void DebugRenderer::hide()
+{
+}
+
+void DebugRenderer::show()
+{
+}

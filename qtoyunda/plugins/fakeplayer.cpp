@@ -48,7 +48,7 @@ void	FakePlayer::seek(const int toseek)
 void	FakePlayer::play()
 {
   connect(&timer, SIGNAL(timeout()), this, SLOT(newTick()));
-  emit started();
+  //emit played();
   timer.start(interval);
 }
 
