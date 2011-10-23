@@ -106,7 +106,7 @@ void	ToyundaDrawer::draw(QPainter &painter, const QList<ToyundaText> &textSub, c
       } else {
         painter.setPen(Qt::darkBlue);
       }
-      if (tmp.posx == -1 or (tmp.posy == 0 and tmp.pipeNumber != 0)) {
+      if (tmp.posx == -1 || (tmp.posy == 0 && tmp.pipeNumber != 0)) {
         QPoint s;
         s.setY((tmp.pipeNumber + 1) * lineInterval);
 	unsigned int tmpLetterWidth = letterWidth;

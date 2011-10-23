@@ -17,6 +17,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <QDebug>
 #include "fakeplayer.h"
+#include "qplugin.h"
 
 
 FakePlayer::FakePlayer() : FilePlayer()
@@ -60,5 +61,12 @@ void	FakePlayer::stop()
 
 void	FakePlayer::newTick()
 {
-  emit frameChanged(frameNumber++);
+    emit frameChanged(frameNumber++);
 }
+
+FilePlayer* FakePlayer::getMe()
+{
+    return this;
+}
+
+Q_EXPORT_PLUGIN2(qtoyunda_fakeplayer, FakePlayer)

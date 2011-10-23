@@ -15,7 +15,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include "toyundasub.h"
+#include "../toyundasub.h"
+#include <qplugin.h>
 #include "debugrenderer.h"
 
 DebugRenderer::DebugRenderer() : QObject()
@@ -59,3 +60,11 @@ void DebugRenderer::hide()
 void DebugRenderer::show()
 {
 }
+
+
+ToyundaRenderer * DebugRenderer::getMe()
+{
+    return this;
+}
+
+Q_EXPORT_PLUGIN2(qtoyunda_debugrenderer, DebugRenderer)

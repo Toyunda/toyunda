@@ -4,7 +4,6 @@ CONFIG += staticlib
 
 TARGET = qtoyunda_static
 
-DESTDIR_TARGET = ./
 
 HEADERS += \
     toyundasubstream.h \
@@ -12,12 +11,14 @@ HEADERS += \
     toyundasub.h \
     toyundarenderer.h \
     toyundadrawer.h \
+    fileplayer.h \
     sqarg.h \
     scomponent.h \
     rawtoyundastream.h \
     rawsubstream.h \
     qtoyunda.h \
-    abstractfileplayer.h
+    abstractfileplayer.h \
+    abstractrenderer.h
 
 SOURCES += \
     toyundasubstream.cpp \
@@ -28,5 +29,6 @@ SOURCES += \
     scomponent.cpp \
     rawsubstream.cpp \
     qtoyunda.cpp
+
 
 

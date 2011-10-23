@@ -1,9 +1,18 @@
 QT += Gui
 TEMPLATE = lib
-CONFIG = plugin
+CONFIG += plugin
 
-HEADERS = qosdrendrer.h
+INCLUDEPATH += ../
 
-SOURCES = qosdrender.cpp
+HEADERS = qosd.h \
+          ../toyundasubstream.h
 
-TARGET = qtoyunda_qosdrender
+SOURCES = qosd.cpp \
+           ../toyundarenderer.cpp \
+           ../scomponent.cpp \
+           ../sqarg.cpp \
+           ../toyundasub.cpp \
+           ../toyundasubstream.cpp \
+           ../toyundadrawer.cpp
+
+TARGET = $$qtLibraryTarget(qtoyunda_qosdrenderer)

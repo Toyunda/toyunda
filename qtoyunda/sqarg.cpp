@@ -84,9 +84,9 @@ bool	SQArg::fillWithDesc(QMap<QString, QVariant> &toFill, QStringList listOpt, S
   bool  longOpt;
   bool	skip = false;
   // Correct Empty list
-  if (listOpt.size() == 1 and listOpt.at(0) == "")
+  if (listOpt.size() == 1 && listOpt.at(0) == "")
     listOpt.clear();
-  while (!listOpt.isEmpty() and i.hasNext()) {
+  while (!listOpt.isEmpty() && i.hasNext()) {
     QString item = i.next();
     optValue.clear();
     longOpt = false;
@@ -101,7 +101,7 @@ bool	SQArg::fillWithDesc(QMap<QString, QVariant> &toFill, QStringList listOpt, S
        shortOpt = true;
     }
     else {
-      qCritical() << "invalid usage of option";
+      qCritical() << "invalid usage of option : " << item;
       return false;
     }
     // check for opt=value form
@@ -142,7 +142,7 @@ bool	SQArg::fillWithDesc(QMap<QString, QVariant> &toFill, QStringList listOpt, S
           qCritical() << "Missing value for option : " << optName;
           return false;
         }
-        if (isLong.exactMatch(item) or isShort.exactMatch(item)) {
+        if (isLong.exactMatch(item) || isShort.exactMatch(item)) {
           qCritical() << "Missing value for option : " << optName;
           return false;
         }
@@ -158,7 +158,7 @@ bool	SQArg::fillWithDesc(QMap<QString, QVariant> &toFill, QStringList listOpt, S
   QMapIterator<QString, SQOpt> it(desc);
   while (it.hasNext()) {
     it.next();
-    if (!skip and it.value().mandatory == true) {
+    if (!skip && it.value().mandatory == true) {
       if (!toFill.contains(it.value().fullName)) {
         qCritical() << "Missing mandatory option " << it.value().fullName;
         return false;

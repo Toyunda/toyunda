@@ -18,7 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef H_QGSTAUDIOPLAYER
 #define H_QGSTAUDIOPLAYER
 
-#include "fileplayer.h"
+#include "../fileplayer.h"
+#include "../abstractfileplayer.h"
 #include <QGst/Pipeline>
 #include <QGst/Element>
 #include <QGst/Bin>
@@ -26,18 +27,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <QGst/Pad>
 #include <QGst/Caps>
 
-class QGstAudioPlayer : public FilePlayer
+class QGstAudioPlayer : public FilePlayer, public AbstractFilePlayer
 {
-	Q_OBJECT;
+        Q_OBJECT
+    Q_INTERFACES(AbstractFilePlayer)
 	public:
 		QGstAudioPlayer();
 		bool	init(const QStringList optionList = QStringList());
+                FilePlayer *getMe();
 
 	public slots:
 		void	open(const QString fileName);
 		void	play();
 		void	stop();
 		void	seek(const int step);
+
 
 	private slots:
 		void	checkFrame();

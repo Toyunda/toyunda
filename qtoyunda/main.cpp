@@ -1,5 +1,6 @@
 #include <QApplication>
 #include <QTextStream>
+#include <QDir>
 #include "sqarg.h"
 #include "qtoyunda.h"
 #ifdef Q_WS_X11
@@ -22,7 +23,7 @@ int	main(int ac, char *ag[])
   arg.removeFirst();
   bool vopt = SQArg::fillWithDesc(option, arg, optionDesc);
   // Help
-  if (option["help"].toBool() or vopt == false) {
+  if (option["help"].toBool() || vopt == false) {
     QTextStream cout(stdout);
     cout << "QToyunda\nSynopsis : ";
     cout << "./qtoyunda --player playername --renderer renderername --video videofile --subtitle subtitlefile\n\n";
@@ -41,6 +42,13 @@ int	main(int ac, char *ag[])
 
   toyunda = new QToyunda(option["player"].toString(), option["renderer"].toString(), playerOption, rendererOption);
 
+  QDir  pluginDir = qApp->applicationDirPath();
+  pluginDir.cdUp();
+  pluginDir.cd("plugins");
+  pluginDir.cd("debug");
+  toyunda->setPluginDirectory(pluginDir);
+  toyunda->loadPlugins();
+
   // FIXME playeroptionhelp and roh must not depend and toyunda
   if (option["playeroptionhelp"].toBool()) {
     toyunda->showPlayerOption();
@@ -51,7 +59,11 @@ int	main(int ac, char *ag[])
     return 0;
   }
   qDebug() << "Init toyunda";
-  toyunda->init();
+  if (!toyunda->init())
+  {
+      qCritical() << "Can't init qtoyunda, abord";
+      return 1;
+  }
   qDebug() << "Load files";
   toyunda->load(option["video"].toString(), option["subtitle"].toString());
   qDebug() << "Play the video";

@@ -56,7 +56,7 @@ void	ToyundaSubStream::setCurrentFrame(const int cf)
       emitChange = true;
     }
     else {
-      if (tmp.color1.isValid() and tmp.color2.isValid()) {
+      if (tmp.color1.isValid() && tmp.color2.isValid()) {
         // Make Fading effect
 	int r1, r2, g1, g2, b1, b2, a1, a2;
         #define MYABS(x) ((x) < 0 ? - (x) : (x))

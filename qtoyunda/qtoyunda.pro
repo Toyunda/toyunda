@@ -1,7 +1,10 @@
 TEMPLATE = subdirs
 
+CONFIG += ordered
+
 SUBDIRS += \
     qtoyunda_staticlib.pro \
-    qtoyunda_cmdtools.pro \
-    plugins
+    plugins \
+    qtoyunda_cmdtools.pro
+
 

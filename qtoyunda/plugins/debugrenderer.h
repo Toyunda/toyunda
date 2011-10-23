@@ -20,7 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <QObject>
 #include <QTextStream>
-#include "toyundarenderer.h"
+#include "../toyundarenderer.h"
+#include "../abstractrenderer.h"
 
 /** @class DebugRenderer
 * @brief A debug renderer
@@ -30,13 +31,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 * Indentifiant : debug
 */
 
-class DebugRenderer : public QObject, public ToyundaRenderer
+class DebugRenderer : public QObject, public ToyundaRenderer, public AbstractRenderer
 {
-  Q_OBJECT;
+    Q_OBJECT
+    Q_INTERFACES(AbstractRenderer)
   public:
     DebugRenderer();
     void    hide();
     void    show();
+    ToyundaRenderer *getMe();
+
   public slots:
     void    renderUpdate(void);
 };

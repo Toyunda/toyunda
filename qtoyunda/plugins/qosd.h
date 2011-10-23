@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "toyundarenderer.h"
 #include "toyundadrawer.h"
+#include "../abstractrenderer.h"
 #include <QWidget>
 
 /** @class QOSD
@@ -31,14 +32,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 * Identifiant : qosd
 */
 
-class QOSD : public QWidget, public ToyundaRenderer
+class QOSD : public QWidget, public ToyundaRenderer, public AbstractRenderer
 {
-  Q_OBJECT;
+  Q_OBJECT
+    Q_INTERFACES(AbstractRenderer)
   public:
     QOSD(QWidget *parent = 0);
     bool  init(QStringList opt = QStringList());
     void	show();
     void	hide();
+    ToyundaRenderer *getMe();
 
   public slots:
     void	renderUpdate(void);

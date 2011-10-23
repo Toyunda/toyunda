@@ -1,9 +1,19 @@
 TEMPLATE = lib
-CONFIG = plugin
+CONFIG += plugin
 
-HEADERS = debugrenderer.h
-SOURCES = debugrenderer.cpp
+HEADERS = debugrenderer.h \
+          ../toyundasubstream.h
 
-TARGET = qtoyunda_debugrenderer
+SOURCES = debugrenderer.cpp \
+           ../toyundarenderer.cpp \
+           ../scomponent.cpp \
+        ../sqarg.cpp \
+           ../toyundasub.cpp \
+           ../toyundasubstream.cpp
+
+
+
+
+TARGET = $$qtLibraryTarget(qtoyunda_debugrenderer)
 
 

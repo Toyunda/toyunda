@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <QTimer>
 #include "fileplayer.h"
+#include "abstractfileplayer.h"
 
 /** @class FakePlayer
 * @brief a fake player using a timer
@@ -27,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 * This is a fake player that use a QTimer to simulate the progress of video frame
 */
 
-class FakePlayer : public FilePlayer
+class FakePlayer : public FilePlayer, public AbstractFilePlayer
 {
   Q_OBJECT
   Q_INTERFACES(AbstractFilePlayer)
@@ -35,6 +36,7 @@ class FakePlayer : public FilePlayer
     FakePlayer();
 
     bool	init(const QStringList opt);
+    FilePlayer  *getMe();
 
   public slots:
     void	open(const QString);

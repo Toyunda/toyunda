@@ -16,8 +16,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include <QApplication>
+#include <QPluginLoader>
+#include <QDir>
 #include "qtoyunda.h"
 #include "rawsubstream.h"
+#include "abstractrenderer.h"
+#include "abstractfileplayer.h"
 
 
 QToyunda::QToyunda(QString playerNam, QString rendererNam, QStringList playerOpt, QStringList rendererOpt) : QObject()
@@ -30,14 +34,22 @@ QToyunda::QToyunda(QString playerNam, QString rendererNam, QStringList playerOpt
   renderer = NULL;
 }
 
-void  QToyunda::init()
+QToyunda::QToyunda()
 {
-  selectPlayer();
-  selectRenderer();
-  //DebugRenderer *Debugrenderer = new DebugRenderer();
+
+}
+
+bool  QToyunda::init()
+{
+  bool  selplayer, selrenderer = true;
+  selplayer = selectPlayer();
+  selrenderer = selectRenderer();
+  if (!selplayer && !selrenderer)
+      return false;
   toyundaSub = new RawSubStream();
   qDebug() << "===============Init player=================" << player->identifier();
-  player->init(s_playerOption);
+  if (!player->init(s_playerOption))
+    return false;
   qDebug() << "===============Init renderer===============" << renderer->identifier();
   renderer->init(s_rendererOption);
   qDebug() << "Connect signal/slots";
@@ -49,6 +61,7 @@ void  QToyunda::init()
   QObject::connect(player, SIGNAL(played()), this, SIGNAL(played()));
   //QObject::connect(toyundaSub, SIGNAL(currentSubChanged(void)), Debugrenderer, SLOT(renderUpdate(void)));
   renderer->setToyundaSubStream(toyundaSub);
+  return true;
 }
 
 void QToyunda::hideRenderer()
@@ -78,43 +91,43 @@ void  QToyunda::play()
   player->play();
 }
 
-// Must find another way to find the good class
-void  QToyunda::selectPlayer()
+
+bool  QToyunda::selectPlayer()
 {
-#ifdef FAKEPLAYER_HERE
-	if (s_playerName == "fake")
-	{
-		player = new FakePlayer;
-		return ;
-	}
-#endif
-#ifdef QTGSTREAMER_HERE
-	if (s_playerName == "qgstaudio")
-	{
-		player = new QGstAudioPlayer;
-		return ;
-	}
-#endif
-	qCritical() << "No player found";
+    if (s_filePlayerPlugins.size() == 0)
+    {
+        qCritical() << "No player found";
+        return false;
+    }
+    foreach(FilePlayer *item, s_filePlayerPlugins)
+    {
+        if (item->identifier() == s_playerName)
+        {
+            player = item;
+            return true;
+        }
+    }
+    qCritical() << "Can't find the selected player, or no player selected";
+    return false;
 }
 
-void  QToyunda::selectRenderer()
+bool  QToyunda::selectRenderer()
 {
-#ifdef DEBUGRENDERER_HERE
-	if (s_rendererName == "debug")
-	{
-		renderer = new DebugRenderer;
-		return ;
-	}
-#endif
-#ifdef QOSD_HERE
-	if (s_rendererName == "qosd")
-	{
-		renderer = new QOSD;
-		return ;
-	}
-#endif
+    if (s_toyundaRendererPlugins.size() == 0)
+    {
 	qCritical() << "No renderer found";
+        return false;
+    }
+    foreach(ToyundaRenderer *item, s_toyundaRendererPlugins)
+    {
+        if (item->identifier() == s_rendererName)
+        {
+            renderer = item;
+            return true;
+        }
+    }
+    qCritical() << "Can't find the selected renderer, or no renderer selected";
+    return false;
 }
 
 void	QToyunda::showPlayerOption()
@@ -138,23 +151,55 @@ void	QToyunda::quit()
 
 bool    QToyunda::loadPlugins()
 {
-    QDir    pluginDir = qApp->applicationDirPath();
-    #if defined(Q_OS_WIN)
-     if (pluginsDir.dirName().toLower() == "debug" || pluginsDir.dirName().toLower() == "release")
-         pluginsDir.cdUp();
-    #endif
-    pluginDir.cd("plugins");
-    foreach(QString fileName, pluginDir.entryList(QDir::Files))
+    foreach(QString fileName, s_pluginDirectory.entryList(QDir::Files))
     {
+        if (!fileName.contains(QRegExp(".*\\.dll$")))
+            continue;
         qDebug() << "PLUGINS : Loading " << fileName;
-        QPluginLoader loader(pluginDir.absolutePath(fileName));
+        QPluginLoader loader(s_pluginDirectory.absoluteFilePath(fileName));
         QObject *plugin = loader.instance();
         if (plugin)
         {
+            qDebug() << "Module loaded";
+            AbstractRenderer* toyrend = qobject_cast<AbstractRenderer*>(plugin);
+            if (toyrend) {
+                PluginInfo  info;
+                info.fileInfo = QFileInfo(fileName);
+
+                ToyundaRenderer* testtruc = toyrend->getMe();
+                qDebug() << "Renderer Module found   : " << testtruc->identifier();
+                info.name = testtruc->identifier();
+                info.type = Renderer;
+                s_toyundaRendererPlugins.append(testtruc);
+                s_pluginInfos.append(info);
+            }
+            AbstractFilePlayer* toyplay = qobject_cast<AbstractFilePlayer*>(plugin);
+            if (toyplay) {
+                PluginInfo  info;
+                info.fileInfo = QFileInfo(fileName);
+                FilePlayer* testtruc = toyplay->getMe();
+                qDebug() << "FilePlayer Module found : " << testtruc->identifier();
+                info.name = testtruc->identifier();
+                info.type = Player;
+                s_filePlayerPlugins.append(testtruc);
+                s_pluginInfos.append(info);
+            }
             s_pluginList.append(plugin);
+        } else {
+            qDebug() << loader.errorString();
         }
     }
     if (s_pluginList.size() > 0)
         return true;
     return false;
+}
+
+const QList<PluginInfo>& QToyunda::getPluginInfos() const
+{
+    return s_pluginInfos;
+}
+
+void QToyunda::setPluginDirectory(QDir pluginDirectory)
+{
+    s_pluginDirectory = pluginDirectory;
 }

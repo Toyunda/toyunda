@@ -25,7 +25,7 @@ SComponent::SComponent()
 
 void	SComponent::handleOption(QStringList listArg)
 {
-  if (listArg.size() == 1 and listArg.at(0) == "")
+  if (listArg.size() == 1 && listArg.at(0) == "")
     listArg.clear();
   if (optionDesc.isEmpty())
     return;

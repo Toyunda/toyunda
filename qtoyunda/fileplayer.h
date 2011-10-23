@@ -21,7 +21,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <QObject>
 #include <QStringList>
 #include "scomponent.h"
-#include "abstractfileplayer.h"
 
 /** @class FilePlayer
 * @brief The class that play the file.
@@ -30,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 *
 * To create a FilePlayer just inherit this class and define all methods.
 */
-class FilePlayer : public QObject, public SComponent, public AbstactFilePlayer
+class FilePlayer : public QObject, public SComponent
 {
         Q_OBJECT
 	public:

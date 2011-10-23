@@ -82,5 +82,12 @@ void	QOSD::show()
 
 void	QOSD::renderUpdate(void)
 {
-  update();
+    update();
 }
+
+ToyundaRenderer*    QOSD::getMe()
+{
+    return this;
+}
+
+Q_EXPORT_PLUGIN2(qtoyunda_qosdrenderer, QOSD)

@@ -1,8 +1,15 @@
 
 TEMPLATE = lib
-CONFIG = plugin
-HEADERS = fakeplayer.h
+CONFIG += plugin
 
-SOURCES = fakeplayer.cpp
+INCLUDEPATH += ../
 
-TARGET = qtoyunda_fakeplayer
+HEADERS = fakeplayer.h \
+          ../fileplayer.h
+
+SOURCES = fakeplayer.cpp \
+          ../fileplayer.cpp \
+          ../scomponent.cpp \
+          ../sqarg.cpp
+
+TARGET = $$qtLibraryTarget(qtoyunda_fakeplayer)

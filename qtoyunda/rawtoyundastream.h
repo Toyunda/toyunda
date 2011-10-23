@@ -18,9 +18,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef H_RAWTOYUNDASTREAM
 #define H_RAWTOYUNDASTREAM
 
+#include "toyundasubstream.h"
+
 class RawToyundaStream : public ToyundaSubStream
 {
-  Q_OBJECT;
+  Q_OBJECT
+
   public:
     RawToyundaStream();
     RawToyundaStream(QString);

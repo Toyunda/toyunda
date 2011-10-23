@@ -1,13 +1,12 @@
 #ifndef ABSTRACTFILEPLAYER_H
 #define ABSTRACTFILEPLAYER_H
 
-#include "FilePlayer.h"
+class FilePlayer;
 
 class AbstractFilePlayer
 {
 public:
-    AbstractFilePlayer() = 0;
-    FilePlayer  *getMe() = 0;
+    virtual FilePlayer* getMe() = 0;
 };
 
 Q_DECLARE_INTERFACE(AbstractFilePlayer, "qtoyunda.AbstractFilePlayer")

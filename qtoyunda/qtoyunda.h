@@ -20,11 +20,26 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <QObject>
 #include <QStringList>
+#include <QDir>
 #include "scomponent.h"
 #include "toyundasub.h"
 #include "toyundarenderer.h"
 #include "fileplayer.h"
 #include "toyundasubstream.h"
+
+enum PluginType {
+    Player,
+    Renderer
+};
+
+struct   PluginInfo
+{
+    QFileInfo       fileInfo;
+    QString         name;
+    QString         description;
+    PluginType      type;
+};
+
 
 /** @class QToyunda
 * @brief Class to create a QToyunda
@@ -43,7 +58,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 class QToyunda : public QObject, SComponent
 {
-  Q_OBJECT;
+  Q_OBJECT
 
   public:
    /**
@@ -53,11 +68,17 @@ class QToyunda : public QObject, SComponent
      * @param playerOpt : The option for the player
      * @param rendererOpt : The option for the renderer
      */
+    QToyunda();
     QToyunda(QString playerNam, QString rendererNam, 
              QStringList playerOpt = QStringList(),
              QStringList rendererOpt = QStringList());
 
     // Accessors
+    /**
+     * @brief Set the plugin path
+     * @param pluginDirectory : the plugin path
+     */
+    void    setPluginDirectory(QDir pluginDirectory);
     /**
      * @brief Get the player options.
      * @return the player options.
@@ -134,7 +155,7 @@ class QToyunda : public QObject, SComponent
     /**
      * You must call this to intialise some internal stuff
      */
-    void  init();
+    bool  init();
     /**
      * Display the player option
      */
@@ -143,6 +164,14 @@ class QToyunda : public QObject, SComponent
      * Display the renderer option
      */
     void  showRendererOption();
+
+    /**
+     * Load plugins
+     * @return true if can find and load plugin
+     */
+    bool    loadPlugins();
+
+    const QList<PluginInfo>& getPluginInfos() const;
     /**
      * play the file
      */
@@ -172,6 +201,8 @@ class QToyunda : public QObject, SComponent
     FilePlayer        *player;
     ToyundaSubStream  *toyundaSub;
 
+    QDir              s_pluginDirectory;
+
     QStringList       s_playerOption; /*!< The options of the player */
     QStringList       s_rendererOption; /*!< The options of the renderer */
 
@@ -180,11 +211,12 @@ class QToyunda : public QObject, SComponent
 
     QString           s_videoFile; /*!< The name of the video file */
     QString           s_subtitleFile; /*!< The name of the subtitle file */
-    void              selectPlayer();
-    void              selectRenderer();
+    bool              selectPlayer();
+    bool              selectRenderer();
     QList<QObject *>            s_pluginList;
     QList<FilePlayer *>         s_filePlayerPlugins;
     QList<ToyundaRenderer *>    s_toyundaRendererPlugins;
+    QList<PluginInfo>           s_pluginInfos;
 };
 
 #endif

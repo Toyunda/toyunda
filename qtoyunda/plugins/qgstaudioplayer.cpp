@@ -16,8 +16,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include <QDebug>
+#include <QApplication>
 #include <QTimer>
+#include <QFileInfo>
 #include "qgstaudioplayer.h"
+#include <qplugin.h>
 #include <QGst/Init>
 #include <QGst/ElementFactory>
 #include <QGst/Pad>
@@ -28,12 +31,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <QGst/Bus>
 #include <QGst/ClockTime>
 #include <QGlib/Connect>
+#include <QGlib/Error>
 #include <QGst/Fraction>
 #include <QGlib/Error>
 
 QGstAudioPlayer::QGstAudioPlayer() : FilePlayer()
 {
- 	setIdentifier("qstaudioplayer");
+        setIdentifier("qgstaudio");
 }
 
 
@@ -63,6 +67,7 @@ void	QGstAudioPlayer::new_decoded_pad(const QGst::PadPtr &pad, const int gbool)
 bool	QGstAudioPlayer::autoplug_continue(const QGst::PadPtr &pad, const QGst::CapsPtr &cap)
 {
 	QGst::StructurePtr str = cap->internalStructure(0);
+        qDebug() << "Name : " << pad->name() << "Cap :" << cap;
 	if (str->hasField("framerate"))
 	{
 	   QGst::Fraction frac = str->value("framerate").get<QGst::Fraction>();
@@ -88,11 +93,11 @@ void	QGstAudioPlayer::onBusMessage(const QGst::MessagePtr &message)
     case QGst::MessageStateChanged: //The element in message->source() has changed state
 	//qDebug() << "changing state : " << message->source()->name() << " - State : " <<
 	message.staticCast<QGst::StateChangedMessage>()->newState();
-	if ((message->source() == m_pipeline) and  (message.staticCast<QGst::StateChangedMessage>()->newState() == QGst::StatePlaying))
+        if ((message->source() == m_pipeline) && (message.staticCast<QGst::StateChangedMessage>()->newState() == QGst::StatePlaying))
 		emit played();
-	if ((message->source() == m_pipeline) and  (message.staticCast<QGst::StateChangedMessage>()->newState() == QGst::StatePaused))
+        if ((message->source() == m_pipeline) && (message.staticCast<QGst::StateChangedMessage>()->newState() == QGst::StatePaused))
 		emit paused();
-	if ((message->source() == m_pipeline) and  (message.staticCast<QGst::StateChangedMessage>()->newState() == QGst::StateNull))
+        if ((message->source() == m_pipeline) && (message.staticCast<QGst::StateChangedMessage>()->newState() == QGst::StateNull))
 		emit stopped();
         break;
     default:
@@ -103,7 +108,17 @@ void	QGstAudioPlayer::onBusMessage(const QGst::MessagePtr &message)
 bool	QGstAudioPlayer::init(const QStringList opt)
 {
 	handleOption(opt);
-	QGst::init();
+        QString tmpstr("GST_PLUGIN_PATH=" + qApp->applicationDirPath().toLatin1() + "/gst-plugins/");
+        qDebug() << "Plugin path is : " << tmpstr;
+        putenv(tmpstr.toLatin1().constData());
+        putenv("GST_DEBUG=*:3");
+        try {
+            QGst::init();
+        } catch (QGlib::Error error)
+        {
+            qCritical() << "Can't initialise QtGstreamer : " << error.message();
+            return false;
+        }
 
 	QGst::BusPtr bus;
 	QGst::ElementPtr conv, asink, queuea, queuev;
@@ -130,6 +145,7 @@ bool	QGstAudioPlayer::init(const QStringList opt)
 	QGst::GhostPadPtr gpad = QGst::GhostPad::create(audiopad, "sink");
 	m_audiobin->addPad(gpad);
 	
+        qDebug() << "End audio definition, start video";
 	m_videobin = QGst::Bin::create("-Video bin");
 	m_vsink = QGst::ElementFactory::make("fakesink", "Auto video Sink");
 	m_vsink->setProperty<bool>("sync", true);
@@ -146,7 +162,13 @@ bool	QGstAudioPlayer::init(const QStringList opt)
 
 void	QGstAudioPlayer::open(const QString file)
 {
-	m_src->setProperty("location", file);
+    QFileInfo   fi(file);
+    if (fi.exists())
+        m_src->setProperty("location", file);
+    else {
+        qCritical()  << "Can't locate " << file;
+        return;
+    }
 }
 
 void	QGstAudioPlayer::seek(const int toseek)
@@ -155,8 +177,10 @@ void	QGstAudioPlayer::seek(const int toseek)
 
 void	QGstAudioPlayer::play()
 {
-	if (m_pipeline->setState(QGst::StatePlaying) == QGst::StateChangeFailure)
+    if (m_pipeline->setState(QGst::StatePlaying) == QGst::StateChangeFailure) {
 		qDebug() << "Failed to change state";
+                 return ;
+     }
 	QTimer *timer = new QTimer(this);
 	connect(timer, SIGNAL(timeout()), this, SLOT(checkFrame()));
 	m_framenb = -1;
@@ -195,3 +219,9 @@ QDebug  operator<<(QDebug dbg, const QGst::State &st)
 	return dbg;
 }
 
+Q_EXPORT_PLUGIN2(qtoyunda_qgstaudioplayer, QGstAudioPlayer)
+
+FilePlayer * QGstAudioPlayer::getMe()
+{
+    return this;
+}
