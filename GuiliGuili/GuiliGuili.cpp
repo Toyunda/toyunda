@@ -21,14 +21,23 @@ GuiliGuili::GuiliGuili()
     
     /* Load config
      */
-	m_karaoke_dir = "/nfs/skarsnik/Karaoke/";
+        QSetting settings("skarsnik.nyo.fr", "GuiliGuili");
+        m_qtoyunda = new QToyunda();
+        QDir pluginPath(PLUGIN_PATH);
+        m_qtoyunda->setPluginDirectory();
+        m_qtoyunda->loadPlugins();
+        if (settings.contains("karaoke_dir"))
+        {
+            int diagretour = m_configDialog.exec();
+            if (diagretour)
+                m_karaoke_dir = m_configDialog.ui->karaokeDirLineEdit.text();
+        }
 	QStringList rendererOption;
-	rendererOption << "logo=" + QDir::currentPath() + "/Toyunda logo.png";
+        rendererOption << "logo=qrc:/Toyunda logo.png";
 	QDir::setCurrent(m_karaoke_dir);
 	readKaraokeDir();
 	createToolbox();
 	m_currentSong = new Song();
-	m_qtoyunda = new QToyunda("qgstaudio", "qosd", QStringList(), rendererOption);
 	m_qtoyunda->init();
 	PlaylistModel *plmodel = new PlaylistModel(&m_currentPlaylist);
 	ui.playlistView->setModel(plmodel);

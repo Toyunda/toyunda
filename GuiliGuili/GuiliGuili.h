@@ -4,6 +4,7 @@
 #include <QtGui/QMainWindow>
 #include "ui_GuiliGuili.h"
 #include "playlist.h"
+#include "configdialog.h"
 #include "qtoyunda.h"
 
 class GuiliGuili : public QMainWindow
@@ -37,6 +38,7 @@ private slots :
 
 private :
 	Song*		m_currentSong;
+        ConfigDialog    m_configDialog;
 	Ui::GuiliGuili	ui;
 	QString		m_karaoke_dir;
 	Playlist	m_currentPlaylist;

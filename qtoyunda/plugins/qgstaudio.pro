@@ -2,6 +2,11 @@ TEMPLATE = lib
 
 CONFIG += plugin
 
+unix {
+    CONFIG += link_pkgconfig
+    PKGCONFIG += GStreamer-0.10 QtQStreamer-0.10
+}
+
 HEADERS = qgstaudioplayer.h \
           ../fileplayer.h
 
@@ -11,6 +16,9 @@ SOURCES = qgstaudioplayer.cpp \
           ../sqarg.cpp
 
 TARGET = $$qtLibraryTarget(qtoyunda_qgstaudioplayer)
+
+
+PKG_CONFIG +=
 
 win32:LIBS += C:/qt-gstreamer/install/lib/QtGStreamer-0.10.lib \
               C:/qt-gstreamer/install/lib/QtGLib-2.0.lib

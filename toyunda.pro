@@ -1,5 +1,9 @@
+include(proconfig.pri)
+
 TEMPLATE = subdirs
 
 SUBDIRS += \
-    qtoyunda
+    qtoyunda \
+    GuiliGuili
 
+GuiliGuili.depend = qtoyunda
