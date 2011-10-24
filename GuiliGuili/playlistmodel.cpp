@@ -41,7 +41,7 @@ QVariant PlaylistModel::data(const QModelIndex& index, int role) const
 
 int	PlaylistModel::rowCount(const QModelIndex& parent) const
 {
-	m_playlist->count();
+        return m_playlist->count();
 }
 
 PlaylistModel::PlaylistModel(Playlist* pl)

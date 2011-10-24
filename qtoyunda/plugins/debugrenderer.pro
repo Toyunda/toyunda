@@ -1,3 +1,5 @@
+include(../../proconfig.pri)
+
 TEMPLATE = lib
 CONFIG += plugin
 
@@ -16,4 +18,4 @@ SOURCES = debugrenderer.cpp \
 
 TARGET = $$qtLibraryTarget(qtoyunda_debugrenderer)
 
-
+DESTDIR = $$PLUGIN_PATH

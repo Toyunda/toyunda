@@ -1,4 +1,4 @@
 debug {
-    message($${debug.DESTDIR})
-    BASE_PATH=$$CONFIG.debug.DESTDIR
+    BASE_PATH=$$IN_PWD/build/
+    PLUGIN_PATH=$$BASE_PATH/plugins/
 }

@@ -108,10 +108,12 @@ void	QGstAudioPlayer::onBusMessage(const QGst::MessagePtr &message)
 bool	QGstAudioPlayer::init(const QStringList opt)
 {
 	handleOption(opt);
+#ifdef Q_WS_WIN
         QString tmpstr("GST_PLUGIN_PATH=" + qApp->applicationDirPath().toLatin1() + "/gst-plugins/");
         qDebug() << "Plugin path is : " << tmpstr;
         putenv(tmpstr.toLatin1().constData());
         putenv("GST_DEBUG=*:3");
+#endif
         try {
             QGst::init();
         } catch (QGlib::Error error)

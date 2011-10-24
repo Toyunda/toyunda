@@ -10,6 +10,9 @@ class ConfigDialog : public QDialog
     public:
         ConfigDialog();
         Ui::configDialog    ui;
+
+    private slots:
+        void    on_selectKaraokeDirButton_clicked();
 };
 
 #endif // CONFIGDIALOG_H

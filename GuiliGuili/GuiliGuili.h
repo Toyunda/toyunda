@@ -5,7 +5,7 @@
 #include "ui_GuiliGuili.h"
 #include "playlist.h"
 #include "configdialog.h"
-#include "qtoyunda.h"
+#include "../qtoyunda/qtoyunda.h"
 
 class GuiliGuili : public QMainWindow
 {

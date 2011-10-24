@@ -47,12 +47,12 @@ Playlist::~Playlist()
 
 bool	Playlist::load(const QString& fileName)
 {
-
+    return true;
 }
 
 bool	Playlist::save(const QString& fileName) const
 {
-
+    return true;
 }
 
 void	Playlist::add_song(const Song toadd)

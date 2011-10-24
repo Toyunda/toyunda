@@ -1,3 +1,4 @@
+include(../../proconfig.pri)
 
 TEMPLATE = lib
 CONFIG += plugin
@@ -13,3 +14,4 @@ SOURCES = fakeplayer.cpp \
           ../sqarg.cpp
 
 TARGET = $$qtLibraryTarget(qtoyunda_fakeplayer)
+DESTDIR = $$PLUGIN_PATH

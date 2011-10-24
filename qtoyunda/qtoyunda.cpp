@@ -153,7 +153,7 @@ bool    QToyunda::loadPlugins()
 {
     foreach(QString fileName, s_pluginDirectory.entryList(QDir::Files))
     {
-        if (!fileName.contains(QRegExp(".*\\.dll$")))
+        if (!fileName.contains(QRegExp(".*\\.(dll|so)$")))
             continue;
         qDebug() << "PLUGINS : Loading " << fileName;
         QPluginLoader loader(s_pluginDirectory.absoluteFilePath(fileName));
@@ -202,4 +202,29 @@ const QList<PluginInfo>& QToyunda::getPluginInfos() const
 void QToyunda::setPluginDirectory(QDir pluginDirectory)
 {
     s_pluginDirectory = pluginDirectory;
+}
+
+void QToyunda::setPlayerName(QString playerNam)
+{
+    s_playerName = playerNam;
+}
+
+QString QToyunda::playerName() const
+{
+    return s_playerName;
+}
+
+void QToyunda::setRendererName(QString rendererNam)
+{
+    s_rendererName = rendererNam;
+}
+
+QString QToyunda::rendererName() const
+{
+    return s_rendererName;
+}
+
+void QToyunda::setRendererOption(QStringList rendererOpt)
+{
+    s_rendererOption = rendererOpt;
 }

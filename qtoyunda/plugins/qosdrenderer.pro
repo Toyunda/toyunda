@@ -1,3 +1,5 @@
+include(../../proconfig.pri)
+
 QT += Gui
 TEMPLATE = lib
 CONFIG += plugin
@@ -16,3 +18,4 @@ SOURCES = qosd.cpp \
            ../toyundadrawer.cpp
 
 TARGET = $$qtLibraryTarget(qtoyunda_qosdrenderer)
+DESTDIR = $$PLUGIN_PATH

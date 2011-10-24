@@ -1,3 +1,7 @@
+include(../../proconfig.pri)
+
+message($$BASE_PATH)
+
 TEMPLATE = subdirs
 
 

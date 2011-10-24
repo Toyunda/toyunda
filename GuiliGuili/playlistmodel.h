@@ -30,7 +30,7 @@ class PlaylistModel : public QAbstractListModel
 
 public:
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
-    int rowCount(const QModelIndex& parent = QModelIndex()) const;
+    int         rowCount(const QModelIndex& parent = QModelIndex()) const;
     bool	dropMimeData( const QMimeData * data, Qt::DropAction action, int row, int column, const QModelIndex & parent );
     bool	insertRows ( int row, int count, const QModelIndex & parent = QModelIndex());
     bool	removeRows ( int row, int count, const QModelIndex & parent = QModelIndex());

@@ -1,7 +1,9 @@
+include(../proconfig.pri)
+
 TEMPLATE = app
 
 TARGET = qtoyunda-cmd
-
+DESTDIR = $$BASE_PATH
 
 SOURCES += \
     main.cpp

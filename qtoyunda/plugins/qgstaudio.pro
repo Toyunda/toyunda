@@ -1,10 +1,13 @@
+include(../../proconfig.pri)
+
+
 TEMPLATE = lib
 
 CONFIG += plugin
 
 unix {
     CONFIG += link_pkgconfig
-    PKGCONFIG += GStreamer-0.10 QtQStreamer-0.10
+    PKGCONFIG += gstreamer-0.10 QtGStreamer-0.10
 }
 
 HEADERS = qgstaudioplayer.h \
@@ -16,7 +19,7 @@ SOURCES = qgstaudioplayer.cpp \
           ../sqarg.cpp
 
 TARGET = $$qtLibraryTarget(qtoyunda_qgstaudioplayer)
-
+DESTDIR = $$PLUGIN_PATH
 
 PKG_CONFIG +=
 

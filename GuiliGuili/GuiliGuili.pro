@@ -1,23 +1,24 @@
-
+include(../proconfig.pri)
 
 TARGET = GuiliGuili
 
 HEADERS += \
     songlisttreeitemmodel.h \
     song.h \
-    playlistmodel.h \
     playlist.h \
     GuiliGuili.h \
-    configdialog.h
+    configdialog.h \
+    playlistmodel.h
+
 
 SOURCES += \
     songlisttreeitemmodel.cpp \
     song.cpp \
-    playlistmodel.cpp \
     playlist.cpp \
     main.cpp \
     GuiliGuili.cpp \
-    configdialog.cpp
+    configdialog.cpp \
+    playlistmodel.cpp
 
 FORMS += \
     GuiliGuili.ui \
@@ -26,6 +27,18 @@ FORMS += \
 RESOURCES += \
     icone.qrc
 
-DESTDIR = $$DESTDIR_PATH/
+DESTDIR = $$BASE_PATH
 
-DEFINES += PLUGIN_PATH="$$IN_PWD/../qtoyunda/plugins"
+message($$BASE_PATH)
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../qtoyunda/release/ -lqtoyunda_static
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../qtoyunda/debug/ -lqtoyunda_static
+else:symbian: LIBS += -lqtoyunda_static
+else:unix: LIBS += -L$$OUT_PWD/../qtoyunda -lqtoyunda_static
+
+INCLUDEPATH += $$PWD/../qtoyunda
+DEPENDPATH += $$PWD/../qtoyunda
+
+win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../qtoyunda/release/qtoyunda_static.lib
+else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../qtoyunda/debug/qtoyunda_static.lib
+else:unix:!symbian: PRE_TARGETDEPS += $$OUT_PWD/../qtoyunda/libqtoyunda_static.a

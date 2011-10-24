@@ -1,6 +1,7 @@
 #include "GuiliGuili.h"
 
 #include <QtGui/QLabel>
+#include <QSettings>
 #include <stdio.h>
 #include <stdlib.h>
 #include <QtGui/QMenu>
@@ -21,19 +22,29 @@ GuiliGuili::GuiliGuili()
     
     /* Load config
      */
-        QSetting settings("skarsnik.nyo.fr", "GuiliGuili");
+        QSettings settings("skarsnik.nyo.fr", "GuiliGuili");
         m_qtoyunda = new QToyunda();
-        QDir pluginPath(PLUGIN_PATH);
-        m_qtoyunda->setPluginDirectory();
+        QDir pluginPath = qApp->applicationDirPath();
+        pluginPath.cd("plugins");
+        qDebug() << pluginPath;
+        m_qtoyunda->setPluginDirectory(pluginPath);
         m_qtoyunda->loadPlugins();
-        if (settings.contains("karaoke_dir"))
+        if (!settings.contains("karaoke_dir"))
         {
             int diagretour = m_configDialog.exec();
-            if (diagretour)
-                m_karaoke_dir = m_configDialog.ui->karaokeDirLineEdit.text();
+            if (diagretour) {
+                m_karaoke_dir = m_configDialog.ui.karaokeDirLineEdit->text();
+                settings.setValue("karaoke_dir", m_karaoke_dir);
+            }
+        } else
+        {
+            m_karaoke_dir = settings.value("karaoke_dir").toString();
         }
+        m_qtoyunda->setPlayerName("qgstaudio");
+        m_qtoyunda->setRendererName("qosd");
 	QStringList rendererOption;
-        rendererOption << "logo=qrc:/Toyunda logo.png";
+        rendererOption << "logo=:/main/Toyunda logo.png";
+        m_qtoyunda->setRendererOption(rendererOption);
 	QDir::setCurrent(m_karaoke_dir);
 	readKaraokeDir();
 	createToolbox();
