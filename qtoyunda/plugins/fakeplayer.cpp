@@ -24,21 +24,23 @@
 FakePlayer::FakePlayer() : FilePlayer()
 {
   setIdentifier("fake");
-  addOption("interval", QString("50"), "The time in mlsec between two tick");
+  addOption("interval", 50, "The time in mlsec between two tick");
   addOption("start", 0, "The start time in frame number");
+  addOption("duration", 0, "The duration of the fake stream");
 }
 
 bool	FakePlayer::init(const QStringList opt)
 {
   handleOption(opt);
   interval = optionValue["interval"].toInt();
+  qDebug() << "Interval : " << interval;
   frameNumber = optionValue["start"].toInt();
   return true;
 }
 
 void	FakePlayer::open(const QString file)
 {
-  
+    frameNumber = 0;
 }
 
 void	FakePlayer::seek(const int toseek)
@@ -49,8 +51,12 @@ void	FakePlayer::seek(const int toseek)
 
 void	FakePlayer::play()
 {
-  connect(&timer, SIGNAL(timeout()), this, SLOT(newTick()));
-  //emit played();
+  duration = optionValue["duration"].toInt();
+  static bool first = true;
+  if (first)
+            connect(&timer, SIGNAL(timeout()), this, SLOT(newTick()));
+  first = false;
+  emit played();
   timer.start(interval);
 }
 
@@ -62,7 +68,12 @@ void	FakePlayer::stop()
 
 void	FakePlayer::newTick()
 {
+    qDebug() << frameNumber;
     emit frameChanged(frameNumber++);
+    if (frameNumber * interval >= duration) {
+        emit finished();
+        timer.stop();
+    }
 }
 
 FilePlayer* FakePlayer::getMe()

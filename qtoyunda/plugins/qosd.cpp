@@ -29,6 +29,8 @@ QOSD::QOSD(QWidget *parent) : ToyundaRenderer(), QWidget(parent)
   addOption("iratio", 1.0, "Interline ratio for ToyundaDrawer");
   addOption("logoratio", 0.8, "Scaling of the logo, the default size of the logo is the interline sizex0.8, 0.8 is this option");
   addOption("logo", "Toyunda logo.png", "Set the logo file");
+  addOption("font", ToyundaFontName, "The font decription used to render subtitle, default : " + ToyundaFontName);
+  addOption("fontsize", ToyundaFontSize, "The font size, default : " + ToyundaFontSize);
   setWindowFlags(Qt::Window | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
   setAttribute(Qt::WA_NoBackground, true);
   setAttribute(Qt::WA_NoSystemBackground, true);
@@ -42,11 +44,14 @@ bool  QOSD::init(QStringList opt)
   handleOption(opt);
   toyundaDrawer.setIntervalRatio(optionValue["iratio"].toDouble());
   toyundaDrawer.setRatio(optionValue["ratio"].toDouble());
+  if (optionValue["ratio"].toDouble() == 1.0)
+      toyundaDrawer.setRatio(optionValue["hratio"].toDouble(), optionValue["vratio"].toDouble());
+
   setFixedSize(QSize(toyundaDrawer.width(), toyundaDrawer.height()));
-  QFont f(ToyundaFontName, (int) ToyundaFontSize * optionValue["ratio"].toDouble());
+  QFont f(optionValue["font"].toString(), (int) optionValue["fontsize"].toDouble() * optionValue["ratio"].toDouble());
   f.setFixedPitch(true);
   toyundaDrawer.setFont(f);
-  toyundaDrawer.setLogo(QImage(optionValue["logo"].toString()));
+  toyundaDrawer.setLogo(QImage(optionValue["logo"].toString()), optionValue["logoratio"].toDouble());
   qDebug() << toyundaDrawer.width() << toyundaDrawer.height();
   return true;
 }

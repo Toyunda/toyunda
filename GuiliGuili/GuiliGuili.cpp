@@ -59,7 +59,14 @@ GuiliGuili::GuiliGuili()
         {
             m_karaoke_dir = settings.value("karaoke_dir").toString();
         }
+#ifdef Q_WS_WI
+        m_qtoyunda->setPlayerName("fake");
+        QStringList playerOption;
+        playerOption << "duration=5000";
+        m_qtoyunda->setPlayerOption(playerOption);
+#else
         m_qtoyunda->setPlayerName("qgstaudio");
+#endif
         m_qtoyunda->setRendererName("qosd");
 	QStringList rendererOption;
         rendererOption << "logo=:/main/Toyunda logo.png";
@@ -68,6 +75,7 @@ GuiliGuili::GuiliGuili()
 	readKaraokeDir();
 	createToolbox();
 	m_currentSong = new Song();
+
 	m_qtoyunda->init();
 	PlaylistModel *plmodel = new PlaylistModel(&m_currentPlaylist);
 	ui.playlistView->setModel(plmodel);
@@ -91,6 +99,7 @@ void GuiliGuili::play()
 {
 	qDebug() << "play";
 	m_qtoyunda->showRenderer();
+        qDebug() << m_currentSong->videoPath;
 	m_qtoyunda->load("Videos/" + m_currentSong->videoPath, "Lyrics/" + m_currentSong->subtitlePath);
 	m_qtoyunda->play();
 }

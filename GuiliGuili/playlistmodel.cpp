@@ -63,7 +63,10 @@ void PlaylistModel::setPlaylist(Playlist* pl)
 
 bool PlaylistModel::insertRows(int row, int count, const QModelIndex& parent)
 {
-	beginInsertRows(parent, row, row + count);
+        qDebug() << "row : " << row << " - count :" << count;
+        if (row == -1)
+                row = 0;
+        beginInsertRows(parent, row, row + count);
 	endInsertRows();
 	return true;
 	
@@ -113,8 +116,8 @@ bool PlaylistModel::dropMimeData(const QMimeData* data, Qt::DropAction action, i
 
 		//code based on QAbstractItemModel::decodeData
 		// adapted to work with QStandardItem
-		int top = __INT_MAX__;
-		int left = __INT_MAX__;
+                int top = INT_MAX;
+                int left = INT_MAX;
 		int bottom = 0;
 		int right = 0;
 		QVector<int> rows, columns;

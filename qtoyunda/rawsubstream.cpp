@@ -34,16 +34,16 @@ RawSubStream::RawSubStream(const QString filePath) : ToyundaSubStream()
 
 void	RawSubStream::createFromFile(QString filePath)
 {
-  QRegExp isLogoLine("(\\|*)(\\s*)\xff");
+/*  QRegExp isLogoLine("(\\|*)(\\s*)\xff");
   QRegExp isToyLine("^\\s*\\{(\\d+)\\}\\{(\\d+)\\}(.+)\n");
   QRegExp findPipe("^\\s*(\\|+)([^|]*)");
-  QRegExp findMultiLine("^\\s*(\\|*)([^|]+)(\\|+)(.*)");
+  QRegExp findMultiLine("^\\s*(\\|*)([^|]+)(\\|+)(.*)");*/
 
   QFile toyfile(filePath);
-  QTextStream cerr(stderr);
 
   currentFrame = 0;
   if (!toyfile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+      qDebug() << "plop";
     qCritical() << "Can't read : " << filePath;
     return ;
   }

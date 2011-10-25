@@ -77,10 +77,10 @@ void	ToyundaDrawer::setFont(const QFont newFont)
   qDebug() << "Letter height : " << letterHeight <<  "Letter width : " << letterWidth;
 }
 
-void	ToyundaDrawer::setLogo(const QImage img)
+void	ToyundaDrawer::setLogo(const QImage img, double imgRatio = 0.8)
 {
   toyundaLogo = img;
-  toyundaLogo = toyundaLogo.scaled(lineInterval * 0.8, lineInterval * 0.8);
+  toyundaLogo = toyundaLogo.scaled(lineInterval * imgRatio, lineInterval * imgRatio);
 }
 
 void    ToyundaDrawer::drawGrid(QPainter &painter) const

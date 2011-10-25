@@ -229,3 +229,8 @@ void QToyunda::setRendererOption(QStringList rendererOpt)
 {
     s_rendererOption = rendererOpt;
 }
+
+void QToyunda::setPlayerOption(QStringList playerOpt)
+{
+    s_playerOption = playerOpt;
+}

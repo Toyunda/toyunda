@@ -31,7 +31,7 @@ class ToyundaDrawer
     void	setRatio(const float ratio);
     void	setIntervalRatio(const float rat);
     void	setFont(const QFont nFont);
-    void	setLogo(const QImage img);
+    void	setLogo(const QImage img, double logoratio);
     unsigned int width() const;
     unsigned int height() const;
     void        drawGrid(QPainter &painter) const;

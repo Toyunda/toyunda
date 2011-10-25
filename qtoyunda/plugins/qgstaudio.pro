@@ -21,7 +21,6 @@ SOURCES = qgstaudioplayer.cpp \
 TARGET = $$qtLibraryTarget(qtoyunda_qgstaudioplayer)
 DESTDIR = $$PLUGIN_PATH
 
-PKG_CONFIG +=
 
 win32:LIBS += C:/qt-gstreamer/install/lib/QtGStreamer-0.10.lib \
               C:/qt-gstreamer/install/lib/QtGLib-2.0.lib

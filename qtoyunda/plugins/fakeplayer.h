@@ -51,6 +51,7 @@ class FakePlayer : public FilePlayer, public AbstractFilePlayer
   private:
     unsigned int interval;
     QTimer	timer;
+    int         duration;
     int		frameNumber;
 };
 

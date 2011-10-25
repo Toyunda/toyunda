@@ -28,36 +28,56 @@ const QString  ToyundaFontName = "Bitstream Vera Sans Mono Bold";
 
 bool    operator<(const ToyundaText toy, const ToyundaText toy2)
 {
+  if (&toy == &toy2)
+    return false;
   if (toy.start > toy2.start)
     return false;
-  else if (toy.start == toy2.start)
-  {
-    if (toy.stop > toy2.stop)
-      return false;
-    else if (toy.stop < toy2.stop)
-      return true;
-    else
-      return true;
-  }
   else
-    return true;
+        if (toy.start == toy2.start)
+        {
+             if (toy.stop > toy2.stop)
+                return false;
+             else
+             {
+                if (toy.stop < toy2.stop)
+                    return true;
+                else
+                {
+                    if (toy.pipeNumber < toy2.pipeNumber)
+                        return true;
+                    else
+                        return false;
+                }
+             }
+        }
+        else
+            return true;
 }
 
 bool    operator<(const ToyundaSyl syl, const ToyundaSyl syl2)
 {
   if (syl.start > syl2.start)
     return false;
-  else if (syl.start == syl2.start)
-  {
-    if (syl.stop > syl2.stop)
-      return false;
-    else if (syl.stop < syl2.stop)
-      return true;
-    else
-      return true;
-  }
   else
-    return true;
+      if (syl.start == syl2.start)
+      {
+        if (syl.stop > syl2.stop)
+            return false;
+        else
+        {
+            if (syl.stop < syl2.stop)
+                return true;
+            else
+            {
+                if (syl.pipeNumber < syl2.pipeNumber)
+                    return true;
+                else
+                    return false;
+            }
+        }
+      }
+      else
+          return true;
 }
 
 
