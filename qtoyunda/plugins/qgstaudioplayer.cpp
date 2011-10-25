@@ -124,7 +124,7 @@ bool	QGstAudioPlayer::init(const QStringList opt)
         }
 
 	QGst::BusPtr bus;
-	QGst::ElementPtr conv, asink, queuea, queuev;
+        QGst::ElementPtr conv, asink, queuea, queuev, resample;
 
 	m_pipeline = QGst::Pipeline::create();
 	m_src = QGst::ElementFactory::make("filesrc");
@@ -140,11 +140,13 @@ bool	QGstAudioPlayer::init(const QStringList opt)
 	
 	m_audiobin = QGst::Bin::create("-Audio bin");
 	conv = QGst::ElementFactory::make("audioconvert");
+        resample = QGst::ElementFactory::make("audioresample");
 	asink = QGst::ElementFactory::make("autoaudiosink", "Auto Audio Sink");
-	m_audiobin->add(queuea, conv, asink);
+        m_audiobin->add(queuea, conv, resample, asink);
 	QGst::PadPtr audiopad = queuea->getStaticPad("sink"); 
 	queuea->link(conv);
-	conv->link(asink);
+        conv->link(resample);
+        resample->link(asink);
 	QGst::GhostPadPtr gpad = QGst::GhostPad::create(audiopad, "sink");
 	m_audiobin->addPad(gpad);
 	
