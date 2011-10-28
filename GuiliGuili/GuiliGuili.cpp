@@ -18,7 +18,7 @@
 
 
 #include "GuiliGuili.h"
-
+#include <QThread>
 #include <QtGui/QLabel>
 #include <QSettings>
 #include <stdio.h>
@@ -41,24 +41,25 @@ GuiliGuili::GuiliGuili()
     
     /* Load config
      */
-        QSettings settings("skarsnik.nyo.fr", "GuiliGuili");
+	m_settings = new QSettings("skarsnik.nyo.fr", "GuiliGuili");
         m_qtoyunda = new QToyunda();
         QDir pluginPath = qApp->applicationDirPath();
         pluginPath.cd("plugins");
         qDebug() << pluginPath;
         m_qtoyunda->setPluginDirectory(pluginPath);
         m_qtoyunda->loadPlugins();
-        if (!settings.contains("karaoke_dir"))
+	if (!m_settings->contains("karaoke_dir"))
         {
-            int diagretour = m_configDialog.exec();
+	    int diagretour = m_configDialog.exec();
             if (diagretour) {
                 m_karaoke_dir = m_configDialog.ui.karaokeDirLineEdit->text();
-                settings.setValue("karaoke_dir", m_karaoke_dir);
+		m_settings->setValue("karaoke_dir", m_karaoke_dir);
             }
         } else
         {
-            m_karaoke_dir = settings.value("karaoke_dir").toString();
+	    m_karaoke_dir = m_settings->value("karaoke_dir").toString();
         }
+	qDebug() << "I am the GuiGui and I am in thread : " << QThread::currentThreadId();
 #ifdef Q_WS_WI
         m_qtoyunda->setPlayerName("fake");
         QStringList playerOption;
@@ -71,12 +72,16 @@ GuiliGuili::GuiliGuili()
 	QStringList rendererOption;
         rendererOption << "logo=:/main/Toyunda logo.png";
         m_qtoyunda->setRendererOption(rendererOption);
-	QDir::setCurrent(m_karaoke_dir);
-	readKaraokeDir();
-	createToolbox();
-	m_currentSong = new Song();
 
+
+	// Ui elemen
+	QStandardItemModel	*model =  new QStandardItemModel();
+	ui.songTreeView->setModel(model);
+
+	setKaraokeDir();
+        PopulateTreePluginInfo(m_qtoyunda->getPluginInfos());
 	m_qtoyunda->init();
+        //m_qtoyunda->setRendererQWidgetParent(this);
 	PlaylistModel *plmodel = new PlaylistModel(&m_currentPlaylist);
 	ui.playlistView->setModel(plmodel);
 	ui.playlistView->setAcceptDrops(true);
@@ -97,11 +102,13 @@ GuiliGuili::~GuiliGuili()
 
 void GuiliGuili::play()
 {
-	qDebug() << "play";
-	m_qtoyunda->showRenderer();
-        qDebug() << m_currentSong->videoPath;
-	m_qtoyunda->load("Videos/" + m_currentSong->videoPath, "Lyrics/" + m_currentSong->subtitlePath);
-	m_qtoyunda->play();
+    if (!m_currentSong.title.isEmpty()) {
+	    qDebug() << "play";
+	    m_qtoyunda->showRenderer();
+	    qDebug() << m_currentSong.videoPath;
+	    m_qtoyunda->load("Videos/" + m_currentSong.videoPath, "Lyrics/" + m_currentSong.subtitlePath);
+	    m_qtoyunda->play();
+	}
 }
 
 
@@ -155,7 +162,7 @@ void	GuiliGuili::nextSong()
 {
 	if ((m_currentPos + 1 < m_currentPlaylist.count()))
 	{
-		*m_currentSong = m_currentPlaylist.at(m_currentPos + 1);
+		m_currentSong = m_currentPlaylist.at(m_currentPos + 1);
 		play();
 	}
 }
@@ -163,11 +170,11 @@ void	GuiliGuili::nextSong()
 
 
 // Init fonction
-void	GuiliGuili::createToolbox()
+void	GuiliGuili::populateSongView()
 {	
 	QMutableMapIterator<QString, QList<Song *> > it(m_songByAlpha);
 	
-	QStandardItemModel	*model =  new QStandardItemModel();
+	QStandardItemModel *model = static_cast<QStandardItemModel*>(ui.songTreeView->model());
 	QStandardItem	*parentItem = model->invisibleRootItem();
 	//SongListTreeItemModel	*model = new SongListTreeItemModel();
 	
@@ -177,7 +184,7 @@ void	GuiliGuili::createToolbox()
 		QList<Song *>* lsg = &(it.value());
 		QStandardItem	*categoryItem = new QStandardItem();
 		categoryItem->setData(it.key(), Qt::DisplayRole);
-		QVariant v1 = qVariantFromValue((uint) lsg);
+		QVariant v1 = qVariantFromValue((quintptr) lsg);
 		categoryItem->setData(v1, Qt::UserRole + 1);
 		categoryItem->setEditable(false);
 		parentItem->appendRow(categoryItem);
@@ -188,18 +195,27 @@ void	GuiliGuili::createToolbox()
 			QStandardItem	*songItem = new QStandardItem();
 			songItem->setData(sg->title, Qt::DisplayRole);
 			songItem->setEditable(false);
-			QVariant v = qVariantFromValue((uint) sg);
+			QVariant v = qVariantFromValue((quintptr) sg);
 			songItem->setData(v, Qt::UserRole + 1);
 			categoryItem->appendRow(songItem);
 		}
 	}
-	
-	ui.songTreeView->setModel(model);
 }
 
 void GuiliGuili::on_playButton_clicked()
 {
 	play();
+}
+
+void    GuiliGuili::on_configurationButton_clicked()
+{
+	m_configDialog.ui.karaokeDirLineEdit->setText(m_karaoke_dir);
+	if (m_configDialog.exec());
+	{
+	    m_karaoke_dir = m_configDialog.ui.karaokeDirLineEdit->text();
+	    m_settings->setValue("karaoke_dir", m_karaoke_dir);
+	    setKaraokeDir();
+	}
 }
 
 void GuiliGuili::playlistView_selectionChanged(const QItemSelection& selected , const QItemSelection& deselected)
@@ -213,6 +229,43 @@ void GuiliGuili::playlistView_selectionChanged(const QItemSelection& selected , 
 	qDebug() << s;
 	qDebug() << s.prefix;
 	m_currentPos = index.row();
-	*m_currentSong = s;
+	m_currentSong = s;
+}
+
+void GuiliGuili::PopulateTreePluginInfo(QList<PluginInfo> plInfo)
+{
+
+    QTreeWidgetItem *playerItem = new QTreeWidgetItem(m_configDialog.ui.pluginInfoTreeWidget);
+    playerItem->setText(0, "Player");
+    QTreeWidgetItem *rendererItem = new QTreeWidgetItem(m_configDialog.ui.pluginInfoTreeWidget);
+    rendererItem->setText(0, "Renderer");
+    foreach (PluginInfo plugInfo, plInfo) {
+        QTreeWidgetItem *interfaceItem;
+        if (plugInfo.type == PluginType::Player)
+            interfaceItem = new QTreeWidgetItem(playerItem);
+        if (plugInfo.type == PluginType::Renderer)
+            interfaceItem = new QTreeWidgetItem(rendererItem);
+        interfaceItem->setText(0, plugInfo.fileInfo.baseName());
+        QTreeWidgetItem *featureItem = new QTreeWidgetItem(interfaceItem);
+        featureItem->setText(0, plugInfo.name);
+    }
+}
+
+void GuiliGuili::closeEvent(QCloseEvent *)
+{
+    m_qtoyunda->dispose();
+}
+
+void GuiliGuili::setKaraokeDir()
+{
+    m_allsongs.clear();
+    m_songByAlpha.clear();
+    m_songByType.clear();
+    QDir::setCurrent(m_karaoke_dir);
+    readKaraokeDir();
+    delete ui.songTreeView->model();
+    QStandardItemModel	*model = new QStandardItemModel;
+    ui.songTreeView->setModel(model);
+    populateSongView();
 }
 

@@ -21,6 +21,7 @@
 #define GuiliGuili_H
 
 #include <QtGui/QMainWindow>
+#include <QSettings>
 #include "ui_GuiliGuili.h"
 #include "playlist.h"
 #include "configdialog.h"
@@ -34,20 +35,24 @@ public:
     virtual ~GuiliGuili();
 
 private:
-	void		readKaraokeDir();
 
-	void		createToolbox();
 	void		play();
 	void		stop();
 	void		nextSong();
-	void		prevSong();
+        void		prevSong();
+	void		setKaraokeDir();
+	void		readKaraokeDir();
+	void		populateSongView();
+        void            PopulateTreePluginInfo(QList<PluginInfo>);
 	void		openPlaylist(QString);
 	void		savePlaylist(QString);
 	
 private slots :
 	//Ui slots
 	void		on_playButton_clicked();
+        void            on_configurationButton_clicked();
 	void		playlistView_selectionChanged(const QItemSelection &, const QItemSelection &);
+        void            closeEvent(QCloseEvent *);
 	
 	//other slots
 	void		song_paused();
@@ -56,14 +61,15 @@ private slots :
 	void		song_finished();
 
 private :
-	Song*		m_currentSong;
+	Song		m_currentSong;
         ConfigDialog    m_configDialog;
 	Ui::GuiliGuili	ui;
 	QString		m_karaoke_dir;
 	Playlist	m_currentPlaylist;
 	uint		m_currentPos;
+	QSettings*	m_settings;
 	QList<Song*>	m_allsongs;
-	QToyunda	*m_qtoyunda;
+	QToyunda*	m_qtoyunda;
 	QMap<QString, QList<Song *> > m_songByAlpha;
 	QMap<QString, QList<Song *> > m_songByType;
 };

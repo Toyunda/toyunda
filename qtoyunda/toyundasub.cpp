@@ -28,8 +28,6 @@ const QString  ToyundaFontName = "Bitstream Vera Sans Mono Bold";
 
 bool    operator<(const ToyundaText toy, const ToyundaText toy2)
 {
-  if (&toy == &toy2)
-    return false;
   if (toy.start > toy2.start)
     return false;
   else
@@ -43,7 +41,7 @@ bool    operator<(const ToyundaText toy, const ToyundaText toy2)
                     return true;
                 else
                 {
-                    if (toy.pipeNumber < toy2.pipeNumber)
+		    if (toy._id < toy2._id)
                         return true;
                     else
                         return false;

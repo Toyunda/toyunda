@@ -1,0 +1,46 @@
+
+{362}{372}{c:$00FFFFFF:$FFFFFFFF}yoru no machi wa tsumetai ne
+{372}{397}{c:$FFFFFF}yoru no machi wa tsumetai ne
+{397}{404}{c:$00CCFF}yo                          
+{397}{404}{c:$FFFFFF}  ru no machi wa tsumetai ne
+{397}{404}|ÿ                           
+{404}{409}{c:$886600}yo                          
+{404}{409}{c:$00CCFF}  ru                        
+{404}{409}{c:$FFFFFF}     no machi wa tsumetai ne
+{404}{409}|  ÿ                         
+{409}{419}{c:$886600}yoru                        
+{409}{419}{c:$00CCFF}     no                     
+{409}{419}{c:$FFFFFF}        machi wa tsumetai ne
+{409}{419}|    ÿ                       
+{419}{424}{c:$886600}yoru no                     
+{419}{424}{c:$00CCFF}        ma                  
+{419}{424}{c:$FFFFFF}          chi wa tsumetai ne
+{419}{424}|       ÿ                    
+{424}{429}{c:$886600}yoru no ma                  
+{424}{429}{c:$00CCFF}          chi               
+{424}{429}{c:$FFFFFF}              wa tsumetai ne
+{424}{429}|         ÿ                 
+{429}{437}{c:$886600}yoru no machi               
+{429}{437}{c:$00CCFF}              wa            
+{429}{437}{c:$FFFFFF}                 tsumetai ne
+{429}{437}|             ÿ              
+{437}{441}{c:$886600}yoru no machi wa            
+{437}{441}{c:$00CCFF}                 tsu        
+{437}{441}{c:$FFFFFF}                    metai ne
+{437}{441}|                ÿ           
+{441}{445}{c:$886600}yoru no machi wa tsu        
+{441}{445}{c:$00CCFF}                    me      
+{441}{445}{c:$FFFFFF}                      tai ne
+{441}{445}|                   ÿ        
+{445}{458}{c:$886600}yoru no machi wa tsume      
+{445}{458}{c:$00CCFF}                      ta    
+{445}{458}{c:$FFFFFF}                        i ne
+{445}{458}|                     ÿ      
+{458}{463}{c:$886600}yoru no machi wa tsumeta    
+{458}{463}{c:$00CCFF}                        i   
+{458}{463}{c:$FFFFFF}                          ne
+{458}{463}|                       ÿ    
+{463}{474}{c:$886600}yoru no machi wa tsumetai   
+{463}{474}{c:$00CCFF}                          ne
+{463}{474}|                        ÿ   
+{474}{489}{c:$FF886600:$00886600}yoru no machiwa tsumetai ne

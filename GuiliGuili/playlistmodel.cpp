@@ -63,7 +63,6 @@ void PlaylistModel::setPlaylist(Playlist* pl)
 
 bool PlaylistModel::insertRows(int row, int count, const QModelIndex& parent)
 {
-        qDebug() << "row : " << row << " - count :" << count;
         if (row == -1)
                 row = 0;
         beginInsertRows(parent, row, row + count);
@@ -138,7 +137,7 @@ bool PlaylistModel::dropMimeData(const QMimeData* data, Qt::DropAction action, i
 			right = qMax(c, right);
 			if (item->hasChildren())
 			{
-				QList<Song*>* sgl = (QList<Song *>*) item->data(Qt::UserRole + 1).value<uint>();
+				QList<Song*>* sgl = (QList<Song *>*) item->data(Qt::UserRole + 1).value<quintptr>();
 				QListIterator<Song *> it(*sgl);
 				while (it.hasNext())
 				{
@@ -149,7 +148,7 @@ bool PlaylistModel::dropMimeData(const QMimeData* data, Qt::DropAction action, i
 			}
 			else
 			{
-				Song* sg = (Song *) item->data(Qt::UserRole + 1).value<uint>();
+				Song* sg = (Song *) item->data(Qt::UserRole + 1).value<quintptr>();
 				m_playlist->add_song(*sg);
 				insertRows(row, 1 , parent);
 			}

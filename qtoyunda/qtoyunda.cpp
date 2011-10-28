@@ -19,6 +19,7 @@
 #include <QApplication>
 #include <QPluginLoader>
 #include <QDir>
+#include <QThread>
 #include "qtoyunda.h"
 #include "rawsubstream.h"
 #include "abstractrenderer.h"
@@ -80,15 +81,16 @@ void  QToyunda::load(QString videoFil, QString subtitleFil)
 {
   s_subtitleFile = subtitleFil;
   s_videoFile = videoFil;
-  qDebug() << "===============Load subtitle===============";
+  qDebug() << "===============Load subtitle===============" << s_subtitleFile;
   toyundaSub->createFromFile(s_subtitleFile);
-  qDebug() << "===============Open video==================";
+  qDebug() << "===============Open video==================" << s_videoFile;
   player->open(s_videoFile);
 }
 
 void  QToyunda::play()
 {
   qDebug() << "===============Playing the video===========";
+//  qDebug() << "Hi I am qtoyunda play and I am in thread : " << QThread::currentThreadId();
   player->play();
 }
 
@@ -233,4 +235,15 @@ void QToyunda::setRendererOption(QStringList rendererOpt)
 void QToyunda::setPlayerOption(QStringList playerOpt)
 {
     s_playerOption = playerOpt;
+}
+
+void QToyunda::setRendererQWidgetParent(QWidget *wid)
+{
+    renderer->setQWidgetParent(wid);
+}
+
+void QToyunda::dispose()
+{
+    player->dispose();
+    renderer->dispose();
 }

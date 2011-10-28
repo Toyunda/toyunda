@@ -47,6 +47,7 @@ void	RawSubStream::createFromFile(QString filePath)
     qCritical() << "Can't read : " << filePath;
     return ;
   }
+  uint	Tid;
   allSyl.clear();
   allText.clear();
   currentItSyl = allSyl.begin();
@@ -68,8 +69,10 @@ void	RawSubStream::createFromFile(QString filePath)
 	text.posy = g.posy;
 	text.text = g.text;
 	text.size = g.size;
+	text._id = Tid;
 	text.pipeNumber = g.pipeNumber;
         allText.insert(text);
+	Tid++;
       } // Syl
 	else {
         ToyundaSyl syl;
@@ -84,7 +87,13 @@ void	RawSubStream::createFromFile(QString filePath)
       }
     }
   }
-    currentItSyl = allSyl.begin();
+  qDebug() << "=============================";
+  std::set<ToyundaText>::iterator it = allText.begin();
+  for (;it != allText.end(); ++it)
+  {
+      qDebug() << (*it).start;
+  }
+  currentItSyl = allSyl.begin();
   currentItText = allText.begin();
 }
 

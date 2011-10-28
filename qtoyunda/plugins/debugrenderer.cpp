@@ -68,4 +68,11 @@ ToyundaRenderer * DebugRenderer::getMe()
     return this;
 }
 
+void DebugRenderer::dispose()
+{
+    return;
+}
+
+
 Q_EXPORT_PLUGIN2(qtoyunda_debugrenderer, DebugRenderer)
+

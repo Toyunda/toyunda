@@ -34,8 +34,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>355</width>
-               <height>383</height>
+               <width>350</width>
+               <height>407</height>
               </rect>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -48,7 +48,7 @@
                  <bool>true</bool>
                 </property>
                 <property name="selectionMode">
-                 <enum>QAbstractItemView::MultiSelection</enum>
+                 <enum>QAbstractItemView::ExtendedSelection</enum>
                 </property>
                </widget>
               </item>
@@ -155,7 +155,7 @@
                <string>...</string>
               </property>
               <property name="icon">
-               <iconset resource="../qgui/icone.qrc">
+               <iconset resource="icone.qrc">
                 <normaloff>:/main/icons/media-track-remove-amarok.png</normaloff>:/main/icons/media-track-remove-amarok.png</iconset>
               </property>
               <property name="iconSize">
@@ -182,6 +182,13 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
+         <widget class="QPushButton" name="configurationButton">
+          <property name="text">
+           <string>Configuration</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <spacer name="horizontalSpacer_3">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -200,7 +207,7 @@
            <string/>
           </property>
           <property name="icon">
-           <iconset resource="../qgui/icone.qrc">
+           <iconset resource="icone.qrc">
             <normaloff>:/main/icons/player_rew.svgz</normaloff>:/main/icons/player_rew.svgz</iconset>
           </property>
           <property name="iconSize">
@@ -217,7 +224,7 @@
            <string/>
           </property>
           <property name="icon">
-           <iconset resource="../qgui/icone.qrc">
+           <iconset resource="icone.qrc">
             <normaloff>:/main/icons/player_play.svgz</normaloff>:/main/icons/player_play.svgz</iconset>
           </property>
           <property name="iconSize">
@@ -234,7 +241,7 @@
            <string/>
           </property>
           <property name="icon">
-           <iconset resource="../qgui/icone.qrc">
+           <iconset resource="icone.qrc">
             <normaloff>:/main/icons/player_fwd.svgz</normaloff>:/main/icons/player_fwd.svgz</iconset>
           </property>
           <property name="iconSize">
@@ -264,26 +271,10 @@
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>748</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menuCOnfiguration">
-    <property name="title">
-     <string>Configuration</string>
-    </property>
-   </widget>
-   <addaction name="menuCOnfiguration"/>
-  </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources>
-  <include location="../qgui/icone.qrc"/>
+  <include location="icone.qrc"/>
  </resources>
  <connections/>
 </ui>

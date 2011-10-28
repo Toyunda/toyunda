@@ -19,6 +19,7 @@
 #include <QDebug>
 #include <QApplication>
 #include <QTimer>
+#include <QThread>
 #include <QFileInfo>
 #include "qgstaudioplayer.h"
 #include <qplugin.h>
@@ -113,7 +114,7 @@ bool	QGstAudioPlayer::init(const QStringList opt)
         QString tmpstr("GST_PLUGIN_PATH=" + qApp->applicationDirPath().toLatin1() + "/gst-plugins/");
         qDebug() << "Plugin path is : " << tmpstr;
         putenv(tmpstr.toLatin1().constData());
-        putenv("GST_DEBUG=*:3");
+	putenv("GST_DEBUG=*:1");
 #endif
         try {
             QGst::init();
@@ -182,6 +183,7 @@ void	QGstAudioPlayer::seek(const int toseek)
 
 void	QGstAudioPlayer::play()
 {
+    qDebug() << "Hi I am GGstAudioPlayer and I am in thread : " << QThread::currentThreadId();
     if (m_pipeline->setState(QGst::StatePlaying) == QGst::StateChangeFailure) {
 		qDebug() << "Failed to change state";
                  return ;
@@ -190,6 +192,7 @@ void	QGstAudioPlayer::play()
 	connect(timer, SIGNAL(timeout()), this, SLOT(checkFrame()));
 	m_framenb = -1;
 	timer->start(20);
+    qDebug() << "end of gstaudioplay";
 }
 
 void	QGstAudioPlayer::stop()
@@ -199,12 +202,14 @@ void	QGstAudioPlayer::stop()
 
 void	QGstAudioPlayer::checkFrame()
 {
-	QGst::PositionQueryPtr query = QGst::PositionQuery::create(QGst::FormatTime);
-        m_pipeline->query(query);
-        int tmp = ((query->position() / 1000000) * framerate) / 1000;
+    qDebug() << "Je vérifie les frames";
+    QGst::PositionQueryPtr query = QGst::PositionQuery::create(QGst::FormatTime);
+    m_pipeline->query(query);
+    int tmp = ((query->position() / 1000000) * framerate) / 1000;
 	if (m_framenb != tmp)
 	{
 		m_framenb = tmp;
+		qDebug() << "";
 		emit frameChanged(m_framenb);
 	}
 }
@@ -229,4 +234,9 @@ Q_EXPORT_PLUGIN2(qtoyunda_qgstaudioplayer, QGstAudioPlayer)
 FilePlayer * QGstAudioPlayer::getMe()
 {
     return this;
+}
+
+void QGstAudioPlayer::dispose()
+{
+    QGst::cleanup();
 }

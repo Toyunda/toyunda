@@ -40,8 +40,10 @@ class QOSD : public QWidget, public ToyundaRenderer, public AbstractRenderer
   public:
     QOSD(QWidget *parent = 0);
     bool  init(QStringList opt = QStringList());
+    void    dispose();
     void	show();
     void	hide();
+    void        setQWidgetParent(QWidget *);
     ToyundaRenderer *getMe();
 
   public slots:

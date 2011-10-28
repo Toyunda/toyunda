@@ -43,6 +43,8 @@ class FilePlayer : public QObject, public SComponent
 		 */
 		virtual bool	init(const QStringList optionList = QStringList()) = 0;
 
+                virtual void    dispose() = 0;
+
                 FilePlayer*     getMe();
 
 	public slots:

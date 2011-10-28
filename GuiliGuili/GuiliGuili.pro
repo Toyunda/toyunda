@@ -29,6 +29,10 @@ RESOURCES += \
 
 DESTDIR = $$BASE_PATH
 
+win32 {
+	RC_FILE = GuiliGuili.rc
+}
+
 message($$BASE_PATH)
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../qtoyunda/release/ -lqtoyunda_static
@@ -42,3 +46,4 @@ DEPENDPATH += $$PWD/../qtoyunda
 win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../qtoyunda/release/qtoyunda_static.lib
 else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../qtoyunda/debug/qtoyunda_static.lib
 else:unix:!symbian: PRE_TARGETDEPS += $$OUT_PWD/../qtoyunda/libqtoyunda_static.a
+

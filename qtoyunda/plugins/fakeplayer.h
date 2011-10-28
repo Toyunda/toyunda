@@ -37,6 +37,7 @@ class FakePlayer : public FilePlayer, public AbstractFilePlayer
     FakePlayer();
 
     bool	init(const QStringList opt);
+    void        dispose();
     FilePlayer  *getMe();
 
   public slots:

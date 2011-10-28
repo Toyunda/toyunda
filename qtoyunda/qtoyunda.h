@@ -173,6 +173,8 @@ class QToyunda : public QObject, SComponent
     bool    loadPlugins();
 
     const QList<PluginInfo>& getPluginInfos() const;
+    void    setRendererQWidgetParent(QWidget *);
+    void    dispose();
     /**
      * play the file
      */

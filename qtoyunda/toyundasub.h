@@ -37,6 +37,7 @@ struct ToyundaText {
   int		posx;
   int		posy;
   int		size;
+  uint		_id; // Glitch to make operator< work
   QString	text;
   QColor	color1;
   QColor	color2;

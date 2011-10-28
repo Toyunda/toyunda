@@ -61,11 +61,9 @@ int	main(int ac, char *ag[])
 
   toyunda = new QToyunda(option["player"].toString(), option["renderer"].toString(), playerOption, rendererOption);
 
-  QDir  pluginDir = qApp->applicationDirPath();
-  pluginDir.cdUp();
-  pluginDir.cd("plugins");
-  pluginDir.cd("debug");
-  toyunda->setPluginDirectory(pluginDir);
+  QDir pluginPath = qApp->applicationDirPath();
+  pluginPath.cd("plugins");
+  toyunda->setPluginDirectory(pluginPath);
   toyunda->loadPlugins();
 
   // FIXME playeroptionhelp and roh must not depend and toyunda
@@ -88,7 +86,9 @@ int	main(int ac, char *ag[])
   qDebug() << "Play the video";
   toyunda->play();
   toyunda->showRenderer();
-  return qapp->exec();
+  int ret = qapp->exec();
+  toyunda->dispose();
+  return ret;
 }
 
 void	defineOption(SQArgDescMap &optionDesc)

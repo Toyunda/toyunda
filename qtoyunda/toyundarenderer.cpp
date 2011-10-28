@@ -30,6 +30,11 @@ bool  ToyundaRenderer::init(QStringList opt)
 
 void    ToyundaRenderer::setToyundaSubStream(ToyundaSubStream *toyStream)
 {
-  toySubStream = toyStream;
+    toySubStream = toyStream;
+}
+
+void ToyundaRenderer::setQWidgetParent(QWidget *)
+{
+    return ;
 }
 

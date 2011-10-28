@@ -38,6 +38,7 @@ class DebugRenderer : public QObject, public ToyundaRenderer, public AbstractRen
     Q_INTERFACES(AbstractRenderer)
   public:
     DebugRenderer();
+    void    dispose();
     void    hide();
     void    show();
     ToyundaRenderer *getMe();

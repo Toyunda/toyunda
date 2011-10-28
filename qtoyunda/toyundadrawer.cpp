@@ -93,7 +93,7 @@ void    ToyundaDrawer::drawGrid(QPainter &painter) const
 void	ToyundaDrawer::draw(QPainter &painter, const QList<ToyundaText> &textSub, const QList<ToyundaSyl> &sylSub) const
 {
   painter.setFont(s_font);
-  drawGrid(painter);
+  //drawGrid(painter);
   if (textSub.isEmpty() == false) {
     QListIterator<ToyundaText> ittext(textSub);
     while (ittext.hasNext()) {

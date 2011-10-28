@@ -33,14 +33,14 @@ bool	FakePlayer::init(const QStringList opt)
 {
   handleOption(opt);
   interval = optionValue["interval"].toInt();
-  qDebug() << "Interval : " << interval;
   frameNumber = optionValue["start"].toInt();
+  qDebug() << "Interval : " << interval << " -- Start : " << frameNumber;
   return true;
 }
 
 void	FakePlayer::open(const QString file)
 {
-    frameNumber = 0;
+    frameNumber = optionValue["start"].toInt();
 }
 
 void	FakePlayer::seek(const int toseek)
@@ -68,9 +68,9 @@ void	FakePlayer::stop()
 
 void	FakePlayer::newTick()
 {
-    qDebug() << frameNumber;
+ //   qDebug() << frameNumber;
     emit frameChanged(frameNumber++);
-    if (frameNumber * interval >= duration) {
+    if (duration != 0 && frameNumber * interval >= duration) {
         emit finished();
         timer.stop();
     }
@@ -82,3 +82,8 @@ FilePlayer* FakePlayer::getMe()
 }
 
 Q_EXPORT_PLUGIN2(qtoyunda_fakeplayer, FakePlayer)
+
+void FakePlayer::dispose()
+{
+    ;
+}

@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "QToyunda installer", "QToyunda installer.vdproj", "{3C7F9474-D388-438B-8752-F7074F624511}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Default = Debug|Default
+		Release|Default = Release|Default
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3C7F9474-D388-438B-8752-F7074F624511}.Debug|Default.ActiveCfg = Debug
+		{3C7F9474-D388-438B-8752-F7074F624511}.Debug|Default.Build.0 = Debug
+		{3C7F9474-D388-438B-8752-F7074F624511}.Release|Default.ActiveCfg = Release
+		{3C7F9474-D388-438B-8752-F7074F624511}.Release|Default.Build.0 = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,6 +1,6 @@
 include(../../proconfig.pri)
 
-QT += Gui
+QT += gui
 TEMPLATE = lib
 CONFIG += plugin
 

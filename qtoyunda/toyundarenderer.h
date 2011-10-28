@@ -31,6 +31,8 @@
 * to draw on your QPainter.
 */
 
+#include <QObject>
+
 class ToyundaRenderer : public SComponent
 {
   public:
@@ -42,12 +44,14 @@ class ToyundaRenderer : public SComponent
    * @return : true if the initialisation success
    */
     virtual bool  init(QStringList optionList = QStringList());
+    virtual void    dispose() = 0;
 
 	/** 
 	* Set the Toyunda Stream to work on it
 	* @param toyStream : the toyundastream
 	*/
     void  setToyundaSubStream(ToyundaSubStream *toyStream);
+    virtual void    setQWidgetParent(QWidget*);
 
   public:
     /**

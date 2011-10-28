@@ -19,6 +19,7 @@
 
 #include "qosd.h"
 #include <QPaintEvent>
+#include <QThread>
 
 
 QOSD::QOSD(QWidget *parent) : ToyundaRenderer(), QWidget(parent)
@@ -58,6 +59,7 @@ bool  QOSD::init(QStringList opt)
 
 void	QOSD::paintEvent(QPaintEvent *event)
 {
+    qDebug() << "Je dessine";
   QPainter painter(this);
   // Magic from QtLabs.
   painter.setRenderHint(QPainter::Antialiasing);
@@ -97,3 +99,13 @@ ToyundaRenderer*    QOSD::getMe()
 }
 
 Q_EXPORT_PLUGIN2(qtoyunda_qosdrenderer, QOSD)
+
+void QOSD::setQWidgetParent(QWidget *qobj)
+{
+    setParent(qobj);
+}
+
+void QOSD::dispose()
+{
+    close();
+}
