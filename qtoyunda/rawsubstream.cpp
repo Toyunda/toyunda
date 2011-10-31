@@ -43,7 +43,6 @@ void	RawSubStream::createFromFile(QString filePath)
 
   currentFrame = 0;
   if (!toyfile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-      qDebug() << "plop";
     qCritical() << "Can't read : " << filePath;
     return ;
   }
@@ -87,12 +86,12 @@ void	RawSubStream::createFromFile(QString filePath)
       }
     }
   }
-  qDebug() << "=============================";
+  /*qDebug() << "=============================";
   std::set<ToyundaText>::iterator it = allText.begin();
   for (;it != allText.end(); ++it)
   {
       qDebug() << (*it).start;
-  }
+  }*/
   currentItSyl = allSyl.begin();
   currentItText = allText.begin();
 }
@@ -158,7 +157,7 @@ void	RawSubStream::parseOption(QString &line, GenLineDesc &linedesc)
   QRegExp rOpt("^(\\{(.*)\\})+");
   QRegExp isOpt("^(\\{(.*)\\})+.*");
   QRegExp OptColor("\\{c:\\$([0-9A-F]+):?\\$?([0-9A-F]*)\\}");
-  QRegExp OptPos("\\{o:(\\d+),(\\d+)\\}");
+  QRegExp OptPos("\\{o:(-?\\d+),(-?\\d+):?(?:(-?\\d+),(-?\\d+))?\\}");
 
   if (isOpt.exactMatch(line)) {
     if (OptColor.indexIn(line) != -1) {
@@ -170,6 +169,11 @@ void	RawSubStream::parseOption(QString &line, GenLineDesc &linedesc)
     if (OptPos.indexIn(line) != -1) {
       linedesc.posx = OptPos.cap(1).toInt();
       linedesc.posy = OptPos.cap(2).toInt();
+      if (!OptPos.cap(3).isEmpty())
+      {
+	  linedesc.pos2x = OptPos.cap(3).toInt();
+	  linedesc.pos2y = OptPos.cap(4).toInt();
+      }
     }
   }
   line.replace(rOpt, "");
@@ -184,5 +188,13 @@ void	RawSubStream::parsePipe(QString &line, GenLineDesc &linedesc)
     linedesc.pipeNumber = isPipe.cap(1).size();
     line.replace(rPipe, "");
   }
+}
+
+void RawSubStream::reinit()
+{
+    currentItSyl = allSyl.begin();
+    currentSyl.clear();
+    currentItText = allText.begin();
+    currentText.clear();
 }
 

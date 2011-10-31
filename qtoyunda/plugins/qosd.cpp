@@ -59,7 +59,6 @@ bool  QOSD::init(QStringList opt)
 
 void	QOSD::paintEvent(QPaintEvent *event)
 {
-    qDebug() << "Je dessine";
   QPainter painter(this);
   // Magic from QtLabs.
   painter.setRenderHint(QPainter::Antialiasing);

@@ -14,7 +14,6 @@ HEADERS += \
     fileplayer.h \
     sqarg.h \
     scomponent.h \
-    rawtoyundastream.h \
     rawsubstream.h \
     qtoyunda.h \
     abstractfileplayer.h \
@@ -29,6 +28,7 @@ SOURCES += \
     scomponent.cpp \
     rawsubstream.cpp \
     qtoyunda.cpp
+
 
 
 

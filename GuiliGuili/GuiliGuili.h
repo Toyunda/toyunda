@@ -30,6 +30,13 @@
 class GuiliGuili : public QMainWindow
 {
 Q_OBJECT
+
+	enum SongState {
+	    Playing,
+	    Paused,
+	    Stopped
+	};
+
 public:
     GuiliGuili();
     virtual ~GuiliGuili();
@@ -46,11 +53,14 @@ private:
         void            PopulateTreePluginInfo(QList<PluginInfo>);
 	void		openPlaylist(QString);
 	void		savePlaylist(QString);
+	void		sortAlphaSongMap();
 	
 private slots :
 	//Ui slots
 	void		on_playButton_clicked();
         void            on_configurationButton_clicked();
+	void		on_stopButton_clicked();
+	void		on_playlistView_doubleClicked(const QModelIndex&);
 	void		playlistView_selectionChanged(const QItemSelection &, const QItemSelection &);
         void            closeEvent(QCloseEvent *);
 	
@@ -70,6 +80,7 @@ private :
 	QSettings*	m_settings;
 	QList<Song*>	m_allsongs;
 	QToyunda*	m_qtoyunda;
+	SongState	m_songState;
 	QMap<QString, QList<Song *> > m_songByAlpha;
 	QMap<QString, QList<Song *> > m_songByType;
 };

@@ -28,20 +28,26 @@ class Song
 {
 public:
 	Song();
-	Song(const QString);
+	Song(const QString, bool realFile = true);
 	Song(const Song& other);
 	virtual ~Song();
     
 	QString	title;
+	QString	iniFile;
 	QString	prefix;
 	QString	subtitlePath;
 	QString	videoPath;
-	
+	static bool lessThan(Song*, Song*);
 };
+
+
+bool	operator<(const Song&, const Song&);
 
 QDebug  operator<<(QDebug, const Song&);
 
 Q_DECLARE_METATYPE(Song)
 Q_DECLARE_METATYPE(Song*)
+
 Q_DECLARE_METATYPE(QList<Song*>*)
+
 #endif // SONG_H

@@ -525,6 +525,19 @@
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Net.Framework.3.5"
+                    {
+                    "Name" = "8:.NET Framework 3.5"
+                    "ProductCode" = "8:Microsoft.Net.Framework.3.5"
+                    }
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Windows.Installer.3.1"
+                    {
+                    "Name" = "8:Windows Installer 3.1"
+                    "ProductCode" = "8:Microsoft.Windows.Installer.3.1"
+                    }
+                }
             }
         }
     }
@@ -2049,7 +2062,7 @@
             "Target" = "8:_2A1F5B3F9C964DB3A92D5824318397BC"
             "Folder" = "8:_38E0236052174B308A31E6AAFCCA9595"
             "WorkingFolder" = "8:_DF6889D5BFDB421EAD0C53EDB89DA004"
-            "Icon" = "8:"
+            "Icon" = "8:_C8F35EB2638743D4BF7539C2B42E4482"
             "Feature" = "8:"
             }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_9C1A131A554641EA9E0D77F84609A049"
@@ -2063,7 +2076,7 @@
             "Target" = "8:_2A1F5B3F9C964DB3A92D5824318397BC"
             "Folder" = "8:_E69888B7C0C6467481D4135512E13F57"
             "WorkingFolder" = "8:_DF6889D5BFDB421EAD0C53EDB89DA004"
-            "Icon" = "8:"
+            "Icon" = "8:_C8F35EB2638743D4BF7539C2B42E4482"
             "Feature" = "8:"
             }
         }

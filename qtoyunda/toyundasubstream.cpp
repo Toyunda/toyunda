@@ -56,7 +56,6 @@ QList<ToyundaSyl>	ToyundaSubStream::getCurrentSylSubtitle() const
 
 void	ToyundaSubStream::setCurrentFrame(const int cf)
 {
-  qDebug() << "Je choisis les trucs à afficher";
   currentFrame = cf;
   bool	emitChange = false;
 

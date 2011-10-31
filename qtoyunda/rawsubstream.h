@@ -38,6 +38,8 @@ class RawSubStream : public ToyundaSubStream
 	uint	pipeNumber;
 	int	posx;
 	int	posy;
+	int	pos2x;
+	int	pos2y;
 	int	lenght;
 	int	size;
 	uint	pos;
@@ -53,6 +55,7 @@ class RawSubStream : public ToyundaSubStream
     RawSubStream();
     RawSubStream(const QString);
     void	createFromFile(const QString);
+    void	reinit();
 };
 
 

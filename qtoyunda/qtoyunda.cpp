@@ -247,3 +247,9 @@ void QToyunda::dispose()
     player->dispose();
     renderer->dispose();
 }
+
+void QToyunda::stop()
+{
+    player->stop();
+    toyundaSub->reinit();
+}

@@ -21,6 +21,7 @@
 
 #include "../fileplayer.h"
 #include "../abstractfileplayer.h"
+#include <QTimer>
 #include <QGst/Pipeline>
 #include <QGst/Element>
 #include <QGst/Bin>
@@ -57,6 +58,8 @@ class QGstAudioPlayer : public FilePlayer, public AbstractFilePlayer
 		QGst::ElementPtr	m_vsink;
 		QGst::BinPtr		m_audiobin;
 		QGst::BinPtr		m_videobin;
+
+		QTimer*			m_timer;
 		int			m_framenb;
 		double			framerate;
 

@@ -81,6 +81,7 @@ class ToyundaSubStream : public QObject
      * @param step : the step in millisec
      */
     virtual void		seek(const int step);
+    virtual void		reinit() = 0;
     /**
      * Load a file an create the substream from it.
      * @param fileName : the name of the file

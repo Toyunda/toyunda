@@ -26,18 +26,22 @@ Song::Song()
 
 }
 
-Song::Song(const QString filePath)
+Song::Song(const QString filePath, bool realFile)
 {
 	QRegExp		pathfmt("^([A-Z]+)\\s\\-\\s(.+)\\.ini$");
-	QSettings	inifile(filePath, QSettings::IniFormat);
-	
+
+	iniFile = filePath;
 	if (pathfmt.exactMatch(filePath))
 	{	
 		prefix = pathfmt.cap(1);
 		title = pathfmt.cap(2);
 	}
-	subtitlePath = inifile.value("subtitles/file").toString();
-	videoPath = inifile.value("movie/aviname").toString();
+	if (realFile)
+	{
+	    QSettings	inifile(filePath, QSettings::IniFormat);
+	    subtitlePath = inifile.value("subtitles/file").toString();
+	    videoPath = inifile.value("movie/aviname").toString();
+	}
 }
 
 
@@ -54,10 +58,24 @@ Song::~Song()
 
 }
 
+
+bool	operator<(const Song& s1, const Song& s2)
+{
+    int p = QString::localeAwareCompare(s1.title, s2.title);
+    if (p < 0)
+	return true;
+    return false;
+}
+
 QDebug  operator<<(QDebug dbg, const Song& sg)
 {
 	dbg << sg.prefix;
 	dbg << sg.title;
 	return dbg;
+}
+
+bool Song::lessThan(Song* s1, Song* s2)
+{
+    return *s1 < *s2;
 }
 

@@ -40,6 +40,7 @@
 QGstAudioPlayer::QGstAudioPlayer() : FilePlayer()
 {
         setIdentifier("qgstaudio");
+	m_timer = new QTimer(this);
 }
 
 
@@ -86,6 +87,7 @@ void	QGstAudioPlayer::onBusMessage(const QGst::MessagePtr &message)
     switch (message->type()) {
     case QGst::MessageEos: //End of stream. We reached the end of the file.
 	m_pipeline->setState(QGst::StateNull);
+	stop();
 	emit finished();
         break;
     case QGst::MessageError: //Some error occurred.
@@ -110,6 +112,7 @@ void	QGstAudioPlayer::onBusMessage(const QGst::MessagePtr &message)
 bool	QGstAudioPlayer::init(const QStringList opt)
 {
 	handleOption(opt);
+	connect(m_timer, SIGNAL(timeout()), this, SLOT(checkFrame()));
 #ifdef Q_WS_WIN
         QString tmpstr("GST_PLUGIN_PATH=" + qApp->applicationDirPath().toLatin1() + "/gst-plugins/");
         qDebug() << "Plugin path is : " << tmpstr;
@@ -172,7 +175,7 @@ void	QGstAudioPlayer::open(const QString file)
     if (fi.exists())
         m_src->setProperty("location", file);
     else {
-        qCritical()  << "Can't locate " << file;
+	qCritical()  << "Can't locate : " << file;
         return;
     }
 }
@@ -188,28 +191,28 @@ void	QGstAudioPlayer::play()
 		qDebug() << "Failed to change state";
                  return ;
      }
-	QTimer *timer = new QTimer(this);
-	connect(timer, SIGNAL(timeout()), this, SLOT(checkFrame()));
-	m_framenb = -1;
-	timer->start(20);
+    m_framenb = -1;
+    m_timer->start(30);
     qDebug() << "end of gstaudioplay";
 }
 
 void	QGstAudioPlayer::stop()
 {
-
+    if (m_pipeline->setState(QGst::StateNull) == QGst::StateChangeFailure) {
+		qDebug() << "Failed to change state";
+		 return ;
+    }
+    m_timer->stop();
 }
 
 void	QGstAudioPlayer::checkFrame()
 {
-    qDebug() << "Je vérifie les frames";
     QGst::PositionQueryPtr query = QGst::PositionQuery::create(QGst::FormatTime);
     m_pipeline->query(query);
     int tmp = ((query->position() / 1000000) * framerate) / 1000;
 	if (m_framenb != tmp)
 	{
 		m_framenb = tmp;
-		qDebug() << "";
 		emit frameChanged(m_framenb);
 	}
 }
@@ -229,7 +232,6 @@ QDebug  operator<<(QDebug dbg, const QGst::State &st)
 	return dbg;
 }
 
-Q_EXPORT_PLUGIN2(qtoyunda_qgstaudioplayer, QGstAudioPlayer)
 
 FilePlayer * QGstAudioPlayer::getMe()
 {
@@ -240,3 +242,5 @@ void QGstAudioPlayer::dispose()
 {
     QGst::cleanup();
 }
+
+Q_EXPORT_PLUGIN2(qtoyunda_qgstaudioplayer, QGstAudioPlayer)

@@ -219,6 +219,23 @@
          </widget>
         </item>
         <item>
+         <widget class="QToolButton" name="stopButton">
+          <property name="text">
+           <string>...</string>
+          </property>
+          <property name="icon">
+           <iconset resource="icone.qrc">
+            <normaloff>:/main/icons/player_stop.svgz</normaloff>:/main/icons/player_stop.svgz</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>40</width>
+            <height>40</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QToolButton" name="playButton">
           <property name="text">
            <string/>

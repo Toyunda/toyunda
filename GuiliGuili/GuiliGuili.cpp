@@ -46,6 +46,7 @@ GuiliGuili::GuiliGuili()
         QDir pluginPath = qApp->applicationDirPath();
         pluginPath.cd("plugins");
         qDebug() << pluginPath;
+	m_songState = SongState::Playing;
         m_qtoyunda->setPluginDirectory(pluginPath);
         m_qtoyunda->loadPlugins();
 	if (!m_settings->contains("karaoke_dir"))
@@ -59,7 +60,7 @@ GuiliGuili::GuiliGuili()
         {
 	    m_karaoke_dir = m_settings->value("karaoke_dir").toString();
         }
-	qDebug() << "I am the GuiGui and I am in thread : " << QThread::currentThreadId();
+	//qDebug() << "I am the GuiGui and I am in thread : " << QThread::currentThreadId();
 #ifdef Q_WS_WI
         m_qtoyunda->setPlayerName("fake");
         QStringList playerOption;
@@ -100,9 +101,20 @@ GuiliGuili::~GuiliGuili()
 	
 }
 
+void	GuiliGuili::stop()
+{
+    if (m_songState == SongState::Playing)
+    {
+	m_qtoyunda->stop();
+	m_qtoyunda->hideRenderer();
+    }
+}
+
 void GuiliGuili::play()
 {
     if (!m_currentSong.title.isEmpty()) {
+	    if (m_songState == SongState::Playing)
+		stop();
 	    qDebug() << "play";
 	    m_qtoyunda->showRenderer();
 	    qDebug() << m_currentSong.videoPath;
@@ -111,24 +123,93 @@ void GuiliGuili::play()
 	}
 }
 
+void	GuiliGuili::sortAlphaSongMap()
+{
+    QList<QString> keysSong = m_songByAlpha.keys();
+    foreach (QString key, keysSong) {
+	qSort(m_songByAlpha[key].begin(), m_songByAlpha[key].end(), Song::lessThan);
+    }
+}
 
 void GuiliGuili::readKaraokeDir()
 {
+	/*
+	  Cache file for karaoke format :
+	  inifile=iniFileName
+	  subtitlefile=subtitleFile
+	  videofile=videoFile
+	  */
+#define	CACHE_KEY_INI "inifile"
+#define CACHE_KEY_SUB "subtitlefile"
+#define CACHE_KEY_VIDEO "videofile"
+	if (m_settings->contains("karaoke_dir_cache"))
+	{
+	    qDebug() << "entry for cache";
+	    qDebug() << m_settings->value("karaoke_dir_cache").toString();
+	    if (m_settings->value("karaoke_dir_cache").toString() == m_karaoke_dir)
+	    {
+		QFile	cache(qApp->applicationDirPath().toLocal8Bit() + "/KaraokeDirCache.txt");
+		if (cache.open(QIODevice::ReadOnly | QIODevice::Text)) {
+		    QRegExp keyValue("([^=]+)=([^\\n]+)\\n");
+		    while(!cache.atEnd())
+		    {
+			Song *sg;
+			QString inifile = cache.readLine();
+			if (keyValue.exactMatch(inifile) && keyValue.cap(1) == CACHE_KEY_INI)
+			    sg = new Song(keyValue.cap(2), false);
+			QString subfile = cache.readLine();
+			if (keyValue.exactMatch(subfile) && keyValue.cap(1) == CACHE_KEY_SUB)
+			    sg->subtitlePath = keyValue.cap(2);
+			QString videofile = cache.readLine();
+			if (keyValue.exactMatch(videofile) && keyValue.cap(1) == CACHE_KEY_VIDEO)
+			    sg->videoPath = keyValue.cap(2);
+			m_allsongs.append(sg);
+			m_songByAlpha[sg->title.at(0).toUpper()].append(sg);
+			m_songByType[sg->prefix].append(sg);
+		    }
+		    cache.close();
+		    sortAlphaSongMap();
+		    return ;
+		}
+
+	    }
+	}
 	QDir	kdir(m_karaoke_dir);
 	
+	if (!kdir.exists())
+	{
+	    qCritical() << "Can't open karaoke dir : " << m_karaoke_dir;
+	    return ;
+	}
 	QStringList dirFilter;
 	dirFilter << "*.ini";
 	kdir.setNameFilters(dirFilter);
 	QStringList strlt = kdir.entryList();
 
+	bool cacheWritable = true;
+	QFile	cache(qApp->applicationDirPath().toLocal8Bit() + "/KaraokeDirCache.txt");
+	QTextStream cacheStream(&cache);
+	if (!cache.open(QIODevice::WriteOnly | QIODevice::Text))
+	{
+	    qWarning() << "Can't open cache for writing : " << cache.errorString();
+	    cacheWritable = false;
+	} else
+	    m_settings->setValue("karaoke_dir_cache", m_karaoke_dir);
 	QStringListIterator it(strlt);
 	while (it.hasNext())
 	{
 		Song *sg = new Song(it.next().toLocal8Bit());
+		if (cacheWritable) {
+		    cacheStream << CACHE_KEY_INI << "=" << sg->iniFile << "\n";
+		    cacheStream << CACHE_KEY_SUB << "=" << sg->subtitlePath << "\n";
+		    cacheStream << CACHE_KEY_VIDEO << "=" << sg->videoPath << "\n";
+		}
 		m_allsongs.append(sg);
 		m_songByAlpha[sg->title.at(0).toUpper()].append(sg);
 		m_songByType[sg->prefix].append(sg);
-	}	
+	}
+	cache.close();
+	sortAlphaSongMap();
 }
 
 
@@ -144,17 +225,20 @@ void	GuiliGuili::song_finished()
 void	GuiliGuili::song_paused()
 {
 	ui.statusbar->showMessage("Song paused");
+	m_songState = SongState::Paused;
 }
 
 void	GuiliGuili::song_playing()
 {
-	ui.statusbar->showMessage("Song playing");
+	ui.statusbar->showMessage("Playing song : " + m_currentSong.title);
+	m_songState = SongState::Playing;
 }
 
 void	GuiliGuili::song_stopped()
 {
 	ui.statusbar->showMessage("Song stopped");
 	m_qtoyunda->hideRenderer();
+	m_songState = SongState::Stopped;
 }
 
 
@@ -163,6 +247,7 @@ void	GuiliGuili::nextSong()
 	if ((m_currentPos + 1 < m_currentPlaylist.count()))
 	{
 		m_currentSong = m_currentPlaylist.at(m_currentPos + 1);
+		m_currentPos++;
 		play();
 	}
 }
@@ -176,7 +261,6 @@ void	GuiliGuili::populateSongView()
 	
 	QStandardItemModel *model = static_cast<QStandardItemModel*>(ui.songTreeView->model());
 	QStandardItem	*parentItem = model->invisibleRootItem();
-	//SongListTreeItemModel	*model = new SongListTreeItemModel();
 	
 	while (it.hasNext())
 	{
@@ -195,6 +279,7 @@ void	GuiliGuili::populateSongView()
 			QStandardItem	*songItem = new QStandardItem();
 			songItem->setData(sg->title, Qt::DisplayRole);
 			songItem->setEditable(false);
+			songItem->setToolTip(sg->iniFile);
 			QVariant v = qVariantFromValue((quintptr) sg);
 			songItem->setData(v, Qt::UserRole + 1);
 			categoryItem->appendRow(songItem);
@@ -202,7 +287,22 @@ void	GuiliGuili::populateSongView()
 	}
 }
 
-void GuiliGuili::on_playButton_clicked()
+
+void	GuiliGuili::on_stopButton_clicked()
+{
+    stop();
+}
+
+
+void	GuiliGuili::on_playlistView_doubleClicked(const QModelIndex& index)
+{
+    Song s = index.data(Qt::UserRole + 1).value<Song>();
+    m_currentPos = index.row();
+    m_currentSong = s;
+    play();
+}
+
+void	GuiliGuili::on_playButton_clicked()
 {
 	play();
 }
