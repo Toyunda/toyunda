@@ -88,6 +88,8 @@ class ToyundaSubStream : public QObject
      */
     virtual void		createFromFile(const QString fileName) = 0;
 
+    virtual                     ~ToyundaSubStream();
+
   public slots:
     /**
      * Set the current frame number.

@@ -38,3 +38,7 @@ void ToyundaRenderer::setQWidgetParent(QWidget *)
     return ;
 }
 
+ToyundaRenderer::~ToyundaRenderer()
+{
+
+}

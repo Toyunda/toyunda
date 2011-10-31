@@ -38,6 +38,7 @@ class QGstAudioPlayer : public FilePlayer, public AbstractFilePlayer
 		bool	init(const QStringList optionList = QStringList());
                 FilePlayer *getMe();
                 void    dispose();
+                ~QGstAudioPlayer();
 
 	public slots:
 		void	open(const QString fileName);

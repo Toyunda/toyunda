@@ -20,3 +20,6 @@ DEPENDPATH += $$PWD/
 win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/release/qtoyunda_static.lib
 else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/debug/qtoyunda_static.lib
 else:unix:!symbian: PRE_TARGETDEPS += $$OUT_PWD/libqtoyunda_static.a
+
+RESOURCES += \
+    qtoyunda-cmd.qrc

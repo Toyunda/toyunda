@@ -20,6 +20,7 @@
 #include "song.h"
 #include <qsettings.h>
 #include <qregexp.h>
+#include <QFile>
 
 Song::Song()
 {
@@ -38,9 +39,25 @@ Song::Song(const QString filePath, bool realFile)
 	}
 	if (realFile)
 	{
-	    QSettings	inifile(filePath, QSettings::IniFormat);
-	    subtitlePath = inifile.value("subtitles/file").toString();
-	    videoPath = inifile.value("movie/aviname").toString();
+            QFile   finifile(filePath);
+            if (!finifile.open(QIODevice::Text | QIODevice::ReadOnly))
+            {
+                qCritical() << "Can't open : " << filePath << "  - " << finifile.errorString();
+                return ;
+            }
+            QRegExp keyValue("([^=]+)=([^\\n]+)\\n");
+            while(!finifile.atEnd())
+            {
+                QString tmp = finifile.readLine();
+                if (keyValue.exactMatch(tmp))
+                {
+                    if (keyValue.cap(1) == "aviname")
+                        videoPath = keyValue.cap(2);
+                    if (keyValue.cap(1) == "file")
+                        subtitlePath = keyValue.cap(2);
+                }
+            }
+
 	}
 }
 

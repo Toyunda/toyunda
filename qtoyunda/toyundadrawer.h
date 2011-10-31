@@ -34,6 +34,7 @@ class ToyundaDrawer
     void	setLogo(const QImage img, double logoratio);
     unsigned int width() const;
     unsigned int height() const;
+    void        recalcMagic();
     void        drawGrid(QPainter &painter) const;
   private:
     unsigned int	m_width;
@@ -43,6 +44,7 @@ class ToyundaDrawer
     unsigned int        maxLetterNumber;
     unsigned int	lineInterval;
     float		lineIntervalRatio;
+    float               imageRatio;
     QImage		toyundaLogo;
     QFont		s_font;
     float	horizontalRatio;

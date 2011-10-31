@@ -56,9 +56,14 @@ int	main(int ac, char *ag[])
     return 1;
   }
   // Player and renderer option
-  QStringList playerOption = option["playeroption"].toString().split(",");
-  QStringList rendererOption = option["rendereroption"].toString().split(",");
-
+  QStringList playerOption;
+  if (!option["playeroption"].toString().isEmpty())
+      playerOption = option["playeroption"].toString().split(",");
+  QStringList rendererOption;
+  if (!option["rendereroption"].toString().isEmpty())
+      rendererOption = option["rendereroption"].toString().split(",");
+  rendererOption << "logo=:/main/Toyunda logo.png";
+  qDebug() << rendererOption;
   toyunda = new QToyunda(option["player"].toString(), option["renderer"].toString(), playerOption, rendererOption);
 
   QDir pluginPath = qApp->applicationDirPath();

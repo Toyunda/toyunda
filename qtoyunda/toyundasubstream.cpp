@@ -114,3 +114,9 @@ void	ToyundaSubStream::setCurrentFrame(const int cf)
     emit currentSubChanged();
   }
 }
+
+
+ToyundaSubStream::~ToyundaSubStream()
+{
+
+}

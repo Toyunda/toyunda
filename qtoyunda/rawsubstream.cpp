@@ -198,3 +198,6 @@ void RawSubStream::reinit()
     currentText.clear();
 }
 
+RawSubStream::~RawSubStream()
+{
+}

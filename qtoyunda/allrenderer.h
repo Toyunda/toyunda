@@ -2,7 +2,7 @@
 #ifndef H_ALLRENDERER
 #define H_ALLRENDERER
 
-#if 1 == 1
+#if 0 == 1
 #define DEBUGRENDERER_HERE
 #include "debugrenderer.h"
 #endif

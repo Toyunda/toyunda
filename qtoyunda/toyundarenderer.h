@@ -52,6 +52,7 @@ class ToyundaRenderer : public SComponent
 	*/
     void  setToyundaSubStream(ToyundaSubStream *toyStream);
     virtual void    setQWidgetParent(QWidget*);
+    virtual         ~ToyundaRenderer();
 
   public:
     /**

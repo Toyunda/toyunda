@@ -28,17 +28,19 @@
 #include "fileplayer.h"
 #include "toyundasubstream.h"
 
-enum PluginType {
-    Player,
-    Renderer
-};
 
+struct PluginType {
+    enum Type {
+        Player,
+        Renderer
+    };
+};
 struct   PluginInfo
 {
-    QFileInfo       fileInfo;
-    QString         name;
-    QString         description;
-    PluginType      type;
+    QFileInfo                fileInfo;
+    QString                  name;
+    QString                  description;
+    PluginType::Type         type;
 };
 
 
@@ -104,7 +106,7 @@ class QToyunda : public QObject, SComponent
      * @brief Get the name of the player
      * @return the name of the player
      */
-    QString playerName() const;
+    const QString& playerName() const;
     /**
      * @brief Set the player
      * @param playerNam  : the name of the player
@@ -114,7 +116,7 @@ class QToyunda : public QObject, SComponent
      * Get the renderer name
      * @return the renderer name
      */
-    QString rendererName() const;
+    const QString& rendererName() const;
     /**
      * Set the renderer name
      * @param rendererNam : the renderer name
@@ -124,7 +126,7 @@ class QToyunda : public QObject, SComponent
      * Get the video file name
      * @return the video file name
      */
-    QString videoFile() const;
+    const   QString& videoFile() const;
     /**
      * Set the video file name
      * @param Video 

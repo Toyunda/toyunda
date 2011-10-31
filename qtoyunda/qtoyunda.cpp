@@ -172,7 +172,7 @@ bool    QToyunda::loadPlugins()
                 ToyundaRenderer* testtruc = toyrend->getMe();
                 qDebug() << "Renderer Module found   : " << testtruc->identifier();
                 info.name = testtruc->identifier();
-                info.type = Renderer;
+                info.type = PluginType::Renderer;
                 s_toyundaRendererPlugins.append(testtruc);
                 s_pluginInfos.append(info);
             }
@@ -183,7 +183,7 @@ bool    QToyunda::loadPlugins()
                 FilePlayer* testtruc = toyplay->getMe();
                 qDebug() << "FilePlayer Module found : " << testtruc->identifier();
                 info.name = testtruc->identifier();
-                info.type = Player;
+                info.type = PluginType::Player;
                 s_filePlayerPlugins.append(testtruc);
                 s_pluginInfos.append(info);
             }
@@ -212,7 +212,7 @@ void QToyunda::setPlayerName(QString playerNam)
     s_playerName = playerNam;
 }
 
-QString QToyunda::playerName() const
+const QString& QToyunda::playerName() const
 {
     return s_playerName;
 }
@@ -222,7 +222,7 @@ void QToyunda::setRendererName(QString rendererNam)
     s_rendererName = rendererNam;
 }
 
-QString QToyunda::rendererName() const
+const QString& QToyunda::rendererName() const
 {
     return s_rendererName;
 }

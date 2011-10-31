@@ -35,6 +35,7 @@ class FakePlayer : public FilePlayer, public AbstractFilePlayer
   Q_INTERFACES(AbstractFilePlayer)
   public:
     FakePlayer();
+    ~FakePlayer();
 
     bool	init(const QStringList opt);
     void        dispose();

@@ -49,6 +49,7 @@ GuiliGuili::GuiliGuili()
 	m_songState = SongState::Playing;
         m_qtoyunda->setPluginDirectory(pluginPath);
         m_qtoyunda->loadPlugins();
+        PopulateTreePluginInfo(m_qtoyunda->getPluginInfos());
 	if (!m_settings->contains("karaoke_dir"))
         {
 	    int diagretour = m_configDialog.exec();
@@ -79,8 +80,7 @@ GuiliGuili::GuiliGuili()
 	QStandardItemModel	*model =  new QStandardItemModel();
 	ui.songTreeView->setModel(model);
 
-	setKaraokeDir();
-        PopulateTreePluginInfo(m_qtoyunda->getPluginInfos());
+        setKaraokeDir();
 	m_qtoyunda->init();
         //m_qtoyunda->setRendererQWidgetParent(this);
 	PlaylistModel *plmodel = new PlaylistModel(&m_currentPlaylist);
@@ -309,8 +309,8 @@ void	GuiliGuili::on_playButton_clicked()
 
 void    GuiliGuili::on_configurationButton_clicked()
 {
-	m_configDialog.ui.karaokeDirLineEdit->setText(m_karaoke_dir);
-	if (m_configDialog.exec());
+        m_configDialog.ui.karaokeDirLineEdit->setText(m_karaoke_dir);
+        if (m_configDialog.exec())
 	{
 	    m_karaoke_dir = m_configDialog.ui.karaokeDirLineEdit->text();
 	    m_settings->setValue("karaoke_dir", m_karaoke_dir);
@@ -345,6 +345,7 @@ void GuiliGuili::PopulateTreePluginInfo(QList<PluginInfo> plInfo)
             interfaceItem = new QTreeWidgetItem(playerItem);
         if (plugInfo.type == PluginType::Renderer)
             interfaceItem = new QTreeWidgetItem(rendererItem);
+        qDebug() << plugInfo.fileInfo.baseName();
         interfaceItem->setText(0, plugInfo.fileInfo.baseName());
         QTreeWidgetItem *featureItem = new QTreeWidgetItem(interfaceItem);
         featureItem->setText(0, plugInfo.name);

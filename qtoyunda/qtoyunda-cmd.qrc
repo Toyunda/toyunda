@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/main">
+        <file>Toyunda logo.png</file>
+    </qresource>
+</RCC>

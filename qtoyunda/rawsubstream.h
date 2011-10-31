@@ -56,6 +56,7 @@ class RawSubStream : public ToyundaSubStream
     RawSubStream(const QString);
     void	createFromFile(const QString);
     void	reinit();
+    ~RawSubStream();
 };
 
 

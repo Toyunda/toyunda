@@ -39,7 +39,8 @@ void	DebugRenderer::renderUpdate()
     QListIterator<ToyundaText> itText(subText);
     while (itText.hasNext())
     {
-      cout << (ToyundaText) itText.next();
+        cout << "--";
+        cout << (ToyundaText) itText.next();
     }
   }
   cout << "== Syl ==" << "\n";
@@ -49,6 +50,7 @@ void	DebugRenderer::renderUpdate()
     QListIterator<ToyundaSyl> itSyl(subSyl);
     while (itSyl.hasNext())
     {
+                cout << "--";
       cout << (ToyundaSyl) itSyl.next();
     }
   }

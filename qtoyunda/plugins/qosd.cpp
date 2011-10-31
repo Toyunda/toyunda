@@ -43,17 +43,17 @@ QOSD::QOSD(QWidget *parent) : ToyundaRenderer(), QWidget(parent)
 bool  QOSD::init(QStringList opt)
 {
   handleOption(opt);
+  QFont f(optionValue["font"].toString(), (int) optionValue["fontsize"].toDouble() * optionValue["ratio"].toDouble());
+  f.setFixedPitch(true);
+  toyundaDrawer.setFont(f);
   toyundaDrawer.setIntervalRatio(optionValue["iratio"].toDouble());
   toyundaDrawer.setRatio(optionValue["ratio"].toDouble());
   if (optionValue["ratio"].toDouble() == 1.0)
       toyundaDrawer.setRatio(optionValue["hratio"].toDouble(), optionValue["vratio"].toDouble());
-
-  setFixedSize(QSize(toyundaDrawer.width(), toyundaDrawer.height()));
-  QFont f(optionValue["font"].toString(), (int) optionValue["fontsize"].toDouble() * optionValue["ratio"].toDouble());
-  f.setFixedPitch(true);
-  toyundaDrawer.setFont(f);
   toyundaDrawer.setLogo(QImage(optionValue["logo"].toString()), optionValue["logoratio"].toDouble());
-  qDebug() << toyundaDrawer.width() << toyundaDrawer.height();
+  toyundaDrawer.recalcMagic();
+  qDebug() << toyundaDrawer.width() << "x" << toyundaDrawer.height();
+  setFixedSize(QSize(toyundaDrawer.width(), toyundaDrawer.height()));
   return true;
 }
 

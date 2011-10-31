@@ -87,3 +87,8 @@ void FakePlayer::dispose()
 {
     ;
 }
+
+FakePlayer::~FakePlayer()
+{
+
+}

@@ -243,4 +243,8 @@ void QGstAudioPlayer::dispose()
     QGst::cleanup();
 }
 
+QGstAudioPlayer::~QGstAudioPlayer()
+{
+
+}
 Q_EXPORT_PLUGIN2(qtoyunda_qgstaudioplayer, QGstAudioPlayer)

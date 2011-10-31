@@ -27,16 +27,23 @@
 #include "configdialog.h"
 #include "../qtoyunda/qtoyunda.h"
 
+
+
+
 class GuiliGuili : public QMainWindow
 {
 Q_OBJECT
 
-	enum SongState {
-	    Playing,
-	    Paused,
-	    Stopped
-	};
 
+struct SongState
+    {
+        enum Type
+        {
+            Playing,
+            Paused,
+            Stopped
+        };
+ };
 public:
     GuiliGuili();
     virtual ~GuiliGuili();
@@ -80,9 +87,8 @@ private :
 	QSettings*	m_settings;
 	QList<Song*>	m_allsongs;
 	QToyunda*	m_qtoyunda;
-	SongState	m_songState;
+        SongState::Type	m_songState;
 	QMap<QString, QList<Song *> > m_songByAlpha;
 	QMap<QString, QList<Song *> > m_songByType;
 };
-
 #endif // GuiliGuili_H
