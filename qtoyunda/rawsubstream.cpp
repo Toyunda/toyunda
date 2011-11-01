@@ -64,6 +64,7 @@ void	RawSubStream::createFromFile(QString filePath)
         text.stop = g.stop;
         text.color1 = g.color;
         text.color2 = g.color2;
+        text.fadingcolor = g.color;
 	text.posx = g.posx;
 	text.posy = g.posy;
 	text.text = g.text;
@@ -77,10 +78,19 @@ void	RawSubStream::createFromFile(QString filePath)
         ToyundaSyl syl;
 	syl.start = g.start;
 	syl.stop = g.stop;
-	//syl.posx = g.posx;
-	//syl.posy = g.posy;
+        syl.posx = g.posx;
+        syl.posy = g.posy;
 	syl.length = g.lenght;
 	syl.pos = g.pos;
+        syl.alpha = -1;
+        if (g.color.isValid())
+            syl.alpha = g.color.alpha();
+        syl.alpha2 = -1;
+        if (g.color2.isValid()) {
+            syl.alpha2 = g.color2.alpha();
+            syl.fadingalpha = g.color.alpha();
+        }
+        syl.size = g.size;
 	syl.pipeNumber = g.pipeNumber;
 	allSyl.insert(syl);
       }
@@ -91,7 +101,8 @@ void	RawSubStream::createFromFile(QString filePath)
   for (;it != allText.end(); ++it)
   {
       qDebug() << (*it).start;
-  }*/
+  }
+  exit(1);*/
   currentItSyl = allSyl.begin();
   currentItText = allText.begin();
 }

@@ -103,6 +103,9 @@ bool    operator==(const ToyundaSyl s1, const ToyundaSyl s2)
   toret = toret && (s1.pipeNumber == s2.pipeNumber);
   toret = toret && (s1.length == s2.length);
   toret = toret && (s1.pos == s2.pos);
+  toret = toret && (s1.alpha == s2.alpha);
+  toret = toret && (s1.alpha2 == s2.alpha2);
+  toret = toret && (s1.fadingalpha == s2.fadingalpha);
   return toret;
 }
 

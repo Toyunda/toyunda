@@ -45,4 +45,6 @@ template<typename T> void  printToyundaSyl(T &stream, const ToyundaSyl &ts)
   stream << "Frame  : (" << ts.start << ", " << ts.stop << ")\n";
   stream << "Number of pipe : " << ts.pipeNumber << "\n";
   stream << "Position : " << ts.pos << "\n";
+  if (ts.alpha != -1)
+      stream << "Alpha : " << ts.alpha << "\n";
 }

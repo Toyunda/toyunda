@@ -30,7 +30,7 @@
 */
 class RawSubStream : public ToyundaSubStream
 {
-  Q_OBJECT;
+  Q_OBJECT
   private :
   struct GenLineDesc {
 	uint	start;

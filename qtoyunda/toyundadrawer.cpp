@@ -169,14 +169,32 @@ void	ToyundaDrawer::draw(QPainter &painter, const QList<ToyundaText> &textSub, c
                 painter.setFont(cfont);
                 s.setX((m_width - tmp.length * painter.fontMetrics().size(Qt::TextSingleLine, "l").width()) / 2 +
                        tmp.pos * painter.fontMetrics().size(Qt::TextSingleLine, "l").width());
-                painter.drawImage(s, toyundaLogo);
                 //painter.drawText(s, "N");
                 painter.setFont(s_font);
             } else {
                 s.setX((m_width - tmp.length * letterWidth) / 2 + tmp.pos * letterWidth);
-                //painter.drawText(s, "N");
-                painter.drawImage(s, toyundaLogo);
             }
+            // Fading !
+            if (tmp.alpha != -1)
+            {
+                if (tmp.alpha2 != -1)
+                {
+                    QImage cpy = toyundaLogo;
+                    QPainter painterimg(&cpy);
+                    painterimg.setCompositionMode(QPainter::CompositionMode_DestinationIn);
+                    painterimg.fillRect(cpy.rect(), QColor(0, 0, 0, tmp.fadingalpha));
+                    painter.drawImage(s, cpy);
+                }
+                else
+                {
+                        QImage cpy = toyundaLogo;
+                        QPainter painterimg(&cpy);
+                        painterimg.setCompositionMode(QPainter::CompositionMode_DestinationIn);
+                        painterimg.fillRect(cpy.rect(), QColor(0, 0, 0, tmp.alpha));
+                        painter.drawImage(s, cpy);
+               }
+            } else
+                 painter.drawImage(s, toyundaLogo);
         }
     }
 }

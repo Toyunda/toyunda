@@ -50,6 +50,12 @@ struct ToyundaSyl {
   int	pipeNumber;
   int	length;
   int	pos;
+  int   posx;
+  int   posy;
+  int   size;
+  int   alpha;
+  int   alpha2;
+  int   fadingalpha;
 };
 
 bool    operator<(const ToyundaText, const ToyundaText);
