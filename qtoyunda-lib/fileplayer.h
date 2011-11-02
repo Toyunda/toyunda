@@ -34,7 +34,7 @@ class FilePlayer : public QObject, public SComponent
 {
         Q_OBJECT
 	public:
-                FilePlayer(QObject *parent = 0);
+                FilePlayer() {;}
 		/**
 		 * Call this method first to init the player. The options are specific to
 		 * the Player you use, see it documentation.
@@ -45,7 +45,7 @@ class FilePlayer : public QObject, public SComponent
 
                 virtual void    dispose() = 0;
 
-                FilePlayer*     getMe();
+                virtual FilePlayer*     getMe() = 0;
 
 	public slots:
 		/**

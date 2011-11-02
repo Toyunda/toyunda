@@ -35,15 +35,16 @@ win32 {
 
 message($$BASE_PATH)
 
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../qtoyunda/release/ -lqtoyunda_static
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../qtoyunda/debug/ -lqtoyunda_static
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../qtoyunda-lib/release/ -lqtoyunda_static
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../qtoyunda-lib/debug/ -lqtoyunda_static
 else:symbian: LIBS += -lqtoyunda_static
-else:unix: LIBS += -L$$OUT_PWD/../qtoyunda -lqtoyunda_static
+else:unix: LIBS += -L$$OUT_PWD/../qtoyunda-lib/ -lqtoyunda_static
 
-INCLUDEPATH += $$PWD/../qtoyunda
-DEPENDPATH += $$PWD/../qtoyunda
+INCLUDEPATH += ../comons/
+INCLUDEPATH += $$PWD/../qtoyunda-lib/
+DEPENDPATH += $$PWD/../qtoyunda-lib/
 
-win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../qtoyunda/release/qtoyunda_static.lib
-else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../qtoyunda/debug/qtoyunda_static.lib
-else:unix:!symbian: PRE_TARGETDEPS += $$OUT_PWD/../qtoyunda/libqtoyunda_static.a
 
+win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../qtoyunda-lib/release/qtoyunda_static.lib
+else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../qtoyunda-lib/debug/qtoyunda_static.lib
+else:unix:!symbian: PRE_TARGETDEPS += $$OUT_PWD/../qtoyunda-lib/libqtoyunda_static.a

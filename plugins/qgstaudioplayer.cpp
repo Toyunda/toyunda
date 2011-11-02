@@ -37,7 +37,7 @@
 #include <QGst/Fraction>
 #include <QGlib/Error>
 
-QGstAudioPlayer::QGstAudioPlayer() : FilePlayer()
+QGstAudioPlayer::QGstAudioPlayer()
 {
         setIdentifier("qgstaudio");
 	m_timer = new QTimer(this);
@@ -119,6 +119,7 @@ bool	QGstAudioPlayer::init(const QStringList opt)
         putenv(tmpstr.toLatin1().constData());
 	putenv("GST_DEBUG=*:1");
 #endif
+        putenv("GST_DEBUG=*:2");
         try {
             QGst::init();
         } catch (QGlib::Error error)
@@ -245,6 +246,6 @@ void QGstAudioPlayer::dispose()
 
 QGstAudioPlayer::~QGstAudioPlayer()
 {
-
+    dispose();
 }
 Q_EXPORT_PLUGIN2(qtoyunda_qgstaudioplayer, QGstAudioPlayer)

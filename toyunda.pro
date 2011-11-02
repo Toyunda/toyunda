@@ -1,9 +1,13 @@
 include(proconfig.pri)
 
+
+CONFIG += ordered
+
 TEMPLATE = subdirs
 
 SUBDIRS += \
-    qtoyunda \
-    GuiliGuili
+	qtoyunda-lib \
+	qtoyunda-cmd  \
+	plugins	\
+	GuiliGuili
 
-GuiliGuili.depend = qtoyunda

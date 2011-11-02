@@ -1,4 +1,4 @@
-include(../../proconfig.pri)
+include(../proconfig.pri)
 
 message($$BASE_PATH)
 

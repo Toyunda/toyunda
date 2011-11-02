@@ -1,9 +1,11 @@
-include(../../proconfig.pri)
+include(../proconfig.pri)
 
 
 TEMPLATE = lib
 
 CONFIG += plugin
+
+INCLUDEPATH += ../qtoyunda-lib ../comons/
 
 unix {
     CONFIG += link_pkgconfig
@@ -11,12 +13,11 @@ unix {
 }
 
 HEADERS = qgstaudioplayer.h \
-          ../fileplayer.h
+          ../qtoyunda-lib/fileplayer.h
 
 SOURCES = qgstaudioplayer.cpp \
-          ../fileplayer.cpp \
-          ../scomponent.cpp \
-          ../sqarg.cpp
+          ../comons/scomponent.cpp \
+          ../comons/sqarg.cpp
 
 TARGET = $$qtLibraryTarget(qtoyunda_qgstaudioplayer)
 DESTDIR = $$PLUGIN_PATH

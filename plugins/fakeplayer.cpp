@@ -21,7 +21,7 @@
 #include "qplugin.h"
 
 
-FakePlayer::FakePlayer() : FilePlayer()
+FakePlayer::FakePlayer()
 {
   setIdentifier("fake");
   addOption("interval", 50, "The time in mlsec between two tick");
@@ -81,14 +81,10 @@ FilePlayer* FakePlayer::getMe()
     return this;
 }
 
-Q_EXPORT_PLUGIN2(qtoyunda_fakeplayer, FakePlayer)
 
 void FakePlayer::dispose()
 {
     ;
 }
 
-FakePlayer::~FakePlayer()
-{
-
-}
+Q_EXPORT_PLUGIN2(qtoyunda_fakeplayer, FakePlayer)

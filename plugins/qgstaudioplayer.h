@@ -19,8 +19,8 @@
 #ifndef H_QGSTAUDIOPLAYER
 #define H_QGSTAUDIOPLAYER
 
-#include "../fileplayer.h"
-#include "../abstractfileplayer.h"
+#include "fileplayer.h"
+#include "abstractfileplayer.h"
 #include <QTimer>
 #include <QGst/Pipeline>
 #include <QGst/Element>

@@ -21,7 +21,7 @@
 
 #include "toyundarenderer.h"
 #include "toyundadrawer.h"
-#include "../abstractrenderer.h"
+#include "abstractrenderer.h"
 #include <QWidget>
 
 /** @class QOSD
