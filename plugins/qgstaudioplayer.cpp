@@ -91,7 +91,7 @@ void	QGstAudioPlayer::onBusMessage(const QGst::MessagePtr &message)
 	emit finished();
         break;
     case QGst::MessageError: //Some error occurred.
-        qCritical() << message.staticCast<QGst::ErrorMessage>()->error();
+        emit error(SQError(SQError::Critical, "GStreamer error", message.staticCast<QGst::ErrorMessage>()->error().message()));
         stop();
         break;
     case QGst::MessageStateChanged: //The element in message->source() has changed state
@@ -119,12 +119,11 @@ bool	QGstAudioPlayer::init(const QStringList opt)
         putenv(tmpstr.toLatin1().constData());
 	putenv("GST_DEBUG=*:1");
 #endif
-        putenv("GST_DEBUG=*:2");
         try {
             QGst::init();
-        } catch (QGlib::Error error)
+        } catch (QGlib::Error qgerr)
         {
-            qCritical() << "Can't initialise QtGstreamer : " << error.message();
+            emit error(SQError(SQError::Critical, "Can't initialise QtGstreamer : ", qgerr.message()));
             return false;
         }
 
@@ -176,7 +175,7 @@ void	QGstAudioPlayer::open(const QString file)
     if (fi.exists())
         m_src->setProperty("location", file);
     else {
-	qCritical()  << "Can't locate : " << file;
+        emit error(SQError(SQError::Critical, "Can't locate : " + file));
         return;
     }
 }
@@ -189,8 +188,8 @@ void	QGstAudioPlayer::play()
 {
     qDebug() << "Hi I am GGstAudioPlayer and I am in thread : " << QThread::currentThreadId();
     if (m_pipeline->setState(QGst::StatePlaying) == QGst::StateChangeFailure) {
-		qDebug() << "Failed to change state";
-                 return ;
+        emit error(SQError(SQError::Critical, "Failed to change state to play"));
+        return ;
      }
     m_framenb = -1;
     m_timer->start(30);
@@ -199,11 +198,12 @@ void	QGstAudioPlayer::play()
 
 void	QGstAudioPlayer::stop()
 {
-    if (m_pipeline->setState(QGst::StateNull) == QGst::StateChangeFailure) {
-		qDebug() << "Failed to change state";
-		 return ;
-    }
     m_timer->stop();
+    if (m_pipeline->setState(QGst::StateNull) == QGst::StateChangeFailure) {
+        emit error(SQError(SQError::Critical, "Failed to change state to NULL"));
+        return ;
+    }
+
 }
 
 void	QGstAudioPlayer::checkFrame()

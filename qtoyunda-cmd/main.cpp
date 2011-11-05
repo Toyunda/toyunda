@@ -22,9 +22,7 @@
 #include <QDir>
 #include "sqarg.h"
 #include "qtoyunda.h"
-#ifdef Q_WS_X11
-#include <X11/extensions/Xrender.h>
-#endif
+#include "qdebugerrorhandler.h"
 
 void	defineOption(SQArgDescMap &);
 
@@ -34,7 +32,9 @@ int	main(int ac, char *ag[])
   QApplication		*qapp;
   SQArgDescMap		optionDesc;
   QMap<QString, QVariant> option;
+  QDebugErrorHandler    *errorHandler;
 
+  errorHandler = new QDebugErrorHandler();
   defineOption(optionDesc);
   qapp = new QApplication(ac, ag);
   // Handle arguments
@@ -64,7 +64,11 @@ int	main(int ac, char *ag[])
       rendererOption = option["rendereroption"].toString().split(",");
   rendererOption << "logo=:/main/Toyunda logo.png";
   qDebug() << rendererOption;
-  toyunda = new QToyunda(option["player"].toString(), option["renderer"].toString(), playerOption, rendererOption);
+  toyunda = new QToyunda(errorHandler);
+  toyunda->setPlayerName(option["player"].toString());
+  toyunda->setRendererName(option["renderer"].toString());
+  toyunda->setPlayerOption(playerOption);
+  toyunda->setRendererOption(rendererOption);
 
   QDir pluginPath = qApp->applicationDirPath();
   pluginPath.cd("plugins");

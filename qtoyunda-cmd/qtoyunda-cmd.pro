@@ -7,7 +7,8 @@ TARGET = qtoyunda-cmd
 DESTDIR = $$BASE_PATH
 
 SOURCES += \
-    main.cpp
+    main.cpp \
+    qdebugerrorhandler.cpp
 
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../qtoyunda-lib/release/ -lqtoyunda_static
@@ -24,3 +25,6 @@ else:unix:!symbian: PRE_TARGETDEPS += $$OUT_PWD/../qtoyunda-lib/libqtoyunda_stat
 RESOURCES += \
     qtoyunda-cmd.qrc
 
+HEADERS += \
+    ../comons/sqerrorhandler.h \
+    qdebugerrorhandler.h

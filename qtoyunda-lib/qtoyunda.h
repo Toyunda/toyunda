@@ -22,11 +22,13 @@
 #include <QObject>
 #include <QStringList>
 #include <QDir>
+#include "sqerror.h"
 #include "scomponent.h"
 #include "toyundasub.h"
 #include "toyundarenderer.h"
 #include "fileplayer.h"
 #include "toyundasubstream.h"
+#include "sqerrorhandler.h"
 
 
 struct PluginType {
@@ -71,10 +73,7 @@ class QToyunda : public QObject, SComponent
      * @param playerOpt : The option for the player
      * @param rendererOpt : The option for the renderer
      */
-    QToyunda();
-    QToyunda(QString playerNam, QString rendererNam, 
-             QStringList playerOpt = QStringList(),
-             QStringList rendererOpt = QStringList());
+    QToyunda(SQErrorHandler*);
 
     // Accessors
     /**
@@ -195,16 +194,16 @@ class QToyunda : public QObject, SComponent
 		void	paused();
 		void	played();
 		void	finished();
+                void    pluginError(SQError);
+
   private slots:
-    /**
-     * Quit the application
-     */
-    void  quit();
+    void    s_pluginError(SQError);
 
   private:
     ToyundaRenderer   *renderer;
     FilePlayer        *player;
     ToyundaSubStream  *toyundaSub;
+    SQErrorHandler*   s_errorHandler;
 
     QDir              s_pluginDirectory;
 

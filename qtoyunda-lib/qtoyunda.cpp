@@ -26,29 +26,28 @@
 #include "abstractfileplayer.h"
 
 
-QToyunda::QToyunda(QString playerNam, QString rendererNam, QStringList playerOpt, QStringList rendererOpt) : QObject()
+QToyunda::QToyunda(SQErrorHandler* errH) : QObject()
 {
-  s_playerName = playerNam;
-  s_rendererName = rendererNam;
-  s_playerOption = playerOpt;
-  s_rendererOption = rendererOpt;
+  s_errorHandler = errH;
   player = NULL;
   renderer = NULL;
 }
 
-QToyunda::QToyunda()
-{
-
-}
 
 bool  QToyunda::init()
 {
   bool  selplayer, selrenderer = true;
   selplayer = selectPlayer();
   selrenderer = selectRenderer();
-  if (!selplayer && !selrenderer)
+  if (!selplayer && !selrenderer) {
+      s_errorHandler->addError(SQError(SQError::Critical, "Can't found selected player or selected renderer"));
       return false;
+  }
   toyundaSub = new RawSubStream();
+
+  QObject::connect(player, SIGNAL(error(SQError)), this, SLOT(s_pluginError(SQError)));
+  QObject::connect(dynamic_cast<QObject *>(renderer), SIGNAL(error(SQError)), this, SLOT(s_pluginError(SQError)));
+
   qDebug() << "===============Init player=================" << player->identifier();
   if (!player->init(s_playerOption))
     return false;
@@ -99,7 +98,7 @@ bool  QToyunda::selectPlayer()
 {
     if (s_filePlayerPlugins.size() == 0)
     {
-        qCritical() << "No player found";
+        s_errorHandler->addError(SQError(SQError::Critical, "No player found"));
         return false;
     }
     foreach(FilePlayer *item, s_filePlayerPlugins)
@@ -110,7 +109,7 @@ bool  QToyunda::selectPlayer()
             return true;
         }
     }
-    qCritical() << "Can't find the selected player, or no player selected";
+    s_errorHandler->addError(SQError(SQError::Critical, "Can't find the selected player, or no player selected"));
     return false;
 }
 
@@ -118,7 +117,7 @@ bool  QToyunda::selectRenderer()
 {
     if (s_toyundaRendererPlugins.size() == 0)
     {
-	qCritical() << "No renderer found";
+        s_errorHandler->addError(SQError(SQError::Critical, "No renderer found"));
         return false;
     }
     foreach(ToyundaRenderer *item, s_toyundaRendererPlugins)
@@ -129,7 +128,7 @@ bool  QToyunda::selectRenderer()
             return true;
         }
     }
-    qCritical() << "Can't find the selected renderer, or no renderer selected";
+    s_errorHandler->addError(SQError(SQError::Critical, "Can't find the selected renderer, or no renderer selected"));
     return false;
 }
 
@@ -147,10 +146,6 @@ void	QToyunda::showRendererOption()
   renderer->showOption();
 }
 
-void	QToyunda::quit()
-{
-    qApp->exit(0);
-}
 
 bool    QToyunda::loadPlugins()
 {
@@ -189,13 +184,23 @@ bool    QToyunda::loadPlugins()
             }
             s_pluginList.append(plugin);
         } else {
-            qDebug() << loader.errorString();
+            s_errorHandler->addError(SQError(SQError::Warning, "Can't load module : " + fileName, loader.errorString()));
         }
     }
     if (s_pluginList.size() > 0)
         return true;
+    s_errorHandler->addError(SQError(SQError::Critical, "No plugins found in : " + s_pluginDirectory.absolutePath()));
     return false;
 }
+
+
+void    QToyunda::s_pluginError(SQError err)
+{
+    s_errorHandler->addError(err);
+}
+
+
+//Getter/setter
 
 const QList<PluginInfo>& QToyunda::getPluginInfos() const
 {

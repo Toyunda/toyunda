@@ -22,6 +22,7 @@
 
 #include "toyundasubstream.h"
 #include "scomponent.h"
+#include "sqerror.h"
 
 /** @class ToyundaRenderer
 * @brief The base class of all renderer
@@ -62,6 +63,9 @@ class ToyundaRenderer : public SComponent
     
     virtual void	show() = 0;
     virtual void	hide() = 0;
+
+  signals:
+    void    error(SQError);
 
   protected:
     ToyundaRenderer();

@@ -26,6 +26,7 @@
 #include "playlist.h"
 #include "configdialog.h"
 #include "qtoyunda.h"
+#include "graphicerrorhandler.h"
 
 
 
@@ -64,18 +65,26 @@ private:
 	
 private slots :
 	//Ui slots
+        void            init();
 	void		on_playButton_clicked();
         void            on_configurationButton_clicked();
 	void		on_stopButton_clicked();
 	void		on_playlistView_doubleClicked(const QModelIndex&);
 	void		playlistView_selectionChanged(const QItemSelection &, const QItemSelection &);
         void            closeEvent(QCloseEvent *);
+
+        void            on_error_and_quit();
+        void            on_error_only();
 	
 	//other slots
 	void		song_paused();
 	void		song_playing();
 	void		song_stopped();
 	void		song_finished();
+
+signals:
+        void            error_and_quit();
+        void            error_only();
 
 private :
 	Song		m_currentSong;
@@ -88,6 +97,7 @@ private :
 	QList<Song*>	m_allsongs;
 	QToyunda*	m_qtoyunda;
         SongState::Type	m_songState;
+        GraphicErrorHandler*    m_errorHandler;
 	QMap<QString, QList<Song *> > m_songByAlpha;
 	QMap<QString, QList<Song *> > m_songByType;
 };

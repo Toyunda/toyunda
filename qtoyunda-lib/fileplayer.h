@@ -22,6 +22,7 @@
 #include <QObject>
 #include <QStringList>
 #include "scomponent.h"
+#include "sqerror.h"
 
 /** @class FilePlayer
 * @brief The class that play the file.
@@ -68,6 +69,7 @@ class FilePlayer : public QObject, public SComponent
 		 */
 		virtual void	seek(const int step) = 0;
 
+
 	signals:
 		/**
 		 * This signal is emit when the stream is stopped
@@ -90,6 +92,12 @@ class FilePlayer : public QObject, public SComponent
 		 * @param frame : the number of the frame
 		 */
 		void	frameChanged(int frame);
+
+                /**
+                  * Thie signal is emited when a error occur
+                  * @param err : The error
+                  */
+                void    error(SQError err);
 };
 
 #endif

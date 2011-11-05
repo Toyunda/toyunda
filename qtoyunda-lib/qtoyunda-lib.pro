@@ -13,6 +13,8 @@ HEADERS += \
     fileplayer.h \
     ../comons/sqarg.h \
     ../comons/scomponent.h \
+    ../comons/sqerror.h  \
+    ../comons/sqerrorhandler.h \
     rawsubstream.h \
     qtoyunda.h \
     abstractfileplayer.h \
@@ -24,6 +26,7 @@ SOURCES += \
     toyundarenderer.cpp \
     ../comons/sqarg.cpp \
     ../comons/scomponent.cpp \
+    ../comons/sqerror.cpp \
     rawsubstream.cpp \
     qtoyunda.cpp
 

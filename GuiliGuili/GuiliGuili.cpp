@@ -21,6 +21,7 @@
 #include <QThread>
 #include <QtGui/QLabel>
 #include <QSettings>
+#include <QTimer>
 #include <stdio.h>
 #include <stdlib.h>
 #include <QtGui/QMenu>
@@ -38,30 +39,44 @@
 GuiliGuili::GuiliGuili()
 {
 	ui.setupUi(this);
-    
-    /* Load config
-     */
-	m_settings = new QSettings("skarsnik.nyo.fr", "GuiliGuili");
-        m_qtoyunda = new QToyunda();
+        m_settings = new QSettings("skarsnik.nyo.fr", "GuiliGuili");
+
+        // Create qtoyunda
+
+        m_errorHandler = new GraphicErrorHandler();
+        m_qtoyunda = new QToyunda(m_errorHandler);
+        QObject::connect(this, SIGNAL(error_and_quit()), this, SLOT(on_error_and_quit()));
+        QObject::connect(this, SIGNAL(error_only()), this, SLOT(on_error_only()));
+
         QDir pluginPath = qApp->applicationDirPath();
         pluginPath.cd("plugins");
         qDebug() << pluginPath;
-	m_songState = SongState::Playing;
+        m_songState = SongState::Playing;
         m_qtoyunda->setPluginDirectory(pluginPath);
-        m_qtoyunda->loadPlugins();
-        PopulateTreePluginInfo(m_qtoyunda->getPluginInfos());
-	if (!m_settings->contains("karaoke_dir"))
+        // Ensure event loop is started
+        QTimer::singleShot(0, this, SLOT(init()));
+}
+    
+void GuiliGuili::init()
+{
+        if (!m_qtoyunda->loadPlugins())
         {
-	    int diagretour = m_configDialog.exec();
+            emit error_and_quit();
+            return ;
+        }
+        PopulateTreePluginInfo(m_qtoyunda->getPluginInfos());
+        if (!m_settings->contains("karaoke_dir"))
+        {
+            int diagretour = m_configDialog.exec();
             if (diagretour) {
                 m_karaoke_dir = m_configDialog.ui.karaokeDirLineEdit->text();
-		m_settings->setValue("karaoke_dir", m_karaoke_dir);
+                m_settings->setValue("karaoke_dir", m_karaoke_dir);
             }
         } else
         {
-	    m_karaoke_dir = m_settings->value("karaoke_dir").toString();
+            m_karaoke_dir = m_settings->value("karaoke_dir").toString();
         }
-	//qDebug() << "I am the GuiGui and I am in thread : " << QThread::currentThreadId();
+        //qDebug() << "I am the GuiGui and I am in thread : " << QThread::currentThreadId();
 #ifdef Q_WS_WI
         m_qtoyunda->setPlayerName("fake");
         QStringList playerOption;
@@ -71,28 +86,46 @@ GuiliGuili::GuiliGuili()
         m_qtoyunda->setPlayerName("qgstaudio");
 #endif
         m_qtoyunda->setRendererName("qosd");
-	QStringList rendererOption;
+        QStringList rendererOption;
         rendererOption << "logo=:/main/Toyunda logo.png";
         m_qtoyunda->setRendererOption(rendererOption);
 
 
-	// Ui elemen
-	QStandardItemModel	*model =  new QStandardItemModel();
-	ui.songTreeView->setModel(model);
+        // Ui elemen
+        QStandardItemModel	*model =  new QStandardItemModel();
+        ui.songTreeView->setModel(model);
 
         setKaraokeDir();
-	m_qtoyunda->init();
+        if(! m_qtoyunda->init())
+        {
+            emit error_and_quit();
+            return ;
+        }
         //m_qtoyunda->setRendererQWidgetParent(this);
-	PlaylistModel *plmodel = new PlaylistModel(&m_currentPlaylist);
-	ui.playlistView->setModel(plmodel);
-	ui.playlistView->setAcceptDrops(true);
-	QObject::connect(ui.playlistView->selectionModel(),
-		SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-		this, SLOT(playlistView_selectionChanged(QItemSelection, QItemSelection)));
-	QObject::connect(m_qtoyunda, SIGNAL(played()), this, SLOT(song_playing()));
-	QObject::connect(m_qtoyunda, SIGNAL(paused()), this, SLOT(song_paused()));
-	QObject::connect(m_qtoyunda, SIGNAL(stopped()), this, SLOT(song_stopped()));
-	QObject::connect(m_qtoyunda, SIGNAL(finished()), this, SLOT(song_finished()));
+        PlaylistModel *plmodel = new PlaylistModel(&m_currentPlaylist);
+        ui.playlistView->setModel(plmodel);
+        ui.playlistView->setAcceptDrops(true);
+        QObject::connect(ui.playlistView->selectionModel(),
+                SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+                this, SLOT(playlistView_selectionChanged(QItemSelection, QItemSelection)));
+
+        QObject::connect(m_qtoyunda, SIGNAL(played()), this, SLOT(song_playing()));
+        QObject::connect(m_qtoyunda, SIGNAL(paused()), this, SLOT(song_paused()));
+        QObject::connect(m_qtoyunda, SIGNAL(stopped()), this, SLOT(song_stopped()));
+        QObject::connect(m_qtoyunda, SIGNAL(finished()), this, SLOT(song_finished()));
+}
+
+
+void    GuiliGuili::on_error_and_quit()
+{
+    m_errorHandler->showError();
+    //qApp->exit(1);
+}
+
+
+void    GuiliGuili::on_error_only()
+{
+    m_errorHandler->showError();
 }
 
 GuiliGuili::~GuiliGuili()
@@ -369,4 +402,6 @@ void GuiliGuili::setKaraokeDir()
     ui.songTreeView->setModel(model);
     populateSongView();
 }
+
+
 

@@ -8,7 +8,9 @@ HEADERS += \
     playlist.h \
     GuiliGuili.h \
     configdialog.h \
-    playlistmodel.h
+    playlistmodel.h \
+    graphicerrorhandler.h \
+    ../comons/sqerrorhandler.h
 
 
 SOURCES += \
@@ -18,7 +20,8 @@ SOURCES += \
     main.cpp \
     GuiliGuili.cpp \
     configdialog.cpp \
-    playlistmodel.cpp
+    playlistmodel.cpp \
+    graphicerrorhandler.cpp
 
 FORMS += \
     GuiliGuili.ui \
