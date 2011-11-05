@@ -17,7 +17,8 @@ HEADERS = qgstaudioplayer.h \
 
 SOURCES = qgstaudioplayer.cpp \
           ../comons/scomponent.cpp \
-          ../comons/sqarg.cpp
+          ../comons/sqarg.cpp \
+          ../comons/sqerror.cpp
 
 TARGET = $$qtLibraryTarget(qtoyunda_qgstaudioplayer)
 DESTDIR = $$PLUGIN_PATH
