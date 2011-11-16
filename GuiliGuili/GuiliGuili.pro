@@ -3,7 +3,6 @@ include(../proconfig.pri)
 TARGET = GuiliGuili
 
 HEADERS += \
-    songlisttreeitemmodel.h \
     song.h \
     playlist.h \
     GuiliGuili.h \
@@ -14,7 +13,6 @@ HEADERS += \
 
 
 SOURCES += \
-    songlisttreeitemmodel.cpp \
     song.cpp \
     playlist.cpp \
     main.cpp \
@@ -51,3 +49,5 @@ DEPENDPATH += $$PWD/../qtoyunda-lib/
 win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../qtoyunda-lib/release/qtoyunda_static.lib
 else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../qtoyunda-lib/debug/qtoyunda_static.lib
 else:unix:!symbian: PRE_TARGETDEPS += $$OUT_PWD/../qtoyunda-lib/libqtoyunda_static.a
+
+

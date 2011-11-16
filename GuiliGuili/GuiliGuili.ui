@@ -35,7 +35,7 @@
                <x>0</x>
                <y>0</y>
                <width>350</width>
-               <height>407</height>
+               <height>397</height>
               </rect>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -66,12 +66,25 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_5">
             <item>
-             <widget class="QLineEdit" name="searchInput"/>
+             <widget class="QLineEdit" name="searchInput">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+             </widget>
             </item>
             <item>
              <widget class="QToolButton" name="searchButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="text">
-               <string>S</string>
+               <string/>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>24</width>
+                <height>24</height>
+               </size>
               </property>
              </widget>
             </item>
@@ -124,15 +137,33 @@
            <layout class="QHBoxLayout" name="horizontalLayout">
             <item>
              <widget class="QToolButton" name="openPlaylistButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="text">
-               <string>O</string>
+               <string/>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>32</width>
+                <height>32</height>
+               </size>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QToolButton" name="savePlaylistButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="text">
-               <string>S</string>
+               <string/>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>32</width>
+                <height>32</height>
+               </size>
               </property>
              </widget>
             </item>
@@ -151,6 +182,9 @@
             </item>
             <item>
              <widget class="QToolButton" name="clearPlaylistButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="text">
                <string>...</string>
               </property>

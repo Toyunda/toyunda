@@ -32,7 +32,7 @@ RawSubStream::RawSubStream(const QString filePath) : ToyundaSubStream()
 }
 
 
-void	RawSubStream::createFromFile(QString filePath)
+bool	RawSubStream::createFromFile(QString filePath)
 {
 /*  QRegExp isLogoLine("(\\|*)(\\s*)\xff");
   QRegExp isToyLine("^\\s*\\{(\\d+)\\}\\{(\\d+)\\}(.+)\n");
@@ -44,11 +44,13 @@ void	RawSubStream::createFromFile(QString filePath)
   currentFrame = 0;
   if (!toyfile.open(QIODevice::ReadOnly | QIODevice::Text)) {
     qCritical() << "Can't read : " << filePath;
-    return ;
+    return false;
   }
-  uint	Tid;
+  uint	Tid = 0;
   allSyl.clear();
+  allSyl.reserve((toyfile.size() / 20) / 2);
   allText.clear();
+  allText.reserve((toyfile.size() / 20));
   currentItSyl = allSyl.begin();
   currentItText = allText.begin();
   while (!toyfile.atEnd()) {
@@ -71,7 +73,7 @@ void	RawSubStream::createFromFile(QString filePath)
 	text.size = g.size;
 	text._id = Tid;
 	text.pipeNumber = g.pipeNumber;
-        allText.insert(text);
+        allText.append(text);
 	Tid++;
       } // Syl
 	else {
@@ -92,7 +94,7 @@ void	RawSubStream::createFromFile(QString filePath)
         }
         syl.size = g.size;
 	syl.pipeNumber = g.pipeNumber;
-	allSyl.insert(syl);
+        allSyl.append(syl);
       }
     }
   }
@@ -103,8 +105,11 @@ void	RawSubStream::createFromFile(QString filePath)
       qDebug() << (*it).start;
   }
   exit(1);*/
+  qSort(allSyl.begin(), allSyl.end());
+  qSort(allText.begin(), allText.end());
   currentItSyl = allSyl.begin();
   currentItText = allText.begin();
+  return true;
 }
 
 QList<RawSubStream::GenLineDesc>	RawSubStream::parseToyundaLine(QString line)

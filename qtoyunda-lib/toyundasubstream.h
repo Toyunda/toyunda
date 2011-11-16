@@ -19,7 +19,6 @@
 #ifndef H_TOYUNDASTREAM
 #define H_TOYUNDASTREAM
 
-#include <set>
 #include <QString>
 #include <QList>
 #include <QObject>
@@ -86,7 +85,7 @@ class ToyundaSubStream : public QObject
      * Load a file an create the substream from it.
      * @param fileName : the name of the file
      */
-    virtual void		createFromFile(const QString fileName) = 0;
+    virtual bool		createFromFile(const QString fileName) = 0;
 
     virtual                     ~ToyundaSubStream();
 
@@ -109,10 +108,10 @@ class ToyundaSubStream : public QObject
     QList<ToyundaSyl>   currentSyl; /*!< The current syl list */
     int                 currentFrame; /*!< the number of the current frame */
     QString		identifier; /*!< The identifier of the toyundastream class */
-    std::set<ToyundaText> allText; /*!< Contain the whole text subtitles */
-    std::set<ToyundaSyl>  allSyl; /*!< Contain the whole syl subtitles */
-    std::set<ToyundaText>::iterator currentItText; /*!< The position in the text subtitle list */
-    std::set<ToyundaSyl>::iterator currentItSyl; /*!< The position in the syl subtitle list */
+    QVector<ToyundaText> allText; /*!< Contain the whole text subtitles */
+    QVector<ToyundaSyl>  allSyl; /*!< Contain the whole syl subtitles */
+    QVector<ToyundaText>::iterator currentItText; /*!< The position in the text subtitle list */
+    QVector<ToyundaSyl>::iterator currentItSyl; /*!< The position in the syl subtitle list */
 };
 
 #endif

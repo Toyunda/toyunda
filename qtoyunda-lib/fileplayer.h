@@ -50,7 +50,7 @@ class FilePlayer : public QObject, public SComponent
 
 	public slots:
 		/**
-		 * Open the file's name giving in argument, it doesn't start the stream
+                 * Open the file name, it doesn't start the stream
 		 * @param fileName : The name of the file
 		 */
 		virtual void	open(const QString fileName) = 0;

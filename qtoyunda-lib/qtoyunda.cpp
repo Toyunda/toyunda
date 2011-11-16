@@ -76,14 +76,16 @@ void QToyunda::showRenderer()
 }
 
 
-void  QToyunda::load(QString videoFil, QString subtitleFil)
+bool  QToyunda::load(QString videoFil, QString subtitleFil)
 {
+  bool toret = true;
   s_subtitleFile = subtitleFil;
   s_videoFile = videoFil;
   qDebug() << "===============Load subtitle===============" << s_subtitleFile;
-  toyundaSub->createFromFile(s_subtitleFile);
+  toret = toyundaSub->createFromFile(s_subtitleFile);
   qDebug() << "===============Open video==================" << s_videoFile;
   player->open(s_videoFile);
+  return toret;
 }
 
 void  QToyunda::play()

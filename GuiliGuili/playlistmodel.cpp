@@ -31,6 +31,8 @@ QVariant PlaylistModel::data(const QModelIndex& index, int role) const
 		return QVariant();
 	if (role == Qt::DisplayRole)
 		return m_playlist->at(index.row()).title;
+        if (role == Qt::ToolTipRole)
+            return m_playlist->at(index.row()).iniFile;
 	if (role == Qt::UserRole + 1)
 	{
 		QVariant v = qVariantFromValue<Song>(m_playlist->at(index.row()));
@@ -73,6 +75,7 @@ bool PlaylistModel::insertRows(int row, int count, const QModelIndex& parent)
 
 bool PlaylistModel::removeRows(int row, int count, const QModelIndex& parent)
 {
+    m_playlist->removeAt(row);
     return QAbstractItemModel::removeRows(row, count, parent);
 }
 
@@ -121,7 +124,6 @@ bool PlaylistModel::dropMimeData(const QMimeData* data, Qt::DropAction action, i
 		int right = 0;
 		QVector<int> rows, columns;
 		QVector<QStandardItem *> items;
-
 		while (!stream.atEnd()) {
 			int r, c;
 			QStandardItem *item = new QStandardItem;
@@ -135,25 +137,31 @@ bool PlaylistModel::dropMimeData(const QMimeData* data, Qt::DropAction action, i
 			left = qMin(c, left);
 			bottom = qMax(r, bottom);
 			right = qMax(c, right);
-			if (item->hasChildren())
-			{
-				QList<Song*>* sgl = (QList<Song *>*) item->data(Qt::UserRole + 1).value<quintptr>();
-				QListIterator<Song *> it(*sgl);
-				while (it.hasNext())
-				{
-					Song *sg = it.next();
-					m_playlist->add_song(*sg);
-					insertRows(row, 1 , parent);
-				}
-			}
-			else
-			{
-				Song* sg = (Song *) item->data(Qt::UserRole + 1).value<quintptr>();
-				m_playlist->add_song(*sg);
-				insertRows(row, 1 , parent);
-			}
 		}
-		
+                uint cpt = 0;
+                for (uint i = top; i <= bottom;i++)
+                {
+                    QStandardItem *item = items[rows.indexOf(i)];
+                    if (item->hasChildren())
+                    {
+                            QList<Song*>* sgl = (QList<Song *>*) item->data(Qt::UserRole + 1).value<quintptr>();
+                            QListIterator<Song *> it(*sgl);
+                            while (it.hasNext())
+                            {
+                                    Song *sg = it.next();
+                                    m_playlist->add_song(*sg);
+                            }
+                            insertRows(cpt, sgl->size() , parent);
+                    }
+                    else
+                    {
+
+                            Song* sg = (Song *) item->data(Qt::UserRole + 1).value<quintptr>();
+                            m_playlist->add_song(*sg);
+                            insertRows(cpt, 1 , parent);
+                    }
+                    cpt++;
+                }
 	}		
 	return true;
 }

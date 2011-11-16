@@ -53,6 +53,8 @@ GuiliGuili::GuiliGuili()
         qDebug() << pluginPath;
         m_songState = SongState::Playing;
         m_qtoyunda->setPluginDirectory(pluginPath);
+        ui.openPlaylistButton->setIcon(style()->standardPixmap(QStyle::SP_DialogOpenButton));
+        ui.savePlaylistButton->setIcon(style()->standardPixmap(QStyle::SP_DialogSaveButton));
         // Ensure event loop is started
         QTimer::singleShot(0, this, SLOT(init()));
 }
@@ -151,8 +153,10 @@ void GuiliGuili::play()
 	    qDebug() << "play";
 	    m_qtoyunda->showRenderer();
 	    qDebug() << m_currentSong.videoPath;
-	    m_qtoyunda->load("Videos/" + m_currentSong.videoPath, "Lyrics/" + m_currentSong.subtitlePath);
-	    m_qtoyunda->play();
+            if (m_qtoyunda->load("Videos/" + m_currentSong.videoPath, "Lyrics/" + m_currentSong.subtitlePath))
+                m_qtoyunda->play();
+            else
+                emit error_only();
 	}
 }
 
@@ -279,21 +283,24 @@ void	GuiliGuili::nextSong()
 {
 	if ((m_currentPos + 1 < m_currentPlaylist.count()))
 	{
-		m_currentSong = m_currentPlaylist.at(m_currentPos + 1);
-		m_currentPos++;
+            m_currentPos++;
+            ui.playlistView->setCurrentIndex(ui.playlistView->model()->index(m_currentPos, 0));
+                m_currentSong = m_currentPlaylist.at(m_currentPos);
+
 		play();
 	}
 }
 
 
 
-// Init fonction
+
 void	GuiliGuili::populateSongView()
 {	
 	QMutableMapIterator<QString, QList<Song *> > it(m_songByAlpha);
 	
 	QStandardItemModel *model = static_cast<QStandardItemModel*>(ui.songTreeView->model());
 	QStandardItem	*parentItem = model->invisibleRootItem();
+        ui.songTreeView->header()->hide();
 	
 	while (it.hasNext())
 	{
@@ -383,6 +390,7 @@ void GuiliGuili::PopulateTreePluginInfo(QList<PluginInfo> plInfo)
         QTreeWidgetItem *featureItem = new QTreeWidgetItem(interfaceItem);
         featureItem->setText(0, plugInfo.name);
     }
+    m_configDialog.ui.pluginInfoTreeWidget->expandAll();
 }
 
 void GuiliGuili::closeEvent(QCloseEvent *)

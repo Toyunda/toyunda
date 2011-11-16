@@ -51,9 +51,9 @@ Song::Song(const QString filePath, bool realFile)
                 QString tmp = finifile.readLine();
                 if (keyValue.exactMatch(tmp))
                 {
-                    if (keyValue.cap(1) == "aviname")
+                    if (keyValue.cap(1).toLower() == "aviname")
                         videoPath = keyValue.cap(2);
-                    if (keyValue.cap(1) == "file")
+                    if (keyValue.cap(1).toLower() == "file")
                         subtitlePath = keyValue.cap(2);
                 }
             }
