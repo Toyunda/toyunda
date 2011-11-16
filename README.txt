@@ -14,6 +14,8 @@ and requierement to build it.
 
 	-QToyunda Plugins are the fonctional part of the project
 
+	-qtoyunda-cmd a command line tool to have more advanced acces to option, see ./qtoyunda-cmd --help
+
 2 - QToyunda lib
 
 	qtoyunda-lib directory contains a pseudo library QToyunda, with a helper class QToyunda
@@ -37,7 +39,7 @@ like that :
 
 3 - GuiliGuili
 
-	GuiliGuili is a smal Gui for the project, the goal is to provide a simple and easy to use
+	GuiliGuili is a small Gui for the project, the goal is to provide a simple and easy to use
 interface for users
 
 
@@ -70,27 +72,29 @@ Needed library :
 Plateform notes :
 
 	On Linux : install -devel package of library needed
-		   For gstreamer, don't forget to check your distribution documentation to have non free codecs (gstreamer-plugin-bad)
+		   For gstreamer, don't forget to check your distribution documentation to have non free codecs 
+	           (usaly gstreamer-plugin-bad)
 
 	On Windows :
 		If you just want a out of box working QToyunda, go to the qtoyunda website and download the installer
 		
-		You want to compile QToyunda and co on windows : ok you are crazy. DON'T MAKE RELEASE BUILD, QtGStreamer seems
-		having a prob with timer (need futher investigation) 
+		You want to compile QToyunda and co on windows : ok you are crazy. 
+		DON'T MAKE RELEASE BUILD, QtGStreamer seems having a prob with QTimer (need futher investigation) 
 
 		I use Qtcreator + MSVC 9 (Visual Studio 2008) as compiler
 		
 		1/Download and install Qtcreator, and Qt SDK compiled with Visual Studio 2008 (search on qt-nokia website)
 		
-		2/Go to Qt-gstreamer wikipage to know how compile GStreamer and QtGstreamer http://gstreamer.freedesktop.org/wiki/QtGStreamer/BuildingOnWindows
+		2/Go to Qt-gstreamer wikipage to know how compile GStreamer and QtGstreamer
+		http://gstreamer.freedesktop.org/wiki/QtGStreamer/BuildingOnWindows
 
 		3/Copy the the ossbuild/Shared/Windows/Win32/Include content in ossbuild/Build/Windows/Win32/Realease/include/gstreamer-0.10
 		Or find the good CMake variable that add Include prefix path (-DCMAKE_INCLUDE doesn't seems to work with qtgstreamer), This
 		avoid missing include compile error.
 
 		4/ Ok you got gstreamer and qt-gstreamer build. Open toyunda.pro with QtCreator (check if it use the good Qt version (msvc) in
-		you have the MinGW version also installed, edit plugins/qgstaudio.pro include/lib variable if you install qt-gstreamer in different
-		location from the documentation
+		you have the MinGW version also installed, edit plugins/qgstaudio.pro include/lib variable if you install qt-gstreamer
+		in different location from the documentation.
 		
 		5/ Copy QtGstreamer's dll in the toyunda build/ directory
 		
@@ -98,4 +102,4 @@ Plateform notes :
 			-Copy QtCore, QtGui, QtSVG, QtXml dll (debug version, with d in the end of the name),
 			-Qt plugins for SVG : make a iconengines and imagesformat in toyunda/build and copy SVG related DLL
 			-If you have a complete version of Visual Studio 2008, open QToyunda Installer.sln to build the installer
-		 Open QToyunda installer.sln file if you want 
+
