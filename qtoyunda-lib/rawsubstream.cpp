@@ -174,8 +174,13 @@ void	RawSubStream::parseOption(QString &line, GenLineDesc &linedesc)
   QRegExp isOpt("^(\\{(.*)\\})+.*");
   QRegExp OptColor("\\{c:\\$([0-9A-F]+):?\\$?([0-9A-F]*)\\}");
   QRegExp OptPos("\\{o:(-?\\d+),(-?\\d+):?(?:(-?\\d+),(-?\\d+))?\\}");
+  QRegExp OptSize("\\{s:(\\d+)\\}");
 
   if (isOpt.exactMatch(line)) {
+      if (OptSize.indexIn(line) != -1)
+      {
+	  linedesc.size = OptSize.cap(1).toInt();
+      }
     if (OptColor.indexIn(line) != -1) {
       linedesc.color = toyundaColor2QColor(OptColor.cap(1));
       if (!OptColor.cap(2).isEmpty())

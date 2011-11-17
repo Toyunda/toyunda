@@ -113,7 +113,7 @@ void	ToyundaDrawer::draw(QPainter &painter, const QList<ToyundaText> &textSub, c
                     painter.setPen(tmp.color1);
                 }
             } else {
-                painter.setPen(Qt::darkBlue);
+		painter.setPen(Qt::darkBlue);
             }
             // Text with no position
             if ((tmp.posx == -1 && tmp.posy == -1) || (tmp.posy == 0 && tmp.pipeNumber != 0))
@@ -136,7 +136,14 @@ void	ToyundaDrawer::draw(QPainter &painter, const QList<ToyundaText> &textSub, c
                         tmpLetterWidth = painter.fontMetrics().size(Qt::TextSingleLine, "o").width();
                     }
 
-                }
+		}
+		// Size
+		if (tmp.size != -1) {
+		    QFont cfont = s_font;
+		    cfont.setPixelSize(tmp.size);
+		    painter.setFont(cfont);
+		    tmpLetterWidth = painter.fontMetrics().size(Qt::TextSingleLine, "o").width();
+		}
                 s.setX((m_width - tmp.text.size() * tmpLetterWidth) / 2);
                 painter.save();
                 // Outline
@@ -145,13 +152,22 @@ void	ToyundaDrawer::draw(QPainter &painter, const QList<ToyundaText> &textSub, c
                 painter.restore();
                 painter.drawText(s, tmp.text);
                 // Restore font in case of long text
-                if ((unsigned) tmp.text.size() > maxLetterNumber)
+		if ((unsigned) tmp.text.size() > maxLetterNumber || tmp.size != -1)
                     painter.setFont(s_font);
             // Set text at position pos
             } else {
+		if (tmp.size != -1) {
+		    QFont cfont = s_font;
+		    cfont.setPixelSize(tmp.size);
+		    painter.setFont(cfont);
+		}
                 // Yes the pipenumber change the y position. wtf...
                 painter.drawText((int) (tmp.posx * horizontalRatio), lineInterval + (int )((tmp.posy + (tmp.pipeNumber * lineInterval)) * verticalRatio), tmp.text);
+
             }
+	    if (tmp.size != -1) {
+		painter.setFont(s_font);
+	    }
         }
     }
     // Syl
