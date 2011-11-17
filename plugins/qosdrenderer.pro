@@ -4,6 +4,11 @@ QT += gui
 TEMPLATE = lib
 CONFIG += plugin
 
+unix {
+    CONFIG += link_pkgconfig
+    PKGCONFIG += xfixes
+}
+
 INCLUDEPATH += ../qtoyunda-lib ../comons/
 
 HEADERS = qosd.h \

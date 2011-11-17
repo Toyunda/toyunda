@@ -49,6 +49,9 @@ class QOSD : public QWidget, public ToyundaRenderer, public AbstractRenderer
   public slots:
     void	renderUpdate(void);
 
+  signals:
+    void error(SQError);
+
   protected:
     void	paintEvent(QPaintEvent*);
 

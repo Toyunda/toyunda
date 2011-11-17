@@ -21,6 +21,11 @@
 #include <QPaintEvent>
 #include <QThread>
 
+#ifdef Q_WS_X11
+#include <QX11Info>
+#include <X11/extensions/Xfixes.h>
+#include <X11/extensions/shape.h>
+#endif
 
 QOSD::QOSD(QWidget *parent) : ToyundaRenderer(), QWidget(parent)
 {
@@ -45,6 +50,13 @@ bool  QOSD::init(QStringList opt)
   handleOption(opt);
   QFont f(optionValue["font"].toString(), (int) optionValue["fontsize"].toDouble() * optionValue["ratio"].toDouble());
   f.setFixedPitch(true);
+#ifdef Q_WS_X11
+  if (QX11Info::isCompositingManagerRunning() == false)
+  {
+      emit error(SQError(SQError::Critical, "You are not running a X11 composite manager, QOSD can't work without one"));
+      return false;
+  }
+#endif
   toyundaDrawer.setFont(f);
   toyundaDrawer.setIntervalRatio(optionValue["iratio"].toDouble());
   toyundaDrawer.setRatio(optionValue["ratio"].toDouble());
@@ -54,7 +66,19 @@ bool  QOSD::init(QStringList opt)
   toyundaDrawer.recalcMagic();
   qDebug() << toyundaDrawer.width() << "x" << toyundaDrawer.height();
   setFixedSize(QSize(toyundaDrawer.width(), toyundaDrawer.height()));
+
+  //set the input region for the window as Null, should let the windows pass event
+#ifdef Q_WS_X11
+Display *dpy = QX11Info::display();
+Window w_id = QWidget::winId();
+qDebug() << "Win ID : " << w_id;
+XserverRegion region = XFixesCreateRegion (dpy, NULL, 0);
+XFixesSetWindowShapeRegion(dpy, w_id, ShapeInput, 0, 0, region);
+XFixesDestroyRegion (dpy, region);
+#endif
+
   return true;
+
 }
 
 void	QOSD::paintEvent(QPaintEvent *event)
@@ -84,6 +108,7 @@ void	QOSD::hide()
 void	QOSD::show()
 {
 	QWidget::show();
+
 }
 
 

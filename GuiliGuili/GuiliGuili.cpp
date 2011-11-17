@@ -150,11 +150,13 @@ void GuiliGuili::play()
     if (!m_currentSong.title.isEmpty()) {
 	    if (m_songState == SongState::Playing)
 		stop();
-	    qDebug() << "play";
-	    m_qtoyunda->showRenderer();
+            qDebug() << "play";
 	    qDebug() << m_currentSong.videoPath;
             if (m_qtoyunda->load("Videos/" + m_currentSong.videoPath, "Lyrics/" + m_currentSong.subtitlePath))
+            {
                 m_qtoyunda->play();
+                m_qtoyunda->showRenderer();
+            }
             else
                 emit error_only();
 	}
