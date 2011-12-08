@@ -260,3 +260,8 @@ void QToyunda::stop()
     player->stop();
     toyundaSub->reinit();
 }
+
+void QToyunda::setVolume(int volume)
+{
+    player->setVolume(volume);
+}

@@ -39,12 +39,14 @@ class FakePlayer : public FilePlayer, public AbstractFilePlayer
     bool	init(const QStringList opt);
     void        dispose();
     FilePlayer  *getMe();
+    bool        hasVolumeControl();
 
   public slots:
     void	open(const QString);
     void	play();
     void	stop();
     void	seek(const int);
+    void        setVolume(uint);
 
   private slots:
     void	newTick();

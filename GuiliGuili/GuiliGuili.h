@@ -70,6 +70,7 @@ private slots :
         void            on_configurationButton_clicked();
 	void		on_stopButton_clicked();
 	void		on_playlistView_doubleClicked(const QModelIndex&);
+        void            on_volumeSlider_valueChanged(int);
 	void		playlistView_selectionChanged(const QItemSelection &, const QItemSelection &);
         void            closeEvent(QCloseEvent *);
 

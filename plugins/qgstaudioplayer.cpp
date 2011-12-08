@@ -117,7 +117,7 @@ bool	QGstAudioPlayer::init(const QStringList opt)
         QString tmpstr("GST_PLUGIN_PATH=" + qApp->applicationDirPath().toLatin1() + "/gst-plugins/");
         qDebug() << "Plugin path is : " << tmpstr;
         putenv(tmpstr.toLatin1().constData());
-	putenv("GST_DEBUG=*:1");
+        putenv("GST_DEBUG=*:1");
 #endif
         try {
             QGst::init();
@@ -145,12 +145,14 @@ bool	QGstAudioPlayer::init(const QStringList opt)
 	m_audiobin = QGst::Bin::create("-Audio bin");
 	conv = QGst::ElementFactory::make("audioconvert");
         resample = QGst::ElementFactory::make("audioresample");
+        m_volume = QGst::ElementFactory::make("volume");
 	asink = QGst::ElementFactory::make("autoaudiosink", "Auto Audio Sink");
-        m_audiobin->add(queuea, conv, resample, asink);
+        m_audiobin->add(queuea, conv, resample, m_volume, asink);
 	QGst::PadPtr audiopad = queuea->getStaticPad("sink"); 
 	queuea->link(conv);
         conv->link(resample);
-        resample->link(asink);
+        resample->link(m_volume);
+        m_volume->link(asink);
 	QGst::GhostPadPtr gpad = QGst::GhostPad::create(audiopad, "sink");
 	m_audiobin->addPad(gpad);
 	
@@ -248,4 +250,18 @@ QGstAudioPlayer::~QGstAudioPlayer()
 {
     dispose();
 }
+
+bool QGstAudioPlayer::hasVolumeControl()
+{
+    return true;
+}
+
+void QGstAudioPlayer::setVolume(uint vol)
+{
+    m_volume->setProperty("volume", (float)((float)vol / 100.0));
+}
+
+
 Q_EXPORT_PLUGIN2(qtoyunda_qgstaudioplayer, QGstAudioPlayer)
+
+

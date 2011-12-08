@@ -115,6 +115,7 @@ void GuiliGuili::init()
         QObject::connect(m_qtoyunda, SIGNAL(paused()), this, SLOT(song_paused()));
         QObject::connect(m_qtoyunda, SIGNAL(stopped()), this, SLOT(song_stopped()));
         QObject::connect(m_qtoyunda, SIGNAL(finished()), this, SLOT(song_finished()));
+        ui.volumeSlider->setValue(100);
 }
 
 
@@ -359,6 +360,14 @@ void    GuiliGuili::on_configurationButton_clicked()
 	    setKaraokeDir();
 	}
 }
+
+
+void            GuiliGuili::on_volumeSlider_valueChanged(int pos)
+{
+    m_qtoyunda->setVolume(pos);
+}
+
+
 
 void GuiliGuili::playlistView_selectionChanged(const QItemSelection& selected , const QItemSelection& deselected)
 {

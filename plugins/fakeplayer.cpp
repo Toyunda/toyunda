@@ -87,4 +87,17 @@ void FakePlayer::dispose()
     ;
 }
 
+void FakePlayer::setVolume(uint vol)
+{
+    ;
+}
+
+bool FakePlayer::hasVolumeControl()
+{
+    return false;
+}
+
+
 Q_EXPORT_PLUGIN2(qtoyunda_fakeplayer, FakePlayer)
+
+

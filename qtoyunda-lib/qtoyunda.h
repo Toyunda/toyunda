@@ -170,6 +170,12 @@ class QToyunda : public QObject, SComponent
     const QList<PluginInfo>& getPluginInfos() const;
     void    setRendererQWidgetParent(QWidget *);
     void    dispose();
+
+    /**
+     * Change the volume
+     * @param volume The volume value, value me be between 0 and 100
+     */
+    void    setVolume(int volume);
     /**
      * play the file
      */

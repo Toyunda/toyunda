@@ -37,6 +37,7 @@ class QGstAudioPlayer : public FilePlayer, public AbstractFilePlayer
 		QGstAudioPlayer();
 		bool	init(const QStringList optionList = QStringList());
                 FilePlayer *getMe();
+                bool    hasVolumeControl();
                 void    dispose();
                 ~QGstAudioPlayer();
 
@@ -45,6 +46,7 @@ class QGstAudioPlayer : public FilePlayer, public AbstractFilePlayer
 		void	play();
 		void	stop();
 		void	seek(const int step);
+                void    setVolume(uint);
 
 
 	private slots:
@@ -57,6 +59,7 @@ class QGstAudioPlayer : public FilePlayer, public AbstractFilePlayer
 		QGst::ElementPtr	m_src;
 		QGst::ElementPtr	m_dec;
 		QGst::ElementPtr	m_vsink;
+                QGst::ElementPtr        m_volume;
 		QGst::BinPtr		m_audiobin;
 		QGst::BinPtr		m_videobin;
 

@@ -44,8 +44,21 @@ class FilePlayer : public QObject, public SComponent
 		 */
 		virtual bool	init(const QStringList optionList = QStringList()) = 0;
 
+                /**
+                 * Call this method first to dispose the player. must be call only once
+                 */
                 virtual void    dispose() = 0;
 
+                /**
+                 * Return true if the player support Volume Control
+                 */
+                virtual bool    hasVolumeControl() = 0;
+
+                /**
+                 * Used by the plugin loader to get the fileplayer object
+                 * It's a limitation of Qt plugin system, the interface exposed to pluginload class
+                 * can't inherite QObject so we can't connect signal/slot, see Qt plugin documentation
+                 */
                 virtual FilePlayer*     getMe() = 0;
 
 	public slots:
@@ -69,7 +82,10 @@ class FilePlayer : public QObject, public SComponent
 		 */
 		virtual void	seek(const int step) = 0;
 
-
+                /**
+                 * Set the volume
+                 */
+                virtual void    setVolume(uint) = 0;
 	signals:
 		/**
 		 * This signal is emit when the stream is stopped
