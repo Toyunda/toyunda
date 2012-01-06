@@ -98,7 +98,10 @@ void	QGstAudioPlayer::onBusMessage(const QGst::MessagePtr &message)
 	//qDebug() << "changing state : " << message->source()->name() << " - State : " <<
 	message.staticCast<QGst::StateChangedMessage>()->newState();
         if ((message->source() == m_pipeline) && (message.staticCast<QGst::StateChangedMessage>()->newState() == QGst::StatePlaying))
+        {
 		emit played();
+                m_timer->start(30);
+        }
         if ((message->source() == m_pipeline) && (message.staticCast<QGst::StateChangedMessage>()->newState() == QGst::StatePaused))
 		emit paused();
         if ((message->source() == m_pipeline) && (message.staticCast<QGst::StateChangedMessage>()->newState() == QGst::StateNull))
@@ -194,7 +197,6 @@ void	QGstAudioPlayer::play()
         return ;
      }
     m_framenb = -1;
-    m_timer->start(30);
     qDebug() << "end of gstaudioplay";
 }
 
@@ -205,7 +207,7 @@ void	QGstAudioPlayer::stop()
         emit error(SQError(SQError::Critical, "Failed to change state to NULL"));
         return ;
     }
-
+    m_framenb = -1;
 }
 
 void	QGstAudioPlayer::checkFrame()
@@ -213,7 +215,7 @@ void	QGstAudioPlayer::checkFrame()
     QGst::PositionQueryPtr query = QGst::PositionQuery::create(QGst::FormatTime);
     m_pipeline->query(query);
     int tmp = ((query->position() / 1000000) * framerate) / 1000;
-	if (m_framenb != tmp)
+        if (m_framenb != tmp)
 	{
 		m_framenb = tmp;
 		emit frameChanged(m_framenb);

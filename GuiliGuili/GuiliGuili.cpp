@@ -34,6 +34,7 @@
 #include <qstandarditemmodel.h>
 #include <qevent.h>
 #include <qdialog.h>
+#include "profilosd.h"
 
 
 GuiliGuili::GuiliGuili()
@@ -42,17 +43,15 @@ GuiliGuili::GuiliGuili()
         m_settings = new QSettings("skarsnik.nyo.fr", "GuiliGuili");
 
         // Create qtoyunda
-
         m_errorHandler = new GraphicErrorHandler();
-        m_qtoyunda = new QToyunda(m_errorHandler);
+        ProfilOSD*  tmpprofil = new ProfilOSD();
+        tmpprofil->setEH(m_errorHandler);
+        m_currentProfil = tmpprofil;
+
         QObject::connect(this, SIGNAL(error_and_quit()), this, SLOT(on_error_and_quit()));
         QObject::connect(this, SIGNAL(error_only()), this, SLOT(on_error_only()));
 
-        QDir pluginPath = qApp->applicationDirPath();
-        pluginPath.cd("plugins");
-        qDebug() << pluginPath;
         m_songState = SongState::Playing;
-        m_qtoyunda->setPluginDirectory(pluginPath);
         ui.openPlaylistButton->setIcon(style()->standardPixmap(QStyle::SP_DialogOpenButton));
         ui.savePlaylistButton->setIcon(style()->standardPixmap(QStyle::SP_DialogSaveButton));
         // Ensure event loop is started
@@ -61,12 +60,7 @@ GuiliGuili::GuiliGuili()
     
 void GuiliGuili::init()
 {
-        if (!m_qtoyunda->loadPlugins())
-        {
-            emit error_and_quit();
-            return ;
-        }
-        PopulateTreePluginInfo(m_qtoyunda->getPluginInfos());
+        //PopulateTreePluginInfo(m_qtoyunda->getPluginInfos());
         if (!m_settings->contains("karaoke_dir"))
         {
             int diagretour = m_configDialog.exec();
@@ -79,30 +73,11 @@ void GuiliGuili::init()
             m_karaoke_dir = m_settings->value("karaoke_dir").toString();
         }
         //qDebug() << "I am the GuiGui and I am in thread : " << QThread::currentThreadId();
-#ifdef Q_WS_WI
-        m_qtoyunda->setPlayerName("fake");
-        QStringList playerOption;
-        playerOption << "duration=5000";
-        m_qtoyunda->setPlayerOption(playerOption);
-#else
-        m_qtoyunda->setPlayerName("qgstaudio");
-#endif
-        m_qtoyunda->setRendererName("qosd");
-        QStringList rendererOption;
-        rendererOption << "logo=:/main/Toyunda logo.png";
-        m_qtoyunda->setRendererOption(rendererOption);
-
-
         // Ui elemen
         QStandardItemModel	*model =  new QStandardItemModel();
         ui.songTreeView->setModel(model);
 
         setKaraokeDir();
-        if(! m_qtoyunda->init())
-        {
-            emit error_and_quit();
-            return ;
-        }
         //m_qtoyunda->setRendererQWidgetParent(this);
         PlaylistModel *plmodel = new PlaylistModel(&m_currentPlaylist);
         ui.playlistView->setModel(plmodel);
@@ -111,10 +86,12 @@ void GuiliGuili::init()
                 SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
                 this, SLOT(playlistView_selectionChanged(QItemSelection, QItemSelection)));
 
-        QObject::connect(m_qtoyunda, SIGNAL(played()), this, SLOT(song_playing()));
-        QObject::connect(m_qtoyunda, SIGNAL(paused()), this, SLOT(song_paused()));
-        QObject::connect(m_qtoyunda, SIGNAL(stopped()), this, SLOT(song_stopped()));
-        QObject::connect(m_qtoyunda, SIGNAL(finished()), this, SLOT(song_finished()));
+        m_currentProfil->init();
+        QObject::connect(m_currentProfil, SIGNAL(played()), this, SLOT(song_playing()));
+        QObject::connect(m_currentProfil, SIGNAL(paused()), this, SLOT(song_paused()));
+        QObject::connect(m_currentProfil, SIGNAL(stopped()), this, SLOT(song_stopped()));
+        QObject::connect(m_currentProfil, SIGNAL(finished()), this, SLOT(song_finished()));
+
         ui.volumeSlider->setValue(100);
 }
 
@@ -141,8 +118,7 @@ void	GuiliGuili::stop()
 {
     if (m_songState == SongState::Playing)
     {
-	m_qtoyunda->stop();
-	m_qtoyunda->hideRenderer();
+        m_currentProfil->stop();
     }
 }
 
@@ -153,13 +129,7 @@ void GuiliGuili::play()
 		stop();
             qDebug() << "play";
 	    qDebug() << m_currentSong.videoPath;
-            if (m_qtoyunda->load("Videos/" + m_currentSong.videoPath, "Lyrics/" + m_currentSong.subtitlePath))
-            {
-                m_qtoyunda->play();
-                m_qtoyunda->showRenderer();
-            }
-            else
-                emit error_only();
+            m_currentProfil->play("Videos/" + m_currentSong.videoPath, "Lyrics/" + m_currentSong.subtitlePath);
 	}
 }
 
@@ -258,7 +228,7 @@ void GuiliGuili::readKaraokeDir()
 void	GuiliGuili::song_finished()
 {
 	ui.statusbar->showMessage("Song finished");
-	m_qtoyunda->hideRenderer();
+        m_currentProfil->stop();
 	nextSong();
 }
 
@@ -277,7 +247,7 @@ void	GuiliGuili::song_playing()
 void	GuiliGuili::song_stopped()
 {
 	ui.statusbar->showMessage("Song stopped");
-	m_qtoyunda->hideRenderer();
+        m_currentProfil->stop();
 	m_songState = SongState::Stopped;
 }
 
@@ -350,15 +320,27 @@ void	GuiliGuili::on_playButton_clicked()
 	play();
 }
 
+void            GuiliGuili::on_searchInput_editingFinished()
+{
+    on_searchButton_clicked();
+}
+
 void            GuiliGuili::on_searchButton_clicked()
 {
+    static bool first = false;
+    static QStandardItem *searchItem = NULL;
     QString searchPat = ui.searchInput->text();
 
+    if (searchPat.isEmpty())
+        return;
     QRegExp exp(searchPat, Qt::CaseInsensitive);
     QStandardItemModel *model = static_cast<QStandardItemModel*>(ui.songTreeView->model());
     QStandardItem	*parentItem = model->invisibleRootItem();
     bool    find = false;
-    QStandardItem   *searchItem;
+    if (first == false)
+        searchItem = new QStandardItem();
+    else
+        searchItem->removeRows(0, searchItem->rowCount());
     m_searchResult.clear();
     foreach(Song *sg, m_allsongs)
     {
@@ -366,7 +348,6 @@ void            GuiliGuili::on_searchButton_clicked()
         {
             if (find == false)
             {
-                searchItem = new QStandardItem();
                 searchItem->setData("Search Result", Qt::DisplayRole);
                 QVariant v1 = qVariantFromValue((quintptr) &m_searchResult);
                 searchItem->setData(v1, Qt::UserRole + 1);
@@ -380,10 +361,17 @@ void            GuiliGuili::on_searchButton_clicked()
             newItem->setData(v1, Qt::UserRole + 1);
             newItem->setEditable(false);
             searchItem->appendRow(newItem);
+            m_searchResult.append(sg);
         }
     }
     if (find)
-        parentItem->appendRow(searchItem);
+    {
+        if (first == false)
+            parentItem->appendRow(searchItem);
+        ui.songTreeView->expand(searchItem->index());
+        ui.songTreeView->scrollTo(searchItem->index());
+        first = true;
+    }
 }
 
 void    GuiliGuili::on_configurationButton_clicked()
@@ -400,7 +388,7 @@ void    GuiliGuili::on_configurationButton_clicked()
 
 void            GuiliGuili::on_volumeSlider_valueChanged(int pos)
 {
-    m_qtoyunda->setVolume(pos);
+    m_currentProfil->setVolume(pos);
 }
 
 
@@ -442,7 +430,7 @@ void GuiliGuili::PopulateTreePluginInfo(QList<PluginInfo> plInfo)
 
 void GuiliGuili::closeEvent(QCloseEvent *)
 {
-    m_qtoyunda->dispose();
+    m_currentProfil->dispose();
 }
 
 void GuiliGuili::setKaraokeDir()

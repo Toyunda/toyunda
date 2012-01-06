@@ -9,7 +9,9 @@ HEADERS += \
     configdialog.h \
     playlistmodel.h \
     graphicerrorhandler.h \
-    ../comons/sqerrorhandler.h
+    ../comons/sqerrorhandler.h \
+    profil.h \
+    profilosd.h
 
 
 SOURCES += \
@@ -19,7 +21,9 @@ SOURCES += \
     GuiliGuili.cpp \
     configdialog.cpp \
     playlistmodel.cpp \
-    graphicerrorhandler.cpp
+    graphicerrorhandler.cpp \
+    profil.cpp \
+    profilosd.cpp
 
 FORMS += \
     GuiliGuili.ui \
@@ -49,5 +53,3 @@ DEPENDPATH += $$PWD/../qtoyunda-lib/
 win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../qtoyunda-lib/release/qtoyunda_static.lib
 else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../qtoyunda-lib/debug/qtoyunda_static.lib
 else:unix:!symbian: PRE_TARGETDEPS += $$OUT_PWD/../qtoyunda-lib/libqtoyunda_static.a
-
-
