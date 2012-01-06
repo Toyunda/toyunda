@@ -350,6 +350,42 @@ void	GuiliGuili::on_playButton_clicked()
 	play();
 }
 
+void            GuiliGuili::on_searchButton_clicked()
+{
+    QString searchPat = ui.searchInput->text();
+
+    QRegExp exp(searchPat, Qt::CaseInsensitive);
+    QStandardItemModel *model = static_cast<QStandardItemModel*>(ui.songTreeView->model());
+    QStandardItem	*parentItem = model->invisibleRootItem();
+    bool    find = false;
+    QStandardItem   *searchItem;
+    m_searchResult.clear();
+    foreach(Song *sg, m_allsongs)
+    {
+        if (exp.indexIn(sg->title) != -1)
+        {
+            if (find == false)
+            {
+                searchItem = new QStandardItem();
+                searchItem->setData("Search Result", Qt::DisplayRole);
+                QVariant v1 = qVariantFromValue((quintptr) &m_searchResult);
+                searchItem->setData(v1, Qt::UserRole + 1);
+                searchItem->setEditable(false);
+                find = true;
+            }
+            QStandardItem *newItem = new QStandardItem();
+            newItem->setData(sg->title, Qt::DisplayRole);
+            newItem->setToolTip(sg->iniFile);
+            QVariant v1 = qVariantFromValue((quintptr) sg);
+            newItem->setData(v1, Qt::UserRole + 1);
+            newItem->setEditable(false);
+            searchItem->appendRow(newItem);
+        }
+    }
+    if (find)
+        parentItem->appendRow(searchItem);
+}
+
 void    GuiliGuili::on_configurationButton_clicked()
 {
         m_configDialog.ui.karaokeDirLineEdit->setText(m_karaoke_dir);

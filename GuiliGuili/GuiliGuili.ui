@@ -68,14 +68,14 @@
             <item>
              <widget class="QLineEdit" name="searchInput">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QToolButton" name="searchButton">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="text">
                <string/>

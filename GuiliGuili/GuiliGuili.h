@@ -71,6 +71,7 @@ private slots :
 	void		on_stopButton_clicked();
 	void		on_playlistView_doubleClicked(const QModelIndex&);
         void            on_volumeSlider_valueChanged(int);
+        void            on_searchButton_clicked();
 	void		playlistView_selectionChanged(const QItemSelection &, const QItemSelection &);
         void            closeEvent(QCloseEvent *);
 
@@ -96,7 +97,8 @@ private :
 	uint		m_currentPos;
 	QSettings*	m_settings;
 	QList<Song*>	m_allsongs;
-	QToyunda*	m_qtoyunda;
+        QList<Song*>    m_searchResult;
+        QToyunda*	m_qtoyunda;
         SongState::Type	m_songState;
         GraphicErrorHandler*    m_errorHandler;
 	QMap<QString, QList<Song *> > m_songByAlpha;
