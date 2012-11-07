@@ -22,6 +22,7 @@
 
 #include <QtGui/QMainWindow>
 #include <QSettings>
+#include <QStandardItem>
 #include "ui_GuiliGuili.h"
 #include "playlist.h"
 #include "configdialog.h"
@@ -53,6 +54,7 @@ public:
 private:
 
 	void		play();
+        void            play_once(QString video, QString lyrics);
 	void		stop();
 	void		nextSong();
         void		prevSong();
@@ -63,6 +65,7 @@ private:
 	void		openPlaylist(QString);
 	void		savePlaylist(QString);
 	void		sortAlphaSongMap();
+        void            addCategorySongView(QStandardItem* parentItem, QMap<QString, QList<Song*> > songList);
 	
 private slots :
 	//Ui slots
@@ -74,6 +77,7 @@ private slots :
         void            on_volumeSlider_valueChanged(int);
         void            on_searchInput_editingFinished();
         void            on_searchButton_clicked();
+        void            on_songTreeView_doubleClicked(const QModelIndex &);
 	void		playlistView_selectionChanged(const QItemSelection &, const QItemSelection &);
         void            closeEvent(QCloseEvent *);
 
@@ -86,11 +90,15 @@ private slots :
 	void		song_stopped();
 	void		song_finished();
 
+	void on_clearPlaylistButton_clicked();
+
 signals:
         void            error_and_quit();
         void            error_only();
 
 private :
+
+
 	Song		m_currentSong;
         ConfigDialog    m_configDialog;
 	Ui::GuiliGuili	ui;

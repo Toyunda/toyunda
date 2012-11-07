@@ -27,6 +27,7 @@
 #include <QtGui/QMenu>
 #include <QtGui/QMenuBar>
 #include <QtGui/QAction>
+#include <QTreeWidgetItem>
 #include <qdir.h>
 #include <QDebug>
 #include "playlistmodel.h"
@@ -35,6 +36,7 @@
 #include <qevent.h>
 #include <qdialog.h>
 #include "profilosd.h"
+#include "profilmplayer.h"
 
 
 GuiliGuili::GuiliGuili()
@@ -44,9 +46,7 @@ GuiliGuili::GuiliGuili()
 
         // Create qtoyunda
         m_errorHandler = new GraphicErrorHandler();
-        ProfilOSD*  tmpprofil = new ProfilOSD();
-        tmpprofil->setEH(m_errorHandler);
-        m_currentProfil = tmpprofil;
+
 
         QObject::connect(this, SIGNAL(error_and_quit()), this, SLOT(on_error_and_quit()));
         QObject::connect(this, SIGNAL(error_only()), this, SLOT(on_error_only()));
@@ -79,6 +79,7 @@ void GuiliGuili::init()
 
         setKaraokeDir();
         //m_qtoyunda->setRendererQWidgetParent(this);
+	m_currentProfil = new Profilmplayer;
         PlaylistModel *plmodel = new PlaylistModel(&m_currentPlaylist);
         ui.playlistView->setModel(plmodel);
         ui.playlistView->setAcceptDrops(true);
@@ -129,8 +130,13 @@ void GuiliGuili::play()
 		stop();
             qDebug() << "play";
 	    qDebug() << m_currentSong.videoPath;
-            m_currentProfil->play("Videos/" + m_currentSong.videoPath, "Lyrics/" + m_currentSong.subtitlePath);
+            m_currentProfil->play(m_karaoke_dir + "/Videos/" + m_currentSong.videoPath, m_karaoke_dir + "/Lyrics/" + m_currentSong.subtitlePath);
 	}
+}
+
+void    GuiliGuili::play_once(QString video, QString lyrics)
+{
+        m_currentProfil->play(m_karaoke_dir + "/Videos/" + video, m_karaoke_dir + "/Lyrics/" + lyrics);
 }
 
 void	GuiliGuili::sortAlphaSongMap()
@@ -265,39 +271,42 @@ void	GuiliGuili::nextSong()
 }
 
 
+void    GuiliGuili::addCategorySongView(QStandardItem* parentItem, QMap<QString, QList<Song*> > songList)
+{
+    QMutableMapIterator<QString, QList<Song*> > it(songList);
+    while (it.hasNext())
+    {
+            it.next();
+            QList<Song *>* lsg = &(it.value());
+            QStandardItem	*categoryItem = new QStandardItem();
+            categoryItem->setData(it.key(), Qt::DisplayRole);
+            QVariant v1 = qVariantFromValue((quintptr) lsg);
+            categoryItem->setData(v1, Qt::UserRole + 1);
+            categoryItem->setEditable(false);
+            parentItem->appendRow(categoryItem);
+            QListIterator<Song *>	itSong(*lsg);
+            while (itSong.hasNext())
+            {
+                    Song *sg = itSong.next();
+                    QStandardItem	*songItem = new QStandardItem();
+                    songItem->setData(sg->title, Qt::DisplayRole);
+                    songItem->setEditable(false);
+                    songItem->setToolTip(sg->iniFile);
+                    QVariant v = qVariantFromValue((quintptr) sg);
+                    songItem->setData(v, Qt::UserRole + 1);
+                    categoryItem->appendRow(songItem);
+            }
+    }
 
+}
 
 void	GuiliGuili::populateSongView()
-{	
-	QMutableMapIterator<QString, QList<Song *> > it(m_songByAlpha);
-	
+{
 	QStandardItemModel *model = static_cast<QStandardItemModel*>(ui.songTreeView->model());
 	QStandardItem	*parentItem = model->invisibleRootItem();
         ui.songTreeView->header()->hide();
-	
-	while (it.hasNext())
-	{
-		it.next();
-		QList<Song *>* lsg = &(it.value());
-		QStandardItem	*categoryItem = new QStandardItem();
-		categoryItem->setData(it.key(), Qt::DisplayRole);
-		QVariant v1 = qVariantFromValue((quintptr) lsg);
-		categoryItem->setData(v1, Qt::UserRole + 1);
-		categoryItem->setEditable(false);
-		parentItem->appendRow(categoryItem);
-		QListIterator<Song *>	itSong(*lsg);
-		while (itSong.hasNext())
-		{
-			Song *sg = itSong.next();
-			QStandardItem	*songItem = new QStandardItem();
-			songItem->setData(sg->title, Qt::DisplayRole);
-			songItem->setEditable(false);
-			songItem->setToolTip(sg->iniFile);
-			QVariant v = qVariantFromValue((quintptr) sg);
-			songItem->setData(v, Qt::UserRole + 1);
-			categoryItem->appendRow(songItem);
-		}
-	}
+        addCategorySongView(parentItem, m_songByType);
+        addCategorySongView(parentItem, m_songByAlpha);
 }
 
 
@@ -313,6 +322,18 @@ void	GuiliGuili::on_playlistView_doubleClicked(const QModelIndex& index)
     m_currentPos = index.row();
     m_currentSong = s;
     play();
+}
+
+void     GuiliGuili::on_songTreeView_doubleClicked(const QModelIndex &index)
+{
+    qDebug() << index;
+    QStandardItemModel *model = static_cast<QStandardItemModel*>(ui.songTreeView->model());
+    QStandardItem* curItem = model->itemFromIndex(index);
+    if (curItem->hasChildren())
+        return;
+    QVariant qv = model->data(index, Qt::UserRole + 1);
+    Song *sg = (Song *) qv.value<quintptr>();
+        play_once(sg->videoPath, sg->subtitlePath);
 }
 
 void	GuiliGuili::on_playButton_clicked()
@@ -406,7 +427,7 @@ void GuiliGuili::playlistView_selectionChanged(const QItemSelection& selected , 
 	m_currentPos = index.row();
 	m_currentSong = s;
 }
-
+/*
 void GuiliGuili::PopulateTreePluginInfo(QList<PluginInfo> plInfo)
 {
 
@@ -427,7 +448,7 @@ void GuiliGuili::PopulateTreePluginInfo(QList<PluginInfo> plInfo)
     }
     m_configDialog.ui.pluginInfoTreeWidget->expandAll();
 }
-
+*/
 void GuiliGuili::closeEvent(QCloseEvent *)
 {
     m_currentProfil->dispose();
@@ -448,3 +469,8 @@ void GuiliGuili::setKaraokeDir()
 
 
 
+
+void GuiliGuili::on_clearPlaylistButton_clicked()
+{
+
+}

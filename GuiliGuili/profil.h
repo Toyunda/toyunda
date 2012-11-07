@@ -2,14 +2,23 @@
 #define PROFIL_H
 
 #include <QObject>
+#include <QDialog>
 
 class Profil : public QObject
 {
     Q_OBJECT
+
+public:
+	enum	BaseType {
+		OSD,
+		MPLAYER
+	};
 public:
     explicit Profil(QObject *parent = 0);
-    QString name;
-    QString description;
+    QString	name;
+    QString	description;
+    QDialog	*configDialog;
+    BaseType	baseType;
 
 signals:
     void    played();

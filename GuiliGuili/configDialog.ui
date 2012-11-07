@@ -38,7 +38,7 @@
         </sizepolicy>
        </property>
        <property name="title">
-        <string>Normal</string>
+        <string>Configuration générale</string>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_4">
         <item>
@@ -58,7 +58,7 @@
             <item>
              <widget class="QPushButton" name="selectKaraokeDirButton">
               <property name="text">
-               <string>Choisir</string>
+               <string>&amp;Choose</string>
               </property>
              </widget>
             </item>
@@ -78,19 +78,48 @@
      </item>
      <item>
       <widget class="QLabel" name="label_3">
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
        <property name="text">
-        <string>Information sur les plugins</string>
+        <string>Configuration des profils</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QTreeWidget" name="pluginInfoTreeWidget">
-       <column>
-        <property name="text">
-         <string notr="true">1</string>
-        </property>
-       </column>
-      </widget>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QTableView" name="profilTableView"/>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_5">
+         <item>
+          <widget class="QPushButton" name="newProfilButton">
+           <property name="text">
+            <string>&amp;New</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="editProfilButton">
+           <property name="text">
+            <string>&amp;Edit</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="deleteProfilButton">
+           <property name="text">
+            <string>&amp;Delete</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
      </item>
      <item>
       <widget class="QDialogButtonBox" name="buttonBox">

@@ -22,16 +22,21 @@
 
 #include <QDialog>
 #include "ui_configDialog.h"
+#include "profilmanager.h"
 
 class ConfigDialog : public QDialog
 {
     Q_OBJECT
     public:
         ConfigDialog();
-        Ui::configDialog    ui;
+	Ui::configDialog	ui;
+	ProfilManager		profilManager;
 
     private slots:
         void    on_selectKaraokeDirButton_clicked();
+/*	void	on_editProfilButton_clicked();
+	void	on_deleteProfilButton_clicked();
+	void	on_newProfilButton_clicked();*/
 };
 
 #endif // CONFIGDIALOG_H
