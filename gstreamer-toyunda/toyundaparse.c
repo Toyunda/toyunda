@@ -145,7 +145,6 @@ void	parse_toyunda_line(char *line)
 	set_color_t_default(&(new_sub->color2));
 	set_color_t_default(&(new_sub->tmpcolor));
 	strtmp = g_new(char, 255);
-	strtmp = calloc(1, 255);
 	new_sub->positionx = -1;
 	new_sub->positiony = -1;
 	new_sub->image = g_new(char, strlen(toyunda_logo_none) + 1);
