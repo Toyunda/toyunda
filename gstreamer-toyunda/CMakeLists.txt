@@ -6,8 +6,11 @@ pkg_check_modules(GLIB_PKG glib-2.0)
 
 IF (GLIB_PKG_FOUND)
     message(Found glib-2.0)
-include_directories(${GLIB_PKG_INCLUDE_DIRS})
+	link_libraries(${GLIB_PKG_LDFLAGS})
+	include_directories(${GLIB_PKG_INCLUDE_DIRS})
 ENDIF()
+
+set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -Wall -W -Wextra -ggdb")
 
 
 add_executable(gstreamer-toyunda toyundaparse.c)

@@ -1,5 +1,6 @@
 #define _GNU_SOURCE
 #include <stdio.h>
+#include <stdlib.h>
 #include <glib.h>
 #include <glib/gstdio.h>
 #include <glib/gprintf.h>
@@ -26,7 +27,7 @@ struct toyunda_sub_s {
 	gfloat	positiony;
 	gint	size;
 	gchar*	image;
-	
+
 };
 
 GSequence*	toyunda_subtitle;
@@ -35,9 +36,14 @@ gchar*	toyunda_logo_none = "none\0";
 
 typedef struct toyunda_sub_s toyunda_sub_t;
 
+void	parse_toyunda_line(char *line);
 void	sub_parse(char* file);
 void	set_color_t_default(color_t *);
 void	print_toyunda_sub_t(toyunda_sub_t);
+void	read_line(FILE *file_stream, char** linetoret, int *size);
+
+
+
 
 int	main(int ac, char *ag[])
 {
@@ -56,7 +62,7 @@ void	sub_parse(char* file)
 		g_printf("Can't open file : %s\n", file);
 		return ;
 	}
-	
+
 	while(1)
 	{
 		read_line(file_id, &line, &linesize);
@@ -75,7 +81,7 @@ void	parse_toyunda_line(char *line)
 	char	*strtmp;
 	int	strtmppos = 0;
 	int	pipecpt = 0;
-	
+
 	toyunda_sub_t*	new_sub = g_new(toyunda_sub_t, 1);
 	set_color_t_default(&(new_sub->color1));
 	set_color_t_default(&(new_sub->color2));
@@ -86,10 +92,10 @@ void	parse_toyunda_line(char *line)
 	new_sub->image = g_new(char, strlen(toyunda_logo_none) + 1);
 	strcpy(new_sub->image, toyunda_logo_none);
 	new_sub->size = -1;
-	
+
 	while (line[strpos] == ' ')
 		strpos++;
-		
+
 	/* let start with the start and end of subtitle */
 	if (line[strpos] == '{')
 	{
@@ -145,9 +151,9 @@ void	parse_toyunda_line(char *line)
 		g_printf("Expecting }\n");
 		return;
 	}
-	
+
 	/* OK easiest part done, now option or content */
-	
+
 	/* Option */
 	while (line[strpos] == '{')
 	{
