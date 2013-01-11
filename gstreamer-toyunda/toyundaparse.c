@@ -215,7 +215,7 @@ void	parse_toyunda_line(char *line)
 	/* OK easiest part done, now option or content */
 
 	/* Option */
-	while (line[strpos] == '{' && line[strpos] != '\0')
+	while (line[strpos] == '{')
 	{
 		strpos++;
 		if ((strtmppos = parse_toyunda_option(line, strpos, &new_sub)) == 0)
@@ -243,7 +243,7 @@ void	parse_toyunda_line(char *line)
 		}
 	}
 	/* Option can be before and after pipe */
-	while (line[strpos] == '{' && line[strpos] != '\0')
+	while (line[strpos] == '{')
 	{
 		strpos++;
 		if ((strtmppos = parse_toyunda_option(line, strpos, &new_sub)) == 0)
