@@ -41,6 +41,9 @@ void	sub_parse(char* file);
 void	set_color_t_default(color_t *);
 void	print_toyunda_sub_t(toyunda_sub_t);
 void	read_line(FILE *file_stream, char** linetoret, int *size);
+gboolean	parse_digit(char* str, int pos, char* toret);
+int	parse_toyunda_option(char* str, int pos, toyunda_sub_t **sub);
+int	parse_toyunda_abgr_color(char *str, int pos, color_t *color);
 
 
 
@@ -49,6 +52,7 @@ int	main(int ac, char *ag[])
 {
 	sub_parse(ag[1]);
 	toyunda_subtitle = g_sequence_new(NULL);
+	return 0;
 }
 
 void	sub_parse(char* file)
