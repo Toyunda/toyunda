@@ -46,6 +46,60 @@ int	parse_toyunda_option(char* str, int pos, toyunda_sub_t **sub);
 int	parse_toyunda_abgr_color(char *str, int pos, color_t *color);
 
 
+/* This code is public domain -- Will Hartung 4/9/09 */
+static size_t mygetline(char **lineptr, size_t *n, FILE *stream)
+{
+    char *bufptr = NULL;
+    char *p = bufptr;
+    size_t size;
+    int c;
+
+	if (lineptr == NULL) {
+		return -1;
+	}
+	if (stream == NULL) {
+		return -1;
+	}
+	if (n == NULL) {
+		return -1;
+	}
+	bufptr = *lineptr;
+	size = *n;
+
+	c = fgetc(stream);
+	if (c == EOF) {
+		return -1;
+	}
+	if (bufptr == NULL) {
+		bufptr = malloc(128);
+		if (bufptr == NULL) {
+			return -1;
+		}
+		size = 128;
+	}
+	p = bufptr;
+	while(c != EOF) {
+		if ((p - bufptr) > (size - 1)) {
+			size = size + 128;
+			bufptr = realloc(bufptr, size);
+			if (bufptr == NULL) {
+				return -1;
+			}
+		}
+		*p++ = c;
+		if (c == '\n') {
+			break;
+		}
+		c = fgetc(stream);
+	}
+
+    *p++ = '\0';
+    *lineptr = bufptr;
+    *n = size;
+
+    return p - bufptr - 1;
+}
+
 
 
 int	main(int ac, char *ag[])
@@ -276,7 +330,7 @@ int	parse_toyunda_option(char* str, int pos, toyunda_sub_t **sub)
 			if (str[pos + 1]  == ':')
 			{
 				pos+= 2;
-				if (parse_digit(str, pos, &strtmp) == FALSE)
+				if (parse_digit(str, pos, strtmp) == FALSE)
 				{
 					g_printf("Expecting position X value\n");
 					return 0;
@@ -286,7 +340,7 @@ int	parse_toyunda_option(char* str, int pos, toyunda_sub_t **sub)
 				if (str[pos] == ',')
 				{
 					pos++;
-					if (parse_digit(str, pos, &strtmp) == FALSE)
+					if (parse_digit(str, pos, strtmp) == FALSE)
 					{
 						g_printf("Expecting position Y value\n");
 						return 0;
@@ -382,8 +436,8 @@ void	print_toyunda_sub_t(toyunda_sub_t toysub)
 void	read_line(FILE *file_stream, char** linetoret, int *size)
 {
 		*linetoret = NULL;
-		int p = 0;
-		*size = getline(linetoret, &p, file_stream);
+		size_t p = 0;
+		*size = mygetline(linetoret, &p, file_stream);
 }
 
 
