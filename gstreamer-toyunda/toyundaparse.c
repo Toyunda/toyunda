@@ -124,11 +124,12 @@ void	sub_parse(char* file)
 	while(1)
 	{
 		read_line(file_id, &line, &linesize);
-		if (linesize == -1)
+		if (linesize <= 0)
 			break;
 		if (linesize <= 5)
 			continue;
-		parse_toyunda_line(line);
+		if (line[0] != '\0')
+			parse_toyunda_line(line);
 		g_free(line);
 	}
 }
@@ -145,13 +146,14 @@ void	parse_toyunda_line(char *line)
 	set_color_t_default(&(new_sub->color2));
 	set_color_t_default(&(new_sub->tmpcolor));
 	strtmp = g_new(char, 255);
+	strtmp[0] = '\0';
 	new_sub->positionx = -1;
 	new_sub->positiony = -1;
 	new_sub->image = g_new(char, strlen(toyunda_logo_none) + 1);
 	strcpy(new_sub->image, toyunda_logo_none);
 	new_sub->size = -1;
 
-	while (line[strpos] == ' ')
+	while (line[strpos] == ' ' && line[strpos] != '\0')
 		strpos++;
 
 	/* let start with the start and end of subtitle */
@@ -213,7 +215,7 @@ void	parse_toyunda_line(char *line)
 	/* OK easiest part done, now option or content */
 
 	/* Option */
-	while (line[strpos] == '{')
+	while (line[strpos] == '{' && line[strpos] != '\0')
 	{
 		strpos++;
 		if ((strtmppos = parse_toyunda_option(line, strpos, &new_sub)) == 0)
@@ -234,14 +236,14 @@ void	parse_toyunda_line(char *line)
 	if (line[strpos] == '|')
 	{
 		pipecpt++;
-		while(line[strpos] == '|')
+		while (line[strpos] == '|' && line[strpos] != '\0')
 		{
 			strpos++;
 			pipecpt++;
 		}
 	}
 	/* Option can be before and after pipe */
-	while (line[strpos] == '{')
+	while (line[strpos] == '{' && line[strpos] != '\0')
 	{
 		strpos++;
 		if ((strtmppos = parse_toyunda_option(line, strpos, &new_sub)) == 0)
@@ -262,7 +264,7 @@ void	parse_toyunda_line(char *line)
 	/* The content itself*/
 	strtmppos = 0;
 	strtmp[0] = '\0';
-	while (line[strpos] != '\n')
+	while (line[strpos] != '\n' && line[strpos] != '\0')
 	{
 		strtmp[strtmppos] = line[strpos];
 		if (line[strpos] == -1)
@@ -275,8 +277,9 @@ void	parse_toyunda_line(char *line)
 		strtmppos++;
 	}
 	strtmp[strtmppos] = '\0';
-	new_sub->text = g_new(char, strlen(strtmp) + 1);
+	new_sub->text = g_new(char, strtmppos + 1);
 	strcpy(new_sub->text, strtmp);
+	new_sub->text[strtmppos] = '\0';
 	/* Position calculation, pipe have incidence*/
 	new_sub->positiony =  ((float)1/(float)12) * (pipecpt - 1);
 	print_toyunda_sub_t(*new_sub);
