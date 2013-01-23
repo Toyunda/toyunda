@@ -30,7 +30,7 @@ struct toyunda_sub_s {
 
 };
 
-GSequence*	toyunda_subtitle;
+GSequence*	toyunda_subtitle = NULL;
 gchar*	toyunda_logo_path = "toyunda.tga\0";
 gchar*	toyunda_logo_none = "none\0";
 
@@ -42,8 +42,10 @@ void	set_color_t_default(color_t *);
 void	print_toyunda_sub_t(toyunda_sub_t);
 void	read_line(FILE *file_stream, char** linetoret, int *size);
 gboolean	parse_digit(char* str, int pos, char* toret);
+void	parse_toyunda_options(char *str, int *pos, toyunda_sub_t **sub);
 int	parse_toyunda_option(char* str, int pos, toyunda_sub_t **sub);
 int	parse_toyunda_abgr_color(char *str, int pos, color_t *color);
+void	toyunda_sub_t_partial_cpy(toyunda_sub_t *dest, toyunda_sub_t *src);
 
 
 /* This code is public domain -- Will Hartung 4/9/09 */
@@ -104,8 +106,8 @@ static size_t mygetline(char **lineptr, size_t *n, FILE *stream)
 
 int	main(int ac, char *ag[])
 {
-	sub_parse(ag[1]);
 	toyunda_subtitle = g_sequence_new(NULL);
+	sub_parse(ag[1]);
 	return 0;
 }
 
@@ -140,6 +142,8 @@ void	parse_toyunda_line(char *line)
 	char	*strtmp;
 	int	strtmppos = 0;
 	int	pipecpt = 0;
+	
+	toyunda_sub_t*	tmp_sub = NULL; /* In case of multiline */
 
 	toyunda_sub_t*	new_sub = g_new(toyunda_sub_t, 1);
 	set_color_t_default(&(new_sub->color1));
@@ -215,56 +219,24 @@ void	parse_toyunda_line(char *line)
 	/* OK easiest part done, now option or content */
 
 	/* Option */
-	while (line[strpos] == '{')
-	{
-		strpos++;
-		if ((strtmppos = parse_toyunda_option(line, strpos, &new_sub)) == 0)
-		{
-			g_printf("Expecting Option\n");
-			return ;
-		}
-		else
-			strpos += strtmppos;
-		if (line[strpos] != '}')
-		{
-			g_printf("Expecting end of Option '}'\n");
-			return ;
-		}
-		strpos++;
-	}
+	parse_toyunda_options(line, &strpos, &new_sub);
 	/* Welcome to the pipe wtf */
+pipehandle :
+	pipecpt = 0;
 	if (line[strpos] == '|')
 	{
-		pipecpt++;
-		while (line[strpos] == '|' && line[strpos] != '\0')
+		while (line[strpos] == '|')
 		{
 			strpos++;
 			pipecpt++;
 		}
 	}
 	/* Option can be before and after pipe */
-	while (line[strpos] == '{')
-	{
-		strpos++;
-		if ((strtmppos = parse_toyunda_option(line, strpos, &new_sub)) == 0)
-		{
-			g_printf("Expecting Option\n");
-			return ;
-		}
-		else
-			strpos += strtmppos;
-		if (line[strpos] != '}')
-		{
-			g_printf("Expecting end of Option '}'\n");
-			return ;
-		}
-		strpos++;
-	}
-
+	parse_toyunda_options(line, &strpos, &new_sub);
 	/* The content itself*/
 	strtmppos = 0;
 	strtmp[0] = '\0';
-	while (line[strpos] != '\n' && line[strpos] != '\0')
+	while (line[strpos] != '\n' && line[strpos] != '\0' && line[strpos] != '|')
 	{
 		strtmp[strtmppos] = line[strpos];
 		if (line[strpos] == -1)
@@ -281,9 +253,43 @@ void	parse_toyunda_line(char *line)
 	strcpy(new_sub->text, strtmp);
 	new_sub->text[strtmppos] = '\0';
 	/* Position calculation, pipe have incidence*/
-	new_sub->positiony =  ((float)1/(float)12) * (pipecpt - 1);
+	new_sub->positiony =  ((float)1/(float)12) * (pipecpt);
 	print_toyunda_sub_t(*new_sub);
+	g_sequence_append(toyunda_subtitle, new_sub);
+	/* we got a new line in the line*/
+	if (line[strpos] == '|')
+	{
+		g_printf("Multiline :(\n");
+		tmp_sub = g_new(toyunda_sub_t, 1);
+		toyunda_sub_t_partial_cpy(tmp_sub, new_sub);
+		new_sub = tmp_sub;
+		goto pipehandle;
+	}
+	
 	g_free(strtmp);
+}
+
+void	parse_toyunda_options(char *str, int *pos, toyunda_sub_t **sub)
+{
+	int	strtmppos = 0;
+
+	while (str[*pos] == '{')
+	{
+		(*pos)++;
+		if ((strtmppos = parse_toyunda_option(str, *pos, sub)) == 0)
+		{
+			g_printf("Expecting Option\n");
+			return ;
+		}
+		else
+			*pos += strtmppos;
+		if (str[*pos] != '}')
+		{
+			g_printf("Expecting end of Option '}'\n");
+			return ;
+		}
+		(*pos)++;
+	}
 }
 
 /* return the lenght of option string */
@@ -443,6 +449,23 @@ void	read_line(FILE *file_stream, char** linetoret, int *size)
 		*size = mygetline(linetoret, &p, file_stream);
 }
 
+/* don't copy image and text field */
+void	toyunda_sub_t_partial_cpy(toyunda_sub_t *dest, toyunda_sub_t *src)
+{
+	dest->color1.alpha = src->color1.alpha;
+	dest->color1.red = src->color1.red;
+	dest->color1.green = src->color1.green;
+	dest->color1.blue = src->color1.blue;
+	dest->color2.alpha = src->color2.alpha;
+	dest->color2.red = src->color2.red;
+	dest->color2.green = src->color2.green;
+	dest->color2.blue = src->color2.blue;
+	dest->positionx = src->positionx;
+	dest->positiony = src->positiony;
+	dest->start = src->start;
+	dest->stop = src->stop;
+	dest->size = src->size;
+}
 
 void	set_color_t_default(color_t *toset)
 {
