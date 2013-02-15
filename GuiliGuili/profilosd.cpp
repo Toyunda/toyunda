@@ -5,6 +5,8 @@
 ProfilOSD::ProfilOSD()
 {
     name = "OSD";
+    m_errorHandler = new GraphicErrorHandler();
+    m_qtoyunda = new QToyunda(m_errorHandler);
 }
 
 bool   ProfilOSD::init()

@@ -58,7 +58,7 @@ unsigned int ToyundaDrawer::height() const
 void	ToyundaDrawer::setFont(const QFont newFont)
 {
   s_font = newFont;
-  //qDebug() << newFont;
+  qDebug() << "new Font : " << newFont;
 }
 
 void	ToyundaDrawer::setLogo(const QImage img, double imgRatio = 0.8)
@@ -78,6 +78,7 @@ void ToyundaDrawer::recalcMagic()
 
     QFontMetrics fm(s_font);
     s_font.setBold(true);
+    s_font.setStyleHint(QFont::Monospace);
     letterWidth = fm.size(Qt::TextSingleLine, "o").width();
     letterHeight = fm.size(Qt::TextSingleLine, "o").height();
     maxLetterNumber = int (m_width / letterWidth);
@@ -162,6 +163,11 @@ void	ToyundaDrawer::draw(QPainter &painter, const QList<ToyundaText> &textSub, c
 		    painter.setFont(cfont);
 		}
                 // Yes the pipenumber change the y position. wtf...
+                painter.save();
+                // Outline
+                painter.setPen(QColor(0, 0, 0, painter.pen().color().alpha()));
+                painter.drawText((int) (tmp.posx * horizontalRatio) + 1, lineInterval + (int )((tmp.posy + (tmp.pipeNumber * lineInterval)) * verticalRatio) + 1, tmp.text);
+                painter.restore();
                 painter.drawText((int) (tmp.posx * horizontalRatio), lineInterval + (int )((tmp.posy + (tmp.pipeNumber * lineInterval)) * verticalRatio), tmp.text);
 
             }

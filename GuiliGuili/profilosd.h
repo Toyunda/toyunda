@@ -19,6 +19,7 @@ public slots:
     void    dispose();
 
 private:
+    GraphicErrorHandler* m_errorHandler;
     QToyunda    *m_qtoyunda;
 };
 

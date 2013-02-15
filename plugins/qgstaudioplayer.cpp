@@ -214,7 +214,7 @@ void	QGstAudioPlayer::checkFrame()
 {
     QGst::PositionQueryPtr query = QGst::PositionQuery::create(QGst::FormatTime);
     m_pipeline->query(query);
-    int tmp = ((query->position() / 1000000) * framerate) / 1000;
+    int tmp = ((query->position() / 1000000) * framerate + 100) / 1000;
         if (m_framenb != tmp)
 	{
 		m_framenb = tmp;

@@ -45,8 +45,6 @@ GuiliGuili::GuiliGuili()
         m_settings = new QSettings("skarsnik.nyo.fr", "GuiliGuili");
 
         // Create qtoyunda
-        m_errorHandler = new GraphicErrorHandler();
-
 
         QObject::connect(this, SIGNAL(error_and_quit()), this, SLOT(on_error_and_quit()));
         QObject::connect(this, SIGNAL(error_only()), this, SLOT(on_error_only()));
@@ -79,7 +77,8 @@ void GuiliGuili::init()
 
         setKaraokeDir();
         //m_qtoyunda->setRendererQWidgetParent(this);
-	m_currentProfil = new Profilmplayer;
+        //m_currentProfil = new Profilmplayer;
+        m_currentProfil = new ProfilOSD;
         PlaylistModel *plmodel = new PlaylistModel(&m_currentPlaylist);
         ui.playlistView->setModel(plmodel);
         ui.playlistView->setAcceptDrops(true);
