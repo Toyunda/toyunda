@@ -40,6 +40,7 @@
 #include <string.h>
 #include "gsttoyunda.h"
 #include <gst/video/video.h>
+#include "stb_image.c"
 
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
 # define CAIRO_ARGB_A 3
@@ -108,12 +109,13 @@ static gint	toyunda_subtitle_compare(gpointer a, gpointer b, gpointer data);
 
 static gboolean is_valid_rgba_color_t(rgba_color_t);
 
+static GstBuffer*	gst_toyunda_get_image_data(GstToyunda *toyunda, gchar *image_file, uint *width, uint *height);
+
 static void	gst_toyunda_select_subtitle(GstToyunda* toyunda, int framenb);
 static void	gst_toyunda_cleanup_subtitles_seq(GSequence *seq);
 
 /* Render function */
 static	void	gst_toyunda_draw_grid(GstToyunda *toyunda, GstBuffer *video_frame);
-static	void	gst_toyunda_create_pango_buffers(GstToyunda *toyunda);
 static	void	gst_toyunda_blend_subtitles(GstToyunda *toyunda, GstBuffer *video_frame);
 static inline void gst_toyunda_unpremultiply (GstBuffer* buffer, uint width, uint height);
 
@@ -259,6 +261,7 @@ gst_toyunda_init (GstToyunda * toyunda, GstToyundaClass * toyunda_class)
 
 
   toyunda->subfile_parsed = FALSE;
+  toyunda->subtitle_changed = FALSE;
   toyunda->current_sub_it = NULL;
   toyunda->subtitles = NULL;
   toyunda->current_subtitles = NULL;
@@ -389,7 +392,12 @@ static void	parse_toyunda_line(GSequence* subtitles, char *line)
 	}
 
 	/* OK easiest part done, now option or content */
-
+	if (new_sub->start == 0 && new_sub->stop == 0)
+	{
+		g_free(new_sub->image);
+		g_free(new_sub);
+		return ;
+	}
 	/* Option */
 	parse_toyunda_options(line, &strpos, &new_sub);
 	/* Welcome to the pipe wtf */
@@ -408,10 +416,10 @@ pipehandle :
 	/* The content itself*/
 	strtmppos = 0;
 	strtmp[0] = '\0';
-	while (line[strpos] != '\n' && line[strpos] != '\0' && line[strpos] != '|')
+	while (line[strpos] != '\n' && line[strpos] != '\0' && line[strpos] != '|' && line != '\r')
 	{
 		strtmp[strtmppos] = line[strpos];
-		if (line[strpos] == -1)
+		if (line[strpos] == -1 && strcmp(new_sub->image, STR_TOYUNDA_LOGO_NONE) == 0)
 		{
 			g_free(new_sub->image);
 			new_sub->image = g_new(char, strlen(STR_TOYUNDA_LOGO_DEFAULT) + 1);
@@ -435,6 +443,8 @@ pipehandle :
 		tmp_sub = g_new(toyunda_sub_t, 1);
 		toyunda_sub_t_partial_cpy(tmp_sub, new_sub);
 		new_sub = tmp_sub;
+		new_sub->image = g_new(char, strlen(STR_TOYUNDA_LOGO_NONE));
+		strcpy(new_sub->image, STR_TOYUNDA_LOGO_NONE);
 		goto pipehandle;
 	}
 	
@@ -472,6 +482,7 @@ static int	parse_toyunda_option(char* str, int pos, toyunda_sub_t **sub)
 	int	toret;
 	int	startpos = pos;
 	char	strtmp[32];
+	char	buff[255];
 	int	tmp;
 
 	/* c = color, o = pos, s = size */
@@ -535,7 +546,25 @@ static int	parse_toyunda_option(char* str, int pos, toyunda_sub_t **sub)
 				g_printf("Expecting option value\n");
 				return 0;
 			}
-		}
+		} else
+			if (str[pos] == 'b')
+			{
+				if (str[pos + 1] == ':')
+				{
+					pos += 2;
+					int cpt = 0;
+					while (str[pos] != '}')
+					{
+						buff[cpt] = str[pos];
+						pos++;
+						cpt++;
+					}
+					buff[cpt] = '\0';
+					g_free((*sub)->image);
+					(*sub)->image = g_new(gchar, strlen(buff) + 1);
+					strcpy((*sub)->image, buff);
+				}
+			}
 	return (pos - startpos);
 }
 
@@ -570,6 +599,8 @@ static int	parse_toyunda_abgr_color(char *str, int pos, rgba_color_t *color)
 		color->alpha = g_ascii_strtoll(tmpstr, NULL, 16);
 		offset = 2;
 	}
+	else
+		color->alpha = 0xFF;
 	tmpstr[0] = colorstr[offset + 0];
 	tmpstr[1] = colorstr[offset + 1];
 	color->blue = g_ascii_strtoll(tmpstr, NULL, 16);
@@ -605,6 +636,7 @@ static void	print_toyunda_sub_t(toyunda_sub_t toysub)
 	g_printf("Stop  : %d\n", toysub.stop);
 	g_printf("Color1 : r:%d, g:%d, b:%d, a:%d\n", toysub.color1.red, toysub.color1.green, toysub.color1.blue, toysub.color1.alpha);
 	g_printf("Color2 : r:%d, g:%d, b:%d, a:%d\n", toysub.color2.red, toysub.color2.green, toysub.color2.blue, toysub.color2.alpha);
+	g_printf("TMPColor  : r:%d, g:%d, b:%d, a:%d\n", toysub.tmpcolor.red, toysub.tmpcolor.green, toysub.tmpcolor.blue, toysub.tmpcolor.alpha);
 	g_printf("positionx : %d (Float : %f)\n", (int)(toysub.positionx * 800), toysub.positionx);
 	g_printf("positiony : %d (Float : %f)\n", (int) (toysub.positiony * 600), toysub.positiony);
 	g_printf("Text : %s\n", toysub.text);
@@ -741,6 +773,68 @@ void gst_toyunda_adjust_default_font_size(GstToyunda* toyunda)
 }
 
 
+
+static GstBuffer*	gst_toyunda_get_image_data(GstToyunda *toyunda, gchar *image_file, uint *width, uint *height)
+{
+	toyunda_image_t*	img;
+	GSequenceIter*		it, *it_end;
+	
+	if (toyunda->images == NULL)
+		toyunda->images = g_sequence_new(NULL);
+	it = g_sequence_get_begin_iter(toyunda->images);
+	it_end = g_sequence_get_end_iter(toyunda->images);
+	/* Search for the image */
+	
+	while (it != it_end)
+	{
+		img = (toyunda_image_t*) g_sequence_get(it);
+		if (strcmp(img->path, image_file) == 0)
+		{
+			*width = img->width;
+			*height = img->height;
+			return img->buffer;
+		}
+		it = g_sequence_iter_next(it);
+	}
+	/* Can't find the image, time to load and create the buffer */
+	
+	int x,y,n;
+	unsigned char *data = stbi_load(image_file, &x, &y, &n, 4);
+	if (data == NULL)
+	{
+		g_printf("Can't open file %s : %s\n", image_file, stbi_failure_reason());
+		return NULL;
+	}
+	g_printf("Adding new image buffer for image : %s - widht : %d, height :%d\n", image_file, x, y);
+	img = g_new(toyunda_image_t, 1);
+	img->path = g_new(gchar, strlen(image_file) + 1);
+	strcpy(img->path, image_file);
+	img->width = x;
+	img->height = y;
+	*width = x;
+	*height = y;
+	/* the output format is RGBA, need bgra */
+	uint cpt;
+	char a, r, g, b;
+	for (cpt = 0; cpt < x * y; cpt++)
+	{
+		r = data[cpt * 4];
+		//g = data[cpt * 4 + 1];
+		b = data[cpt * 4 + 2];
+		//a = data[cpt * 4 + 3];
+		data[cpt * 4] = b;
+		//data[cpt *4 + 1] = r;
+		data[cpt * 4 + 2] = r;
+		//data[cpt * 4 + 3] = b;
+	}
+	img->buffer = gst_buffer_new_and_alloc(x * y * 4);
+	memcpy(GST_BUFFER_DATA(img->buffer), data, x * y * 4);
+	g_free(data);
+	g_sequence_append(toyunda->images, img);
+	return img->buffer;
+}
+
+
 /* set current_subtitle to reflect the frame number*/
 /* current_sub_it is the last position in the total subtitles list,
  since the subtitle list is sorted, no need to begin from the start
@@ -751,7 +845,9 @@ static void	gst_toyunda_select_subtitle(GstToyunda *toyunda, int framenb)
 	GSequenceIter*	it;
 	GSequenceIter*	it_end;
 	toyunda_sub_t*	sub;
+	toyunda_sub_and_buff_t* sub_buff;
 	
+	toyunda->subtitle_changed = FALSE;
 	if (toyunda->current_subtitles == NULL)
 		toyunda->current_subtitles = g_sequence_new(NULL);
 	if (toyunda->current_sub_it != NULL)
@@ -769,7 +865,12 @@ static void	gst_toyunda_select_subtitle(GstToyunda *toyunda, int framenb)
 		{
 			g_printf("ADD SUBTITLE : ");
 			print_toyunda_sub_t(*sub);
-			g_sequence_append(toyunda->current_subtitles, sub);
+			sub_buff = g_new(toyunda_sub_and_buff_t, 1);
+			sub_buff->subtitle = sub;
+			sub_buff->overlay_rect = NULL;
+			sub_buff->to_change = TRUE;
+			toyunda->subtitle_changed = TRUE;
+			g_sequence_append(toyunda->current_subtitles, sub_buff);
 		}
 		if (sub->start > framenb)
 			break;
@@ -780,18 +881,37 @@ static void	gst_toyunda_select_subtitle(GstToyunda *toyunda, int framenb)
 	g_printf("==Current subtitle lenght : %d\n", g_sequence_get_length(toyunda->current_subtitles));
 	it = g_sequence_get_begin_iter(toyunda->current_subtitles);
 	it_end = g_sequence_get_end_iter(toyunda->current_subtitles);
+
 	GSequenceIter* it_next;
 	while (it != it_end)
 	{
 		it_next = g_sequence_iter_next(it);
-		sub = (toyunda_sub_t*) g_sequence_get(it);
+		sub_buff = (toyunda_sub_and_buff_t*) g_sequence_get(it);
+		sub = sub_buff->subtitle;
 		if (sub->stop <= framenb)
 		{
 			g_printf("REMOVE SUBTITLE : ");
 			print_toyunda_sub_t(*sub);
 			g_sequence_remove(it);
+			if (sub_buff->overlay_rect != NULL)
+				gst_video_overlay_rectangle_unref(sub_buff->overlay_rect);
+			g_free(sub_buff);
 			it = it_next;
-			break;
+			toyunda->subtitle_changed = TRUE;
+			continue;
+		} else
+		{
+			if (is_valid_rgba_color_t(sub->color2) == TRUE)
+			{
+				float rap = (float) (framenb - sub->start) / (float) (sub->stop - sub->start);
+			
+				sub->tmpcolor.alpha = sub->color1.alpha + rap * (sub->color2.alpha - sub->color1.alpha);
+				sub->tmpcolor.red = sub->color1.red + rap * (sub->color2.red - sub->color1.red);
+				sub->tmpcolor.blue = sub->color1.blue + rap * (sub->color2.blue - sub->color1.blue);
+				sub->tmpcolor.green = sub->color1.green + rap * (sub->color2.green - sub->color1.green);
+				toyunda->subtitle_changed = TRUE;
+				sub_buff->to_change = TRUE;
+			}
 		}
 		it = g_sequence_iter_next(it);
 	}
@@ -1102,7 +1222,7 @@ void gst_toyunda_draw_grid(GstToyunda* toyunda, GstBuffer* video_frame)
 	guint8*			buff_data;
 	uint				cpt, cpt2;
 	uint				line_offset, v_offset;
-	
+
 	line_offset = toyunda->video_width * 4;
 	v_offset = toyunda->video_height / 12;
 	if (buff == NULL)
@@ -1122,9 +1242,18 @@ void gst_toyunda_draw_grid(GstToyunda* toyunda, GstBuffer* video_frame)
 				buff_data[line_offset * cpt * v_offset + cpt2 * 4] = 0xFF;
 				buff_data[line_offset * cpt * v_offset + cpt2 * 4 + 1] = 0x00;
 				buff_data[line_offset * cpt * v_offset + cpt2 * 4 + 2] = 0x00;
-				buff_data[line_offset * cpt * v_offset + cpt2 * 4 + 3] = 0x33;
+				buff_data[line_offset * cpt * v_offset + cpt2 * 4 + 3] = 0xFF;
 			}
 		}
+		/*Draw a vertical centered line */
+		for (cpt = 0; cpt < toyunda->video_height; cpt++)
+		{
+			buff_data[cpt * line_offset + line_offset / 2] = 0xFF;
+			buff_data[cpt * line_offset + line_offset / 2 + 1] = 0x00;
+			buff_data[cpt * line_offset + line_offset / 2 + 2] = 0x00;
+			buff_data[cpt * line_offset + line_offset / 2 + 3] = 0xFF;
+		}
+		
 		comprect = gst_video_overlay_rectangle_new_argb(buff, toyunda->video_width, toyunda->video_height,
 			toyunda->video_width * 4, 0, 0, toyunda->video_width, toyunda->video_height, 
 			GST_VIDEO_OVERLAY_FORMAT_FLAG_NONE);
@@ -1141,98 +1270,148 @@ void gst_toyunda_create_subtitle_buffers(GstToyunda* toyunda)
 {
 	GSequenceIter		*it, *it_end;
 	toyunda_sub_t*		sub;
+	toyunda_sub_and_buff_t*	sub_buff;
 	cairo_t*		cr;
 	cairo_surface_t*	surface;
 	PangoRectangle		ink_rect, logical_rect;
-	GstVideoOverlayRectangle	*overlay_rect;
 	GstBuffer		*buffer;
 	rgba_color_t		color;
 	uint			pos_x, pos_y;
 	PangoAttrList		*pattrl;
 	uint			old_size, new_size;
+	char			*tmptext;
 	
 	it = g_sequence_get_begin_iter(toyunda->current_subtitles);
 	it_end = g_sequence_get_end_iter(toyunda->current_subtitles);
-	if (toyunda->subtitles_buffers == NULL)
-		toyunda->subtitles_buffers = g_sequence_new(gst_object_unref);
-	g_sequence_remove_range(
-			g_sequence_get_begin_iter(toyunda->subtitles_buffers),
-			g_sequence_get_end_iter(toyunda->subtitles_buffers)
-	);
 	
 	while (it != it_end)
 	{
 		new_size = 0;
 		old_size = 0;
-		sub = (toyunda_sub_t*) g_sequence_get(it);
-		if (strcmp(sub->image, STR_TOYUNDA_LOGO_NONE) == 0)
+		sub_buff = (toyunda_sub_and_buff_t*) g_sequence_get(it);
+		if (sub_buff->to_change == TRUE)
 		{
-			if (is_valid_rgba_color_t(sub->color1) == TRUE)
-				color = sub->color1;
+			sub = sub_buff->subtitle;
+			print_toyunda_sub_t(*sub);
+			if (strcmp(sub->image, STR_TOYUNDA_LOGO_NONE) == 0)
+				tmptext = sub->text;
 			else
 			{
-				color.alpha = 0xFF;
-				color.blue = 0xFF;
-				color.green = 0;
-				color.red = 0;
+				/* pango doesn't like the ÿ (-1) char) replace with something else */
+				tmptext = g_new(char, strlen(sub->text) + 1);
+				strcpy(tmptext, sub->text);
+				uint cpt_tmp = 0;
+				while (tmptext[cpt_tmp] != -1)
+					cpt_tmp++;
+				tmptext[cpt_tmp] = 'o';
 			}
-			print_toyunda_sub_t(*sub);
-			pos_y = sub->positiony * toyunda->video_height;
+			/* Need this in both case of image or text */
 			pango_layout_set_width(toyunda->pango_layout, -1);
-			pango_layout_set_text(toyunda->pango_layout, sub->text, strlen(sub->text));
+			pango_layout_set_text(toyunda->pango_layout, tmptext, strlen(tmptext));
 			pango_layout_get_pixel_extents (toyunda->pango_layout, &ink_rect, &logical_rect);
 			/* if The text is too long */
 			if (logical_rect.width > toyunda->video_width)
 			{
 				old_size = pango_font_description_get_size(toyunda->pango_fontdesc) / PANGO_SCALE;
 				new_size = old_size * ((double)toyunda->video_width / logical_rect.width);
-				g_printf("text too long, resize : %d, %d\n", old_size, new_size);
+				g_printf("text too long, resize : lrectwidht : %d old_size : %d, new_size : %d\n", 
+					 logical_rect.width, old_size, new_size);
 				pango_font_description_set_size(toyunda->pango_fontdesc, new_size * PANGO_SCALE);
 				pango_layout_set_font_description(toyunda->pango_layout, toyunda->pango_fontdesc);
 		
 				pango_layout_set_width(toyunda->pango_layout, -1);
-				pango_layout_set_text(toyunda->pango_layout, sub->text, strlen(sub->text));
+				pango_layout_set_text(toyunda->pango_layout, tmptext, strlen(tmptext));
 				pango_layout_get_pixel_extents (toyunda->pango_layout, &ink_rect, &logical_rect);
 			}
-
-			buffer = gst_buffer_new_and_alloc(logical_rect.height * logical_rect.width * 4);
-			surface = cairo_image_surface_create_for_data(GST_BUFFER_DATA(buffer), CAIRO_FORMAT_ARGB32,
-				logical_rect.width, logical_rect.height, logical_rect.width * 4);
-			cr = cairo_create(surface);
-			cairo_set_operator(cr, CAIRO_OPERATOR_CLEAR);
-			cairo_paint(cr);
-			cairo_set_operator (cr, CAIRO_OPERATOR_OVER);
-			/* Outline */
-			cairo_save (cr);
-			cairo_set_source_rgba (cr, 0, 0, 0, 1.0);
-			cairo_set_line_width (cr, 1);
-			pango_cairo_layout_path (cr, toyunda->pango_layout);
-			cairo_stroke (cr);
-			cairo_restore (cr);
-			/* Text */
-			cairo_save (cr);
-			cairo_set_source_rgba (cr, color.red / 255.0, color.green / 255.0, color.blue / 255.0, color.alpha / 255.0);
-			pango_cairo_show_layout (cr, toyunda->pango_layout);
-			cairo_restore (cr);
-			cairo_destroy (cr);
-			cairo_surface_destroy (surface);
-			gst_toyunda_unpremultiply(buffer, logical_rect.width, logical_rect.height);
+			pos_y = sub->positiony * toyunda->video_height;
+			/* Simple Text */
+			if (strcmp(sub->image, STR_TOYUNDA_LOGO_NONE) == 0)
+			{
+				if (is_valid_rgba_color_t(sub->color1) == TRUE)
+					if (is_valid_rgba_color_t(sub->color2) == TRUE)
+						color = sub->tmpcolor;
+					else
+						color = sub->color1;
+				else
+				{
+					color.alpha = 0xFF;
+					color.blue = 0xFF;
+					color.green = 0xFF;
+					color.red = 0xFF;
+				}
+				
+				buffer = gst_buffer_new_and_alloc(logical_rect.height * logical_rect.width * 4);
+				surface = cairo_image_surface_create_for_data(GST_BUFFER_DATA(buffer), CAIRO_FORMAT_ARGB32,
+					logical_rect.width, logical_rect.height, logical_rect.width * 4);
+				cr = cairo_create(surface);
+				cairo_set_operator(cr, CAIRO_OPERATOR_CLEAR);
+				cairo_paint(cr);
+				cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
+				/* Outline */
+				/*cairo_save (cr);
+				cairo_set_source_rgba (cr, 0, 0, 0, color.alpha / 255.0);
+				cairo_set_line_width (cr, 2);
+				pango_cairo_layout_path (cr, toyunda->pango_layout);
+				cairo_stroke (cr);
+				cairo_restore (cr);*/
+				/* Text */
+				cairo_save (cr);
+				cairo_set_source_rgba (cr, color.red / 255.0, color.green / 255.0, color.blue / 255.0, color.alpha / 255.0);
+				pango_cairo_show_layout (cr, toyunda->pango_layout);
+				cairo_restore (cr);
+				cairo_destroy (cr);
+				cairo_surface_destroy (surface);
+				gst_toyunda_unpremultiply(buffer, logical_rect.width, logical_rect.height);
+				
+				if (sub->positionx == -1)
+					pos_x = (toyunda->video_width - logical_rect.width) / 2;
+				else
+					pos_x = sub->positionx;
+				if (sub_buff->overlay_rect != NULL)
+					gst_video_overlay_rectangle_unref(sub_buff->overlay_rect);
+				sub_buff->overlay_rect = gst_video_overlay_rectangle_new_argb(buffer, logical_rect.width,
+					logical_rect.height, logical_rect.width * 4, pos_x, pos_y, logical_rect.width, logical_rect.height,
+					GST_VIDEO_OVERLAY_FORMAT_FLAG_NONE);
+				sub_buff->to_change = FALSE;
+				gst_buffer_unref(buffer);
+			}
 			
-			if (sub->positionx == -1)
-				pos_x = (toyunda->video_width - logical_rect.width) / 2;
+			/* Toyunda logo, let the wtf begins */
 			else
-				pos_x = sub->positionx;
-			overlay_rect = gst_video_overlay_rectangle_new_argb(buffer, logical_rect.width,
-				logical_rect.height, logical_rect.width * 4, pos_x, pos_y, logical_rect.width, logical_rect.height,
-				GST_VIDEO_OVERLAY_FORMAT_FLAG_NONE);
-			gst_buffer_unref(buffer);
-			g_sequence_append(toyunda->subtitles_buffers, overlay_rect);
+			{
+				uint aprox_lettersize = logical_rect.width / strlen(sub->text);
+				uint img_pos = 0;
+				uint width, height;
+				PangoRectangle new_rect;
+				float transform_ratio = (float) toyunda->video_height / INT_TOYUNDA_BASE_HEIGHT * 0.8;
+				//float transform_ratio = 2;
+				pango_layout_set_text(toyunda->pango_layout, "o", -1);
+				pango_layout_get_pixel_extents (toyunda->pango_layout, &ink_rect, &new_rect);
+				g_free(tmptext);
+				/* count the number of space before the ÿ */
+				while (sub->text[img_pos] != -1)
+					img_pos++;
+				pos_x = (toyunda->video_width - logical_rect.width) / 2 + img_pos * new_rect.width;
+				if (pos_x > new_rect.width / 2)
+					pos_x -= new_rect.width / 2;
+				g_printf("POSITION X SYL : %d\n", pos_x);
+				buffer = gst_toyunda_get_image_data(toyunda, sub->image, &width, &height);
+				if (buffer != NULL)
+				{
+					if (sub_buff->overlay_rect != NULL)
+						gst_video_overlay_rectangle_unref(sub_buff->overlay_rect);
+					sub_buff->overlay_rect = gst_video_overlay_rectangle_new_argb(buffer, width,
+					height, width * 4, pos_x, pos_y, width * transform_ratio, height * transform_ratio,
+					GST_VIDEO_OVERLAY_FORMAT_FLAG_NONE);
+					sub_buff->to_change = FALSE;
+				}
+			}
+			/* restaure font */
 			if (new_size != 0)
 			{
 				pango_font_description_set_size(toyunda->pango_fontdesc, old_size * PANGO_SCALE);
 				pango_layout_set_font_description(toyunda->pango_layout, toyunda->pango_fontdesc);
 			}
-			g_object_unref(overlay_rect);
 		}
 		it = g_sequence_iter_next(it);
 	}
@@ -1243,26 +1422,31 @@ void gst_toyunda_blend_subtitles(GstToyunda* toyunda, GstBuffer* video_frame)
 	GSequenceIter	*it, *it_end;
 	GstVideoOverlayComposition	*comp;
 	GstVideoOverlayRectangle	*rect;
+	toyunda_sub_and_buff_t		*sub_buff;
 	
-	it = g_sequence_get_begin_iter(toyunda->subtitles_buffers);
-	it_end = g_sequence_get_end_iter(toyunda->subtitles_buffers);
+	it = g_sequence_get_begin_iter(toyunda->current_subtitles);
+	it_end = g_sequence_get_end_iter(toyunda->current_subtitles);
 	
 	comp = NULL;
 	video_frame = gst_buffer_make_writable(video_frame);
 	
 	while (it != it_end)
 	{
-		rect = (GstVideoOverlayRectangle*) g_sequence_get(it);
-		if (comp == NULL)
-			comp = gst_video_overlay_composition_new(rect);
-		else
-			gst_video_overlay_composition_add_rectangle(comp, rect);
-		gst_video_overlay_rectangle_unref(rect);
+		sub_buff = (toyunda_sub_and_buff_t*) g_sequence_get(it);
+		rect = sub_buff->overlay_rect;
+		if (rect != NULL)
+		{
+			if (comp == NULL)
+				comp = gst_video_overlay_composition_new(rect);
+			else
+				gst_video_overlay_composition_add_rectangle(comp, rect);
+		}
 		it = g_sequence_iter_next(it);
 	}
 	if (comp != NULL)
 		gst_video_overlay_composition_blend(comp, video_frame);
-	gst_video_overlay_composition_unref(comp);
+	if (comp != NULL)
+		gst_video_overlay_composition_unref(comp);
 }
 
 
@@ -1308,7 +1492,9 @@ gst_toyunda_sink_chain (GstPad *pad, GstBuffer *buffer)
   
   gst_toyunda_select_subtitle(toyunda, framenb);
   gst_toyunda_draw_grid(toyunda, buffer);
-  gst_toyunda_create_subtitle_buffers(toyunda);
+  if (toyunda->subtitle_changed == TRUE)
+	gst_toyunda_create_subtitle_buffers(toyunda);
+  toyunda->subtitle_changed = FALSE;
   gst_toyunda_blend_subtitles(toyunda, buffer);
 	
   GST_DEBUG_OBJECT(toyunda, "chain");

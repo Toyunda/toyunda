@@ -37,6 +37,23 @@ G_BEGIN_DECLS
 typedef struct _GstToyunda GstToyunda;
 typedef struct _GstToyundaClass GstToyundaClass;
 
+typedef struct _toyunda_sub_and_buff 	toyunda_sub_and_buff_t;
+typedef struct _toyunda_image		toyunda_image_t;
+
+struct _toyunda_sub_and_buff
+{
+	toyunda_sub_t			*subtitle;
+	GstVideoOverlayRectangle	*overlay_rect;
+	gboolean			to_change;
+};
+
+struct	_toyunda_image
+{
+	gchar*		path;
+	GstBuffer*	buffer;
+	uint		width;
+	uint		height;
+};
 
 struct _GstToyunda
 {
@@ -60,7 +77,7 @@ struct _GstToyunda
   
   GSequence*	subtitles;
   GSequence*	current_subtitles;
-  GSequence*	subtitles_buffers;
+  GSequence*	images;
   
   GSequenceIter* current_sub_it;
   
@@ -68,6 +85,7 @@ struct _GstToyunda
   gchar*	font_desc;
   
   gboolean	subfile_parsed;
+  gboolean	subtitle_changed;
   
 };
 
