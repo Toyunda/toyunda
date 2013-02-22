@@ -86,6 +86,7 @@ struct _GstToyunda
   
   gboolean	subfile_parsed;
   gboolean	subtitle_changed;
+  gboolean	hardware_surface;
   
 };
 

@@ -16,6 +16,7 @@ bus_call (GstBus     *bus,
     case GST_MESSAGE_EOS:
       g_print ("End-of-stream\n");
       g_main_loop_quit (loop);
+      exit(0);
       break;
     case GST_MESSAGE_ERROR: {
       gchar *debug = NULL;

@@ -113,6 +113,7 @@ static GstBuffer*	gst_toyunda_get_image_data(GstToyunda *toyunda, gchar *image_f
 
 static void	gst_toyunda_select_subtitle(GstToyunda* toyunda, int framenb);
 static void	gst_toyunda_cleanup_subtitles_seq(GSequence *seq);
+static void	gst_toyunda_reset_subtitle_buffer_statut(GstToyunda *toyunda);
 
 /* Render function */
 static	void	gst_toyunda_draw_grid(GstToyunda *toyunda, GstBuffer *video_frame);
@@ -265,6 +266,7 @@ gst_toyunda_init (GstToyunda * toyunda, GstToyundaClass * toyunda_class)
   toyunda->current_sub_it = NULL;
   toyunda->subtitles = NULL;
   toyunda->current_subtitles = NULL;
+  toyunda->hardware_surface = FALSE;
   
   toyunda->font_desc = STR_TOYUNDA_FONT_DESCRIPTION;
   toyunda->pango_context = pango_font_map_create_context(pango_cairo_font_map_get_default());
@@ -577,6 +579,8 @@ static int	parse_toyunda_abgr_color(char *str, int pos, rgba_color_t *color)
 
 	if (str[pos] == '$')
 		pos++;
+	else
+		return 0;
 	while ((str[pos] <= '9' && str[pos] >= '0') || (str[pos] <= 'f' && str[pos] >= 'a')
 		|| (str[pos] <= 'F' && str[pos] >= 'A'))
 	{
@@ -834,6 +838,25 @@ static GstBuffer*	gst_toyunda_get_image_data(GstToyunda *toyunda, gchar *image_f
 	return img->buffer;
 }
 
+void gst_toyunda_reset_subtitle_buffer_statut(GstToyunda* toyunda)
+{
+	GSequenceIter*	it;
+	GSequenceIter*	it_end;
+	toyunda_sub_and_buff_t* sub_buff;
+
+	if (toyunda->current_subtitles != NULL && g_sequence_get_length(toyunda->current_subtitles) > 0)
+	{
+		it = g_sequence_get_begin_iter(toyunda->current_subtitles);
+		it_end = g_sequence_get_end_iter(toyunda->current_subtitles);
+		while (it != it_end)
+		{
+			sub_buff = (toyunda_sub_and_buff_t *) g_sequence_get(it);
+			sub_buff->to_change = TRUE;
+			it = g_sequence_iter_next(it);
+		}
+	}
+}
+
 
 /* set current_subtitle to reflect the frame number*/
 /* current_sub_it is the last position in the total subtitles list,
@@ -878,7 +901,7 @@ static void	gst_toyunda_select_subtitle(GstToyunda *toyunda, int framenb)
 	}
 	toyunda->current_sub_it = it;
 	/* Remove subtitle */
-	g_printf("==Current subtitle lenght : %d\n", g_sequence_get_length(toyunda->current_subtitles));
+	/*g_printf("==Current subtitle lenght : %d\n", g_sequence_get_length(toyunda->current_subtitles));*/
 	it = g_sequence_get_begin_iter(toyunda->current_subtitles);
 	it_end = g_sequence_get_end_iter(toyunda->current_subtitles);
 
@@ -1093,13 +1116,23 @@ gst_toyunda_sink_setcaps (GstPad *pad, GstCaps *caps, GstCaps *outcaps)
           &toyunda->video_height)) {
     ret = gst_pad_set_caps (toyunda->srcpad, caps);
   }
-
+  if (ret == TRUE)
+  {
+	structure = gst_caps_get_structure (caps, 0);
+	if (gst_structure_has_name (structure, "video/x-surface"))
+		toyunda->hardware_surface = TRUE;
+	else
+		toyunda->hardware_surface = FALSE;
+  }
+  
   toyunda->fps_n = gst_value_get_fraction_numerator (fps);
   toyunda->fps_d = gst_value_get_fraction_denominator (fps);
+  g_printf("video format : %s\n", gst_structure_to_string(structure));
   g_printf("fps d,n : %f , %f\n", toyunda->fps_d, toyunda->fps_n);
   g_printf("height : %d, width : %d\n", toyunda->video_height, toyunda->video_width);
   
   gst_toyunda_adjust_default_font_size(toyunda);
+  gst_toyunda_reset_subtitle_buffer_statut(toyunda);
   
   GST_DEBUG_OBJECT(toyunda, "setcaps");
 
@@ -1265,6 +1298,19 @@ void gst_toyunda_draw_grid(GstToyunda* toyunda, GstBuffer* video_frame)
 	gst_video_overlay_rectangle_unref(comprect);*/
 }
 
+static	void	plop_show_data(unsigned char *data, int width, int height)
+{
+	uint cpt = 0;
+	
+	g_printf("====================Show Buffer=================\n");
+	for (cpt = 0; cpt < width * height * 4; cpt++)
+	{
+		g_printf("%02x", data[cpt]);
+		if (cpt % (width * 4) == 0)
+			g_printf("\n");
+	}
+	g_printf("=================================================\n");
+}
 
 void gst_toyunda_create_subtitle_buffers(GstToyunda* toyunda)
 {
@@ -1336,8 +1382,8 @@ void gst_toyunda_create_subtitle_buffers(GstToyunda* toyunda)
 				{
 					color.alpha = 0xFF;
 					color.blue = 0xFF;
-					color.green = 0xFF;
-					color.red = 0xFF;
+					color.green = 0x00;
+					color.red = 0x00;
 				}
 				
 				buffer = gst_buffer_new_and_alloc(logical_rect.height * logical_rect.width * 4);
@@ -1348,12 +1394,15 @@ void gst_toyunda_create_subtitle_buffers(GstToyunda* toyunda)
 				cairo_paint(cr);
 				cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
 				/* Outline */
-				/*cairo_save (cr);
+				uint outline_size = (double)(pango_font_description_get_size(toyunda->pango_fontdesc) / PANGO_SCALE) / 15;
+				if (outline_size < 1)
+					outline_size = 1;
+				cairo_save (cr);
 				cairo_set_source_rgba (cr, 0, 0, 0, color.alpha / 255.0);
-				cairo_set_line_width (cr, 2);
+				cairo_set_line_width (cr, outline_size);
 				pango_cairo_layout_path (cr, toyunda->pango_layout);
 				cairo_stroke (cr);
-				cairo_restore (cr);*/
+				cairo_restore (cr);
 				/* Text */
 				cairo_save (cr);
 				cairo_set_source_rgba (cr, color.red / 255.0, color.green / 255.0, color.blue / 255.0, color.alpha / 255.0);
@@ -1362,7 +1411,7 @@ void gst_toyunda_create_subtitle_buffers(GstToyunda* toyunda)
 				cairo_destroy (cr);
 				cairo_surface_destroy (surface);
 				gst_toyunda_unpremultiply(buffer, logical_rect.width, logical_rect.height);
-				
+				//plop_show_data(GST_BUFFER_DATA(buffer), logical_rect.width, logical_rect.height);
 				if (sub->positionx == -1)
 					pos_x = (toyunda->video_width - logical_rect.width) / 2;
 				else
@@ -1444,9 +1493,13 @@ void gst_toyunda_blend_subtitles(GstToyunda* toyunda, GstBuffer* video_frame)
 		it = g_sequence_iter_next(it);
 	}
 	if (comp != NULL)
-		gst_video_overlay_composition_blend(comp, video_frame);
-	if (comp != NULL)
+	{
+		if (toyunda->hardware_surface == TRUE)
+			gst_video_buffer_set_overlay_composition(video_frame, comp);
+		else
+			gst_video_overlay_composition_blend(comp, video_frame);
 		gst_video_overlay_composition_unref(comp);
+	}
 }
 
 
@@ -1487,8 +1540,8 @@ gst_toyunda_sink_chain (GstPad *pad, GstBuffer *buffer)
   start = GST_BUFFER_TIMESTAMP (buffer);
   framerate = toyunda->fps_n / toyunda->fps_d;
   framenb = ((start / 1000000) * framerate + 100 )/ 1000;
-  g_printf("Timestamp : %u ---- frame :", start);
-  g_printf("%d\n", framenb);
+  /*g_printf("Timestamp : %u ---- frame :", start);
+  g_printf("%d\n", framenb);*/
   
   gst_toyunda_select_subtitle(toyunda, framenb);
   gst_toyunda_draw_grid(toyunda, buffer);
@@ -1528,7 +1581,7 @@ gst_toyunda_sink_event (GstPad *pad, GstEvent *event)
   toyunda = GST_TOYUNDA (gst_pad_get_parent (pad));
 
   GST_DEBUG_OBJECT(toyunda, "event");
-  g_printf("TOYUNDA : get event\n");
+
 
   switch (GST_EVENT_TYPE (event)) {
     default:
