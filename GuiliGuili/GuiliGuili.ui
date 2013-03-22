@@ -34,8 +34,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>350</width>
-               <height>397</height>
+               <width>352</width>
+               <height>371</height>
               </rect>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -345,6 +345,43 @@
            </widget>
           </item>
          </layout>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_7">
+        <item>
+         <spacer name="horizontalSpacer_4">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>Profil : </string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="ProfilComboBox">
+          <property name="minimumSize">
+           <size>
+            <width>200</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="editable">
+           <bool>false</bool>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>

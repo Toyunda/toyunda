@@ -25,8 +25,49 @@ ConfigDialog::ConfigDialog()
     ui.setupUi(this);
 }
 
+void ConfigDialog::setProfilModel(ProfilModel *model)
+{
+    ui.profilTableView->setModel(model);
+}
+
 void    ConfigDialog::on_selectKaraokeDirButton_clicked()
 {
     QString dir = QFileDialog::getExistingDirectory(this, "Choississez le répertoire du karaoke", "", QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     ui.karaokeDirLineEdit->setText(dir);
+}
+
+void ConfigDialog::on_editProfilButton_clicked()
+{
+    Profil *profil;
+
+    ProfilModel* pm = static_cast<ProfilModel*>(ui.profilTableView->model());
+    QModelIndex mi = ui.profilTableView->currentIndex();
+    if (mi.isValid())
+    {
+        profil = pm->getProfil(mi.row());
+        showProfilDialog(profil);
+    }
+}
+
+void ConfigDialog::on_deleteProfilButton_clicked()
+{
+}
+
+void ConfigDialog::on_newProfilButton_clicked()
+{
+}
+
+void ConfigDialog::on_profilTableView_doubleClicked(const QModelIndex &index)
+{
+    Profil *profil;
+
+    ProfilModel* pm = static_cast<ProfilModel*>(ui.profilTableView->model());
+    profil = pm->getProfil(index.row());
+    showProfilDialog(profil);
+}
+
+void    ConfigDialog::showProfilDialog(Profil *profil)
+{
+    profil->updateConfigDialog();
+    profil->configDialog->exec();
 }

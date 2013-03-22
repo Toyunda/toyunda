@@ -32,6 +32,7 @@ bool ProfilManager::loadProfil()
 	mpProfil->baseType = Profil::MPLAYER;
 	m_profilList.append(osdProfil);
 	m_profilList.append(mpProfil);
+    return true;
 }
 
 const QList<Profil *> ProfilManager::getProfilList() const
@@ -41,8 +42,10 @@ const QList<Profil *> ProfilManager::getProfilList() const
 
 bool ProfilManager::addProfil(Profil *)
 {
+    return true;
 }
 
 bool ProfilManager::deleteProfil(Profil *)
 {
+    return true;
 }

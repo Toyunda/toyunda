@@ -105,7 +105,7 @@ void	ToyundaDrawer::draw(QPainter &painter, const QList<ToyundaText> &textSub, c
         QListIterator<ToyundaText> ittext(textSub);
         while (ittext.hasNext())
         {
-            ToyundaText tmp = ittext.next();
+            const ToyundaText &tmp = ittext.next();
             // Set painter color, fading, fixed color or default
             if (tmp.color1.isValid()) {
                 if (tmp.fadingcolor.isValid()) {
@@ -114,13 +114,13 @@ void	ToyundaDrawer::draw(QPainter &painter, const QList<ToyundaText> &textSub, c
                     painter.setPen(tmp.color1);
                 }
             } else {
-		painter.setPen(Qt::darkBlue);
+                painter.setPen(Qt::darkBlue);
             }
             // Text with no position
             if ((tmp.posx == -1 && tmp.posy == -1) || (tmp.posy == 0 && tmp.pipeNumber != 0))
             {
                 QPoint s;
-                s.setY((tmp.pipeNumber + 1) * lineInterval);
+
                 unsigned int tmpLetterWidth = letterWidth;
                 // Handle long text
                 if ((unsigned) tmp.text.size() >= maxLetterNumber) {
@@ -137,14 +137,18 @@ void	ToyundaDrawer::draw(QPainter &painter, const QList<ToyundaText> &textSub, c
                         tmpLetterWidth = painter.fontMetrics().size(Qt::TextSingleLine, "o").width();
                     }
 
-		}
-		// Size
-		if (tmp.size != -1) {
-		    QFont cfont = s_font;
-		    cfont.setPixelSize(tmp.size);
-		    painter.setFont(cfont);
-		    tmpLetterWidth = painter.fontMetrics().size(Qt::TextSingleLine, "o").width();
-		}
+                }
+                // Size
+                if (tmp.size != -1) {
+                    QFont cfont = s_font;
+                    if (tmp.size2 == -1)
+                        cfont.setPixelSize(tmp.size);
+                    else
+                        cfont.setPixelSize(tmp.intersize);
+                    painter.setFont(cfont);
+                    tmpLetterWidth = painter.fontMetrics().size(Qt::TextSingleLine, "o").width();
+                }
+                s.setY((tmp.pipeNumber) * lineInterval + painter.fontMetrics().size(Qt::TextSingleLine, "o").height());
                 s.setX((m_width - tmp.text.size() * tmpLetterWidth) / 2);
                 painter.save();
                 // Outline
@@ -153,27 +157,39 @@ void	ToyundaDrawer::draw(QPainter &painter, const QList<ToyundaText> &textSub, c
                 painter.restore();
                 painter.drawText(s, tmp.text);
                 // Restore font in case of long text
-		if ((unsigned) tmp.text.size() > maxLetterNumber || tmp.size != -1)
+                if ((unsigned) tmp.text.size() > maxLetterNumber || tmp.size != -1)
                     painter.setFont(s_font);
-            // Set text at position pos
+                // Set text at position pos
             } else {
-		if (tmp.size != -1) {
-		    QFont cfont = s_font;
-		    cfont.setPixelSize(tmp.size);
-		    painter.setFont(cfont);
-		}
+                if (tmp.size != -1) {
+                    QFont cfont = s_font;
+                    if (tmp.size2 == -1)
+                        cfont.setPixelSize(tmp.size);
+                    else
+                        cfont.setPixelSize(tmp.intersize);
+                    painter.setFont(cfont);
+                }
+                QPoint s;
                 // Yes the pipenumber change the y position. wtf...
+                if (tmp.pos2x == -1)
+                    s.setX((int) (tmp.posx * horizontalRatio));
+                else
+                    s.setX((int)(tmp.interposx * horizontalRatio));
+                if (tmp.pos2y == -1)
+                    s.setY(painter.fontMetrics().size(Qt::TextSingleLine, "o").height() + (int )((tmp.posy + (tmp.pipeNumber * lineInterval)) * verticalRatio));
+                else
+                    s.setY(painter.fontMetrics().size(Qt::TextSingleLine, "o").height() + (int )((tmp.interposy + (tmp.pipeNumber * lineInterval)) * verticalRatio));
                 painter.save();
                 // Outline
                 painter.setPen(QColor(0, 0, 0, painter.pen().color().alpha()));
-                painter.drawText((int) (tmp.posx * horizontalRatio) + 1, lineInterval + (int )((tmp.posy + (tmp.pipeNumber * lineInterval)) * verticalRatio) + 1, tmp.text);
+                painter.drawText(s.x() + 1, s.y() + 1, tmp.text);
                 painter.restore();
-                painter.drawText((int) (tmp.posx * horizontalRatio), lineInterval + (int )((tmp.posy + (tmp.pipeNumber * lineInterval)) * verticalRatio), tmp.text);
+                painter.drawText(s.x(), s.y(), tmp.text);
 
             }
-	    if (tmp.size != -1) {
-		painter.setFont(s_font);
-	    }
+            if (tmp.size != -1) {
+                painter.setFont(s_font);
+            }
         }
     }
     // Syl
@@ -181,21 +197,28 @@ void	ToyundaDrawer::draw(QPainter &painter, const QList<ToyundaText> &textSub, c
         QListIterator<ToyundaSyl> itsyl(sylSub);
 
         while (itsyl.hasNext()) {
-            ToyundaSyl tmp = itsyl.next();
+            const ToyundaSyl &tmp = itsyl.next();
             painter.setPen(Qt::black);
             QPoint s;
             s.setY((tmp.pipeNumber) * lineInterval + (lineInterval - toyundaLogo.size().height()));
-            if ((unsigned) tmp.length > maxLetterNumber) {
+            unsigned int tmpLetterWidth = letterWidth;
+            // Handle long text
+            if ((unsigned) tmp.length >= maxLetterNumber) {
                 QFont cfont = s_font;
-                cfont.setPointSize(s_font.pointSize() * (float (maxLetterNumber) / tmp.length));
+
+                cfont.setPointSize((s_font.pointSize() * (float (maxLetterNumber) / tmp.length)));
                 painter.setFont(cfont);
-                s.setX((m_width - tmp.length * painter.fontMetrics().size(Qt::TextSingleLine, "l").width()) / 2 +
-                       tmp.pos * painter.fontMetrics().size(Qt::TextSingleLine, "l").width());
-                //painter.drawText(s, "N");
+                tmpLetterWidth = painter.fontMetrics().size(Qt::TextSingleLine, "o").width();
+                // Correct font size too big, pointsize != metrics width
+                while (tmpLetterWidth * tmp.length > m_width)
+                {
+                    cfont.setPointSize(cfont.pointSize() - 1);
+                    painter.setFont(cfont);
+                    tmpLetterWidth = painter.fontMetrics().size(Qt::TextSingleLine, "o").width();
+                }
                 painter.setFont(s_font);
-            } else {
-                s.setX((m_width - tmp.length * letterWidth) / 2 + tmp.pos * letterWidth);
             }
+            s.setX((m_width - tmp.length * tmpLetterWidth) / 2 + tmp.pos * tmpLetterWidth);
             // Fading !
             if (tmp.alpha != -1)
             {
@@ -209,14 +232,14 @@ void	ToyundaDrawer::draw(QPainter &painter, const QList<ToyundaText> &textSub, c
                 }
                 else
                 {
-                        QImage cpy = toyundaLogo;
-                        QPainter painterimg(&cpy);
-                        painterimg.setCompositionMode(QPainter::CompositionMode_DestinationIn);
-                        painterimg.fillRect(cpy.rect(), QColor(0, 0, 0, tmp.alpha));
-                        painter.drawImage(s, cpy);
-               }
+                    QImage cpy = toyundaLogo;
+                    QPainter painterimg(&cpy);
+                    painterimg.setCompositionMode(QPainter::CompositionMode_DestinationIn);
+                    painterimg.fillRect(cpy.rect(), QColor(0, 0, 0, tmp.alpha));
+                    painter.drawImage(s, cpy);
+                }
             } else
-                 painter.drawImage(s, toyundaLogo);
+                painter.drawImage(s, toyundaLogo);
         }
     }
 }

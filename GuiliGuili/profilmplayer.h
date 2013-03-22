@@ -11,7 +11,9 @@ class Profilmplayer : public Profil
 {
 public:
     Profilmplayer();
-    void    setEH(GraphicErrorHandler*);
+    void    setErrorHandler(SQErrorHandler*);
+    void    updateConfigDialog();
+    void    updateValueFromDialog();
 
 public slots:
     void    play(QString, QString);
@@ -25,6 +27,7 @@ public slots:
     QString     m_mplayer_exec;
     QStringList m_mplayer_default_arg;
     QString     m_mplayer_exec_path;
+    QString     m_mplayer_font_path;
     QProcess*    m_process;
 };
 

@@ -50,6 +50,7 @@ void	on_new_decoded_pad(GstElement *elem, GstPad	*pad, gboolean b, gpointer *dat
 	GstStructure*	str2;
 	gchar*		name;
 	GstPad		*audiopad, *videopad;
+
 	
 	caps = gst_pad_get_caps(pad);
 	str = gst_caps_get_structure(caps, 0);
@@ -80,11 +81,14 @@ int	main(int ac, char *ag[])
 	GstElement	*toyunda;
 	GMainLoop*	loop;
 	GstBus*		bus;
+    GstPad*     gpad, *gpad2;
 	guint		watch_id;
+    GstStateChangeReturn ret;
 	
+	putenv("GST_DEBUG=*:1");
+	putenv("GST_PLUGIN_PATH=C:/toyunda/gstreamer-toyunda/Debug/");
 	gst_init(&ac, &ag);
 	loop = g_main_loop_new(NULL, FALSE);
-	//putenv("GST_DEBUG=*:5");
 	
 	pipeline = gst_pipeline_new("toyundapipeline");
 	bus = gst_pipeline_get_bus (GST_PIPELINE (pipeline));
@@ -104,12 +108,12 @@ int	main(int ac, char *ag[])
 	audiosink = gst_element_factory_make("autoaudiosink", "autoaudiosink");
 	gst_bin_add_many(audiobin, queuea, convert, resample, audiosink, NULL);
 	gst_element_link_many(queuea, convert, resample, audiosink, NULL);
-	GstPad* gpad = gst_ghost_pad_new("sink", gst_element_get_static_pad(queuea, "sink"));
+    gpad = gst_ghost_pad_new("sink", gst_element_get_static_pad(queuea, "sink"));
 	gst_element_add_pad(GST_ELEMENT(audiobin), gpad);
 	
 	
 	videobin = gst_bin_new("videobin");
-	videosink = gst_element_factory_make("autovideosink", "autovideosink");
+	videosink = gst_element_factory_make("directdrawsink", "directdrawsink");
 	queuev = gst_element_factory_make("queue", "queue v");
 	ffmpegrecolor = gst_element_factory_make("ffmpegcolorspace", "ffmpegcolor");
 	videoscale = gst_element_factory_make("videoscale", "videoscale");
@@ -117,6 +121,11 @@ int	main(int ac, char *ag[])
 	if (toyunda == NULL)
 	{
 		g_print("Can't locate toyunda plugin\n");
+		gst_element_set_state (pipeline, GST_STATE_NULL);
+		gst_object_unref (pipeline);
+		g_source_remove (watch_id);
+		g_main_loop_unref (loop);
+		gst_deinit();
 		return 1;
 	}
 	gst_bin_add_many(videobin, queuev, toyunda, ffmpegrecolor, videosink, videoscale, NULL);
@@ -124,14 +133,15 @@ int	main(int ac, char *ag[])
 	gst_element_link(videoscale, toyunda);
 	gst_element_link(toyunda, ffmpegrecolor);
 	gst_element_link(ffmpegrecolor, videosink);
-	GstPad* gpad2 = gst_ghost_pad_new("sink", gst_element_get_static_pad(queuev, "sink"));
+    gpad2 = gst_ghost_pad_new("sink", gst_element_get_static_pad(queuev, "sink"));
 	gst_element_add_pad(GST_ELEMENT(videobin), gpad2);
 	
 	g_object_set(G_OBJECT(filesrc), "location", ag[1], NULL);
+	//g_object_set(G_OBJECT(toyunda), "subfile", "C:\\toyunda\\GuiliGuili\\test karaoke dir\\Lyrics\\Air - AMV - Azurewind.txt", NULL);
 	g_object_set(G_OBJECT(toyunda), "subfile", ag[2], NULL);
 	
 	gst_bin_add_many(GST_BIN(pipeline), videobin, audiobin, NULL);
-	GstStateChangeReturn ret = gst_element_set_state (pipeline, GST_STATE_PLAYING);
+    ret = gst_element_set_state (pipeline, GST_STATE_PLAYING);
 	if (ret == GST_STATE_CHANGE_FAILURE) {
 		GstMessage *msg;
 
@@ -158,6 +168,6 @@ int	main(int ac, char *ag[])
   gst_object_unref (pipeline);
   g_source_remove (watch_id);
   g_main_loop_unref (loop);
-
+  gst_deinit();
   return 0;
 }

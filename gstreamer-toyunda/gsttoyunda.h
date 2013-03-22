@@ -51,8 +51,8 @@ struct	_toyunda_image
 {
 	gchar*		path;
 	GstBuffer*	buffer;
-	uint		width;
-	uint		height;
+	guint		width;
+	guint		height;
 };
 
 struct _GstToyunda
@@ -65,10 +65,10 @@ struct _GstToyunda
   gfloat	fps_d;
   gfloat	fps_n;
   
-  uint		video_width;
-  uint		video_height;
-  uint		window_width;
-  uint		window_height;
+  guint		video_width;
+  guint		video_height;
+  guint		window_width;
+  guint		window_height;
   GstVideoFormat	format;
   
   PangoContext*		pango_context;
@@ -83,6 +83,7 @@ struct _GstToyunda
   
   gchar*	subfile;
   gchar*	font_desc;
+  gchar*	toyunda_logo;
   
   gboolean	subfile_parsed;
   gboolean	subtitle_changed;

@@ -22,7 +22,7 @@
 
 #include <QDialog>
 #include "ui_configDialog.h"
-#include "profilmanager.h"
+#include "profilmodel.h"
 
 class ConfigDialog : public QDialog
 {
@@ -30,13 +30,19 @@ class ConfigDialog : public QDialog
     public:
         ConfigDialog();
 	Ui::configDialog	ui;
-	ProfilManager		profilManager;
+    void    setProfilModel(ProfilModel *);
 
     private slots:
-        void    on_selectKaraokeDirButton_clicked();
-/*	void	on_editProfilButton_clicked();
+    void    on_selectKaraokeDirButton_clicked();
+    void	on_editProfilButton_clicked();
 	void	on_deleteProfilButton_clicked();
-	void	on_newProfilButton_clicked();*/
+    void	on_newProfilButton_clicked();
+
+
+    void on_profilTableView_doubleClicked(const QModelIndex &index);
+
+private:
+    void    showProfilDialog(Profil *);
 };
 
 #endif // CONFIGDIALOG_H

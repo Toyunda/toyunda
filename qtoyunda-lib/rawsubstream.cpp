@@ -68,9 +68,15 @@ bool	RawSubStream::createFromFile(QString filePath)
         text.color2 = g.color2;
         text.fadingcolor = g.color;
 	text.posx = g.posx;
+    text.pos2x = g.pos2x;
+    text.interposx = g.posx;
+    text.interposy = g.posy;
+    text.intersize = g.size;
+    text.pos2y = g.pos2y;
 	text.posy = g.posy;
 	text.text = g.text;
 	text.size = g.size;
+    text.size2 = g.size2;
 	text._id = Tid;
 	text.pipeNumber = g.pipeNumber;
         allText.append(text);
@@ -98,13 +104,6 @@ bool	RawSubStream::createFromFile(QString filePath)
       }
     }
   }
-  /*qDebug() << "=============================";
-  std::set<ToyundaText>::iterator it = allText.begin();
-  for (;it != allText.end(); ++it)
-  {
-      qDebug() << (*it).start;
-  }
-  exit(1);*/
   qSort(allSyl.begin(), allSyl.end());
   qSort(allText.begin(), allText.end());
   currentItSyl = allSyl.begin();
@@ -114,7 +113,7 @@ bool	RawSubStream::createFromFile(QString filePath)
 
 QList<RawSubStream::GenLineDesc>	RawSubStream::parseToyundaLine(QString line)
 {
-  QRegExp	rToyLine("^\\s*\\{(\\d+)\\}\\{(\\d+)\\}\\s*");
+  QRegExp	rToyLine("^\\s*\\{(\\d+)\\}\\{(\\d+)\\}");
   QRegExp	isToyLine("^\\s*\\{(\\d+)\\}\\{(\\d+)\\}.*");
   QRegExp	isSylLine("^(\\s*)\xff.*");
   QRegExp	notPipe("^([^|]+)");
@@ -126,6 +125,9 @@ QList<RawSubStream::GenLineDesc>	RawSubStream::parseToyundaLine(QString line)
     newline.size = -1;
     newline.posx = -1;
     newline.posy = -1;
+    newline.pos2x = -1;
+    newline.pos2y = -1;
+    newline.size2 = -1;
     newline.lenght = -1;
     newline.start = isToyLine.cap(1).toInt();
     newline.stop = isToyLine.cap(2).toInt();
@@ -172,14 +174,16 @@ void	RawSubStream::parseOption(QString &line, GenLineDesc &linedesc)
 {
   QRegExp rOpt("^(\\{(.*)\\})+");
   QRegExp isOpt("^(\\{(.*)\\})+.*");
-  QRegExp OptColor("\\{c:\\$([0-9A-F]+):?\\$?([0-9A-F]*)\\}");
+  QRegExp OptColor("\\{c:\\$?([0-9A-F]+):?\\$?([0-9A-F]*)\\}");
   QRegExp OptPos("\\{o:(-?\\d+),(-?\\d+):?(?:(-?\\d+),(-?\\d+))?\\}");
-  QRegExp OptSize("\\{s:(\\d+)\\}");
+  QRegExp OptSize("\\{s:(\\d+):?(?:(\\d+))?\\}");
 
   if (isOpt.exactMatch(line)) {
       if (OptSize.indexIn(line) != -1)
       {
-	  linedesc.size = OptSize.cap(1).toInt();
+        linedesc.size = OptSize.cap(1).toInt();
+        if (!OptSize.cap(2).isEmpty())
+            linedesc.size2 = OptSize.cap(2).toInt();
       }
     if (OptColor.indexIn(line) != -1) {
       linedesc.color = toyundaColor2QColor(OptColor.cap(1));

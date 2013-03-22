@@ -59,6 +59,14 @@ GuiliGuili::GuiliGuili()
 void GuiliGuili::init()
 {
         //PopulateTreePluginInfo(m_qtoyunda->getPluginInfos());
+        // handle profil
+
+        m_profilmodel = new ProfilModel();
+        m_profilmodel->loadProfils();
+        m_configDialog.setProfilModel(m_profilmodel);
+        ui.ProfilComboBox->setModel(m_profilmodel);
+        ui.ProfilComboBox->setModelColumn(0);
+
         if (!m_settings->contains("karaoke_dir"))
         {
             int diagretour = m_configDialog.exec();
@@ -77,8 +85,8 @@ void GuiliGuili::init()
 
         setKaraokeDir();
         //m_qtoyunda->setRendererQWidgetParent(this);
-        //m_currentProfil = new Profilmplayer;
-        m_currentProfil = new ProfilOSD;
+        m_currentProfil = m_profilmodel->getDefaultProfil();
+        m_errorHandler = new GraphicErrorHandler();
         PlaylistModel *plmodel = new PlaylistModel(&m_currentPlaylist);
         ui.playlistView->setModel(plmodel);
         ui.playlistView->setAcceptDrops(true);
@@ -86,13 +94,8 @@ void GuiliGuili::init()
                 SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
                 this, SLOT(playlistView_selectionChanged(QItemSelection, QItemSelection)));
 
-        m_currentProfil->init();
-        QObject::connect(m_currentProfil, SIGNAL(played()), this, SLOT(song_playing()));
-        QObject::connect(m_currentProfil, SIGNAL(paused()), this, SLOT(song_paused()));
-        QObject::connect(m_currentProfil, SIGNAL(stopped()), this, SLOT(song_stopped()));
-        QObject::connect(m_currentProfil, SIGNAL(finished()), this, SLOT(song_finished()));
-
-        ui.volumeSlider->setValue(100);
+        if (initProfil(m_currentProfil))
+            ui.volumeSlider->setValue(100);
 }
 
 
@@ -127,9 +130,9 @@ void GuiliGuili::play()
     if (!m_currentSong.title.isEmpty()) {
 	    if (m_songState == SongState::Playing)
 		stop();
-            qDebug() << "play";
+        qDebug() << "play";
 	    qDebug() << m_currentSong.videoPath;
-            m_currentProfil->play(m_karaoke_dir + "/Videos/" + m_currentSong.videoPath, m_karaoke_dir + "/Lyrics/" + m_currentSong.subtitlePath);
+        m_currentProfil->play(m_karaoke_dir + "/Videos/" + m_currentSong.videoPath, m_karaoke_dir + "/Lyrics/" + m_currentSong.subtitlePath);
 	}
 }
 
@@ -233,7 +236,7 @@ void GuiliGuili::readKaraokeDir()
 void	GuiliGuili::song_finished()
 {
 	ui.statusbar->showMessage("Song finished");
-        m_currentProfil->stop();
+    m_currentProfil->stop();
 	nextSong();
 }
 
@@ -252,7 +255,7 @@ void	GuiliGuili::song_playing()
 void	GuiliGuili::song_stopped()
 {
 	ui.statusbar->showMessage("Song stopped");
-        m_currentProfil->stop();
+    m_currentProfil->stop();
 	m_songState = SongState::Stopped;
 }
 
@@ -299,6 +302,28 @@ void    GuiliGuili::addCategorySongView(QStandardItem* parentItem, QMap<QString,
 
 }
 
+bool GuiliGuili::initProfil(Profil *prof)
+{
+    prof->setErrorHandler(m_errorHandler);
+    if (!prof->init())
+    {
+        on_error_only();
+        return false;
+    }
+    else
+    {
+        QObject::connect(prof, SIGNAL(played()), this, SLOT(song_playing()));
+        QObject::connect(prof, SIGNAL(paused()), this, SLOT(song_paused()));
+        QObject::connect(prof, SIGNAL(stopped()), this, SLOT(song_stopped()));
+        QObject::connect(prof, SIGNAL(finished()), this, SLOT(song_finished()));
+        QObject::connect(prof, SIGNAL(error_occured()), this, SLOT(on_error_only()));
+        QObject::connect(prof, SIGNAL(fatal_error_occured()), this, SLOT(on_error_only()));
+    }
+        return true;
+}
+
+
+
 void	GuiliGuili::populateSongView()
 {
 	QStandardItemModel *model = static_cast<QStandardItemModel*>(ui.songTreeView->model());
@@ -320,6 +345,7 @@ void	GuiliGuili::on_playlistView_doubleClicked(const QModelIndex& index)
     Song s = index.data(Qt::UserRole + 1).value<Song>();
     m_currentPos = index.row();
     m_currentSong = s;
+    stop();
     play();
 }
 
@@ -332,7 +358,7 @@ void     GuiliGuili::on_songTreeView_doubleClicked(const QModelIndex &index)
         return;
     QVariant qv = model->data(index, Qt::UserRole + 1);
     Song *sg = (Song *) qv.value<quintptr>();
-        play_once(sg->videoPath, sg->subtitlePath);
+    play_once(sg->videoPath, sg->subtitlePath);
 }
 
 void	GuiliGuili::on_playButton_clicked()
@@ -472,4 +498,17 @@ void GuiliGuili::setKaraokeDir()
 void GuiliGuili::on_clearPlaylistButton_clicked()
 {
 
+}
+
+
+void GuiliGuili::on_ProfilComboBox_activated(int index)
+{
+    Profil* new_prof = m_profilmodel->getProfil(index);
+    if (!new_prof->isInitialised())
+    {
+        if (!initProfil(new_prof))
+           return ;
+    }
+    m_currentProfil = new_prof;
+    qDebug() << "profil changed : " << m_currentProfil->name;
 }

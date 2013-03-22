@@ -121,11 +121,13 @@ static	void	gst_toyunda_blend_subtitles(GstToyunda *toyunda, GstBuffer *video_fr
 static inline void gst_toyunda_unpremultiply (GstBuffer* buffer, uint width, uint height);
 
 static	void	gst_toyunda_adjust_default_font_size(GstToyunda *toyunda);
+static	gchar*	gst_toyunda_get_image_path(gchar* image);
 
 enum
 {
   PROP_0,
-  PROP_SUBFILE
+  PROP_SUBFILE,
+  PROP_TOYUNDA_LOGO
 };
 
 /* pad templates */
@@ -213,12 +215,17 @@ gst_toyunda_class_init (GstToyundaClass * klass)
 		         g_param_spec_string ("subfile", "Subfile",
 			  "The subtitle file to parse",
 			  "none", G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+    g_object_class_install_property (G_OBJECT_CLASS (klass), PROP_TOYUNDA_LOGO,
+		         g_param_spec_string ("toyunda_logo", "Toyunda logo",
+			  "The default toyunda logo image",
+			  "Toyunda.png", G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
 }
 
 static void
 gst_toyunda_init (GstToyunda * toyunda, GstToyundaClass * toyunda_class)
 {
+  char *fontFile;
 
   toyunda->sinkpad = gst_pad_new_from_static_template (&gst_toyunda_sink_template
       ,     
@@ -267,7 +274,11 @@ gst_toyunda_init (GstToyunda * toyunda, GstToyundaClass * toyunda_class)
   toyunda->subtitles = NULL;
   toyunda->current_subtitles = NULL;
   toyunda->hardware_surface = FALSE;
-  
+  toyunda->toyunda_logo = g_new(char, strlen(STR_TOYUNDA_LOGO_DEFAULT) + 1);
+  strcpy(toyunda->toyunda_logo, STR_TOYUNDA_LOGO_DEFAULT);
+
+
+
   toyunda->font_desc = STR_TOYUNDA_FONT_DESCRIPTION;
   toyunda->pango_context = pango_font_map_create_context(pango_cairo_font_map_get_default());
   toyunda->pango_layout = pango_layout_new(toyunda->pango_context);
@@ -418,7 +429,7 @@ pipehandle :
 	/* The content itself*/
 	strtmppos = 0;
 	strtmp[0] = '\0';
-	while (line[strpos] != '\n' && line[strpos] != '\0' && line[strpos] != '|' && line != '\r')
+	while (line[strpos] != '\n' && line[strpos] != '\0' && line[strpos] != '|' && line[strpos] != '\r')
 	{
 		strtmp[strtmppos] = line[strpos];
 		if (line[strpos] == -1 && strcmp(new_sub->image, STR_TOYUNDA_LOGO_NONE) == 0)
@@ -486,6 +497,7 @@ static int	parse_toyunda_option(char* str, int pos, toyunda_sub_t **sub)
 	char	strtmp[32];
 	char	buff[255];
 	int	tmp;
+	int cpt;
 
 	/* c = color, o = pos, s = size */
 	if (str[pos] == 'c')
@@ -554,7 +566,6 @@ static int	parse_toyunda_option(char* str, int pos, toyunda_sub_t **sub)
 				if (str[pos + 1] == ':')
 				{
 					pos += 2;
-					int cpt = 0;
 					while (str[pos] != '}')
 					{
 						buff[cpt] = str[pos];
@@ -643,7 +654,7 @@ static void	print_toyunda_sub_t(toyunda_sub_t toysub)
 	g_printf("TMPColor  : r:%d, g:%d, b:%d, a:%d\n", toysub.tmpcolor.red, toysub.tmpcolor.green, toysub.tmpcolor.blue, toysub.tmpcolor.alpha);
 	g_printf("positionx : %d (Float : %f)\n", (int)(toysub.positionx * 800), toysub.positionx);
 	g_printf("positiony : %d (Float : %f)\n", (int) (toysub.positiony * 600), toysub.positiony);
-	g_printf("Text : %s\n", toysub.text);
+	g_printf("Text : %s$\n", toysub.text);
 	g_printf("Image : %s\n", toysub.image);
 	g_printf("Size : %d\n", toysub.size);
 }
@@ -652,8 +663,8 @@ static void	print_toyunda_sub_t(toyunda_sub_t toysub)
 /* */
 static void	read_line(FILE *file_stream, char** linetoret, int *size)
 {
-		*linetoret = NULL;
 		size_t p = 0;
+		*linetoret = NULL;
 		*size = mygetline(linetoret, &p, file_stream);
 }
 
@@ -777,11 +788,24 @@ void gst_toyunda_adjust_default_font_size(GstToyunda* toyunda)
 }
 
 
+static	gchar*	gst_toyunda_get_image_path(GstToyunda* toyunda, gchar* image)
+{
+	gchar	*toret;
+
+	if (strcmp(image, STR_TOYUNDA_LOGO_DEFAULT))
+		return toyunda->toyunda_logo;
+	return toret;
+}
+
 
 static GstBuffer*	gst_toyunda_get_image_data(GstToyunda *toyunda, gchar *image_file, uint *width, uint *height)
 {
 	toyunda_image_t*	img;
 	GSequenceIter*		it, *it_end;
+	int x,y,n;
+	unsigned char *data;
+	guint cpt;
+	char a, r, g, b;
 	
 	if (toyunda->images == NULL)
 		toyunda->images = g_sequence_new(NULL);
@@ -802,8 +826,7 @@ static GstBuffer*	gst_toyunda_get_image_data(GstToyunda *toyunda, gchar *image_f
 	}
 	/* Can't find the image, time to load and create the buffer */
 	
-	int x,y,n;
-	unsigned char *data = stbi_load(image_file, &x, &y, &n, 4);
+	data = stbi_load(image_file, &x, &y, &n, 4);
 	if (data == NULL)
 	{
 		g_printf("Can't open file %s : %s\n", image_file, stbi_failure_reason());
@@ -818,8 +841,6 @@ static GstBuffer*	gst_toyunda_get_image_data(GstToyunda *toyunda, gchar *image_f
 	*width = x;
 	*height = y;
 	/* the output format is RGBA, need bgra */
-	uint cpt;
-	char a, r, g, b;
 	for (cpt = 0; cpt < x * y; cpt++)
 	{
 		r = data[cpt * 4];
@@ -869,6 +890,7 @@ static void	gst_toyunda_select_subtitle(GstToyunda *toyunda, int framenb)
 	GSequenceIter*	it_end;
 	toyunda_sub_t*	sub;
 	toyunda_sub_and_buff_t* sub_buff;
+	GSequenceIter* it_next;
 	
 	toyunda->subtitle_changed = FALSE;
 	if (toyunda->current_subtitles == NULL)
@@ -905,7 +927,6 @@ static void	gst_toyunda_select_subtitle(GstToyunda *toyunda, int framenb)
 	it = g_sequence_get_begin_iter(toyunda->current_subtitles);
 	it_end = g_sequence_get_end_iter(toyunda->current_subtitles);
 
-	GSequenceIter* it_next;
 	while (it != it_end)
 	{
 		it_next = g_sequence_iter_next(it);
@@ -972,6 +993,10 @@ gst_toyunda_get_property (GObject * object, guint property_id,
 		if (toyunda->subfile != NULL)
 			g_free(toyunda->subfile);
 		toyunda->subfile = g_value_dup_string(value);
+	case PROP_TOYUNDA_LOGO:
+		if (toyunda->toyunda_logo != NULL)
+			g_free(toyunda->toyunda_logo);
+		toyunda->toyunda_logo = g_value_dup_string(value);
 	break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -1322,9 +1347,11 @@ void gst_toyunda_create_subtitle_buffers(GstToyunda* toyunda)
 	PangoRectangle		ink_rect, logical_rect;
 	GstBuffer		*buffer;
 	rgba_color_t		color;
-	uint			pos_x, pos_y;
+	guint			pos_x, pos_y;
 	PangoAttrList		*pattrl;
-	uint			old_size, new_size;
+	guint			old_size, new_size;
+	guint cpt_tmp;
+	guint outline_size;
 	char			*tmptext;
 	
 	it = g_sequence_get_begin_iter(toyunda->current_subtitles);
@@ -1346,7 +1373,7 @@ void gst_toyunda_create_subtitle_buffers(GstToyunda* toyunda)
 				/* pango doesn't like the ÿ (-1) char) replace with something else */
 				tmptext = g_new(char, strlen(sub->text) + 1);
 				strcpy(tmptext, sub->text);
-				uint cpt_tmp = 0;
+				cpt_tmp = 0;
 				while (tmptext[cpt_tmp] != -1)
 					cpt_tmp++;
 				tmptext[cpt_tmp] = 'o';
@@ -1394,7 +1421,7 @@ void gst_toyunda_create_subtitle_buffers(GstToyunda* toyunda)
 				cairo_paint(cr);
 				cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
 				/* Outline */
-				uint outline_size = (double)(pango_font_description_get_size(toyunda->pango_fontdesc) / PANGO_SCALE) / 15;
+				outline_size = (double)(pango_font_description_get_size(toyunda->pango_fontdesc) / PANGO_SCALE) / 15;
 				if (outline_size < 1)
 					outline_size = 1;
 				cairo_save (cr);
@@ -1416,6 +1443,7 @@ void gst_toyunda_create_subtitle_buffers(GstToyunda* toyunda)
 					pos_x = (toyunda->video_width - logical_rect.width) / 2;
 				else
 					pos_x = sub->positionx;
+				g_printf("text : %s -- Pos x : %d\n", tmptext, pos_x);
 				if (sub_buff->overlay_rect != NULL)
 					gst_video_overlay_rectangle_unref(sub_buff->overlay_rect);
 				sub_buff->overlay_rect = gst_video_overlay_rectangle_new_argb(buffer, logical_rect.width,
@@ -1444,7 +1472,7 @@ void gst_toyunda_create_subtitle_buffers(GstToyunda* toyunda)
 				if (pos_x > new_rect.width / 2)
 					pos_x -= new_rect.width / 2;
 				g_printf("POSITION X SYL : %d\n", pos_x);
-				buffer = gst_toyunda_get_image_data(toyunda, sub->image, &width, &height);
+				buffer = gst_toyunda_get_image_data(toyunda, gst_toyunda_get_image_path(sub->image), &width, &height);
 				if (buffer != NULL)
 				{
 					if (sub_buff->overlay_rect != NULL)
@@ -1544,7 +1572,7 @@ gst_toyunda_sink_chain (GstPad *pad, GstBuffer *buffer)
   g_printf("%d\n", framenb);*/
   
   gst_toyunda_select_subtitle(toyunda, framenb);
-  gst_toyunda_draw_grid(toyunda, buffer);
+  //gst_toyunda_draw_grid(toyunda, buffer);
   if (toyunda->subtitle_changed == TRUE)
 	gst_toyunda_create_subtitle_buffers(toyunda);
   toyunda->subtitle_changed = FALSE;

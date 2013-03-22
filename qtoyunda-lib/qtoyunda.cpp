@@ -52,7 +52,8 @@ bool  QToyunda::init()
   if (!player->init(s_playerOption))
     return false;
   qDebug() << "===============Init renderer===============" << renderer->identifier();
-  renderer->init(s_rendererOption);
+  if (!renderer->init(s_rendererOption))
+      return false;
   qDebug() << "Connect signal/slots";
   QObject::connect(player, SIGNAL(frameChanged(int)), toyundaSub, SLOT(setCurrentFrame(int)));
   QObject::connect(toyundaSub, SIGNAL(currentSubChanged(void)), dynamic_cast<QObject*> (renderer), SLOT(renderUpdate(void)));
@@ -187,6 +188,7 @@ bool    QToyunda::loadPlugins()
             s_pluginList.append(plugin);
         } else {
             s_errorHandler->addError(SQError(SQError::Warning, "Can't load module : " + fileName, loader.errorString()));
+            return false;
         }
     }
     if (s_pluginList.size() > 0)

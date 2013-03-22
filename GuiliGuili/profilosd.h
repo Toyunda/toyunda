@@ -9,7 +9,9 @@ class ProfilOSD : public Profil
 {
 public:
     ProfilOSD();
-    void    setEH(GraphicErrorHandler*);
+    void    setErrorHandler(SQErrorHandler*);
+    void    updateConfigDialog();
+    void    updateValueFromDialog();
 
 public slots:
     void    play(QString, QString);
@@ -19,7 +21,6 @@ public slots:
     void    dispose();
 
 private:
-    GraphicErrorHandler* m_errorHandler;
     QToyunda    *m_qtoyunda;
 };
 

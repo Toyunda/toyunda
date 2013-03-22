@@ -20,12 +20,31 @@
 #define PROFILMODEL_H
 
 #include <QAbstractTableModel>
+#include "profil.h"
+#include "profilosd.h"
+#include "profilmplayer.h"
 
 class ProfilModel : public QAbstractTableModel
 {
 	Q_OBJECT
 public:
     explicit ProfilModel(QObject *parent = 0);
+    Qt::ItemFlags       flags(const QModelIndex &index) const;
+    QVariant            data(const QModelIndex &index, int role) const;
+    QVariant            headerData(int section, Qt::Orientation orientation, int role) const;
+    int                 rowCount(const QModelIndex &parent) const;
+    int                 columnCount(const QModelIndex &parent) const;
+    bool                setData(const QModelIndex &index, const QVariant &value, int role);
+    bool                setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int=Qt::EditRole)
+                        {return false;}
+    bool                loadProfils();
+    bool                saveProfils();
+    Profil*             getProfil(int);
+    Profil*             getDefaultProfil();
+
+private:
+    QList<Profil*>	m_profilList;
+    Profil*         m_defaultProfil;
 
 signals:
 

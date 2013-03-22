@@ -45,7 +45,7 @@ Song::Song(const QString filePath, bool realFile)
                 qCritical() << "Can't open : " << filePath << "  - " << finifile.errorString();
                 return ;
             }
-            QRegExp keyValue("([^=]+)=([^\\n]+)\\n");
+            QRegExp keyValue("([^=]+)=([^\\n]+)\\n{0,1}");
             while(!finifile.atEnd())
             {
                 QString tmp = finifile.readLine();

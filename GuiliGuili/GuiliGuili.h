@@ -28,6 +28,7 @@
 #include "configdialog.h"
 #include "qtoyunda.h"
 #include "profil.h"
+#include "profilmodel.h"
 #include "graphicerrorhandler.h"
 
 
@@ -65,7 +66,8 @@ private:
 	void		openPlaylist(QString);
 	void		savePlaylist(QString);
 	void		sortAlphaSongMap();
-        void            addCategorySongView(QStandardItem* parentItem, QMap<QString, QList<Song*> > songList);
+    void            addCategorySongView(QStandardItem* parentItem, QMap<QString, QList<Song*> > songList);
+    bool        initProfil(Profil*);
 	
 private slots :
 	//Ui slots
@@ -79,6 +81,7 @@ private slots :
         void            on_searchButton_clicked();
         void            on_songTreeView_doubleClicked(const QModelIndex &);
 	void		playlistView_selectionChanged(const QItemSelection &, const QItemSelection &);
+
         void            closeEvent(QCloseEvent *);
 
         void            on_error_and_quit();
@@ -92,6 +95,9 @@ private slots :
 
 	void on_clearPlaylistButton_clicked();
 
+
+    void on_ProfilComboBox_activated(int index);
+
 signals:
         void            error_and_quit();
         void            error_only();
@@ -100,19 +106,20 @@ private :
 
 
 	Song		m_currentSong;
-        ConfigDialog    m_configDialog;
+    ConfigDialog    m_configDialog;
 	Ui::GuiliGuili	ui;
 	QString		m_karaoke_dir;
 	Playlist	m_currentPlaylist;
 	uint		m_currentPos;
 	QSettings*	m_settings;
 	QList<Song*>	m_allsongs;
-        QList<Song*>    m_searchResult;
-        SongState::Type	m_songState;
-        GraphicErrorHandler*    m_errorHandler;
-        QMap<QString, QList<Song *> > m_songByAlpha;
+    QList<Song*>    m_searchResult;
+    SongState::Type	m_songState;
+    GraphicErrorHandler*    m_errorHandler;
+    QMap<QString, QList<Song *> > m_songByAlpha;
 	QMap<QString, QList<Song *> > m_songByType;
 
-        Profil*          m_currentProfil;
+    Profil*          m_currentProfil;
+    ProfilModel*     m_profilmodel;
 };
 #endif // GuiliGuili_H

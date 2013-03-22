@@ -12,7 +12,15 @@ mplayerProfilDialog::mplayerProfilDialog(QWidget *parent) :
 
 mplayerProfilDialog::~mplayerProfilDialog()
 {
-	delete ui;
+    delete ui;
+}
+
+void mplayerProfilDialog::updateValue()
+{
+    ui->fontPathLineEdit->setText(mplayerFontPath);
+    ui->mplayerExecLineEdit->setText(mplayerExecPath);
+    ui->addArgLineEdit->setText(mplayerAdditionnalArg);
+    ui->wdLineEdit->setText(mplayerWDPath);
 }
 
 void mplayerProfilDialog::on_mplayerExecPathChooserButton_clicked()

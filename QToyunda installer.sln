@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "QToyunda installer", "QToyunda installer.vdproj", "{3C7F9474-D388-438B-8752-F7074F624511}"
 EndProject
 Global

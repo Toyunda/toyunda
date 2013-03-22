@@ -51,10 +51,11 @@ void	QGstAudioPlayer::new_decoded_pad(const QGst::PadPtr &pad, const int gbool)
 	QGst::CapsPtr	caps;
 	QGst::StructurePtr str;
 	
-	audiopad = m_audiobin->getStaticPad("sink");
-	videopad = m_videobin->getStaticPad("sink");
+    audiopad = m_audiobin->getStaticPad("sink");
+    videopad = m_videobin->getStaticPad("sink");
 	caps = pad->caps();
 	str = caps->internalStructure(0);
+    qDebug() << str->name();
 	if (str->name().contains("audio"))
 	{
 	  qDebug() << "Audio linked";
@@ -76,9 +77,8 @@ bool	QGstAudioPlayer::autoplug_continue(const QGst::PadPtr &pad, const QGst::Cap
 	   QGst::Fraction frac = str->value("framerate").get<QGst::Fraction>();
 	   qDebug() << "Framerate : " << frac.numerator << "/" << frac.denominator;
 	   framerate = ((double) frac.numerator / frac.denominator);
-	   qDebug() << framerate;
-	}
-	
+       qDebug() << framerate;
+    }
 	return true;
 }
 
@@ -120,7 +120,7 @@ bool	QGstAudioPlayer::init(const QStringList opt)
         QString tmpstr("GST_PLUGIN_PATH=" + qApp->applicationDirPath().toLatin1() + "/gst-plugins/");
         qDebug() << "Plugin path is : " << tmpstr;
         putenv(tmpstr.toLatin1().constData());
-        putenv("GST_DEBUG=*:1");
+        putenv("GST_DEBUG=*:2");
 #endif
         try {
             QGst::init();
@@ -137,8 +137,26 @@ bool	QGstAudioPlayer::init(const QStringList opt)
 	m_src = QGst::ElementFactory::make("filesrc");
 	m_dec = QGst::ElementFactory::make("decodebin2");
 	queuea = QGst::ElementFactory::make("queue", "Queue audio");
+
+    conv = QGst::ElementFactory::make("audioconvert");
+        resample = QGst::ElementFactory::make("audioresample");
+        m_volume = QGst::ElementFactory::make("volume");
+    asink = QGst::ElementFactory::make("directsoundsink", "Auto Audio Sink");
+
+    m_vsink = QGst::ElementFactory::make("fakesink", "Fake sink");
+    queuev = QGst::ElementFactory::make("queue", "Queue video");
+
+    if (m_src.isNull() || m_dec.isNull() || queuea.isNull() ||
+            queuea.isNull() || conv.isNull() || resample.isNull() ||
+            m_volume.isNull() || asink.isNull() ||
+            m_vsink.isNull() || queuev.isNull())
+    {
+        emit error(SQError(SQError::Critical, "Can't create gstreamer element.", "Verify the presence of the gstreamer plugins DLL"));
+        return false;
+    }
 	bus = m_pipeline->bus();
 	bus->addSignalWatch();
+    m_dec->setProperty<int>("connection-speed", 56);
 	QGlib::connect(bus, "message", this, &QGstAudioPlayer::onBusMessage);
 	QGlib::connect(m_dec, "new-decoded-pad", this, &QGstAudioPlayer::new_decoded_pad);
 	QGlib::connect(m_dec, "autoplug_continue", this, &QGstAudioPlayer::autoplug_continue);
@@ -146,11 +164,7 @@ bool	QGstAudioPlayer::init(const QStringList opt)
 	m_src->link(m_dec);
 	
 	m_audiobin = QGst::Bin::create("-Audio bin");
-	conv = QGst::ElementFactory::make("audioconvert");
-        resample = QGst::ElementFactory::make("audioresample");
-        m_volume = QGst::ElementFactory::make("volume");
-	asink = QGst::ElementFactory::make("autoaudiosink", "Auto Audio Sink");
-        m_audiobin->add(queuea, conv, resample, m_volume, asink);
+    m_audiobin->add(queuea, conv, resample, m_volume, asink);
 	QGst::PadPtr audiopad = queuea->getStaticPad("sink"); 
 	queuea->link(conv);
         conv->link(resample);
@@ -161,9 +175,8 @@ bool	QGstAudioPlayer::init(const QStringList opt)
 	
         qDebug() << "End audio definition, start video";
 	m_videobin = QGst::Bin::create("-Video bin");
-	m_vsink = QGst::ElementFactory::make("fakesink", "Auto video Sink");
+
 	m_vsink->setProperty<bool>("sync", true);
-	queuev = QGst::ElementFactory::make("queue", "Queue video");
 	m_videobin->add(queuev, m_vsink);
 	QGst::GhostPadPtr gpad2 = QGst::GhostPad::create(queuev->getStaticPad("sink"), "sink");
 	m_videobin->addPad(gpad2);

@@ -36,7 +36,13 @@ struct ToyundaText {
   int		pipeNumber;
   int		posx;
   int		posy;
+  int       pos2y;
+  int       pos2x;
+  int       interposx;
+  int       interposy;
   int		size;
+  int       size2;
+  int       intersize;
   uint		_id; // Glitch to make operator< work
   QString	text;
   QColor	color1;

@@ -15,7 +15,9 @@ HEADERS += \
     profilmplayer.h \
     mplayerprofildialog.h \
     profilmodel.h \
-    profilmanager.h
+    profilmanager.h \
+    osdprofildialog.h \
+    profilgsttoyundaplayer.h
 
 
 SOURCES += \
@@ -31,7 +33,9 @@ SOURCES += \
     profilmplayer.cpp \
     mplayerprofildialog.cpp \
     profilmodel.cpp \
-    profilmanager.cpp
+    profilmanager.cpp \
+    osdprofildialog.cpp \
+    profilgsttoyundaplayer.cpp
 
 FORMS += \
     GuiliGuili.ui \

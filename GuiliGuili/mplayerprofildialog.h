@@ -14,6 +14,7 @@ class mplayerProfilDialog : public QDialog
 public:
 	explicit mplayerProfilDialog(QWidget *parent = 0);
 	~mplayerProfilDialog();
+    void            updateValue();
 	QString			mplayerExecPath;
 	QString			mplayerWDPath;
 	QString			mplayerFontPath;

@@ -84,11 +84,12 @@ void	ToyundaSubStream::setCurrentFrame(const int cf)
       emitChange = true;
     }
     else {
+      float rap = (float) (currentFrame - tmp.start) / (float) (tmp.stop - tmp.start);
       if (tmp.color1.isValid() && tmp.color2.isValid()) {
         // Make Fading effect
 	int r1, r2, g1, g2, b1, b2, a1, a2;
         #define MYABS(x) ((x) < 0 ? - (x) : (x))
-	float rap = (float) (currentFrame - tmp.start) / (float) (tmp.stop - tmp.start);
+
 	//qDebug() << "before tmp : rap : " << rap << tmp.color1 << tmp.color2 << currentFrame;
 	r1 = tmp.color1.red();
 	r2 = tmp.color2.red();
@@ -104,6 +105,18 @@ void	ToyundaSubStream::setCurrentFrame(const int cf)
         tmp.fadingcolor.setAlpha(a1 + rap * (a2 - a1));
 	emitChange = true;
       }
+      if (tmp.posx != -1 && tmp.pos2x != -1 && tmp.posy != -1 && tmp.pos2y != -1)
+      {
+          tmp.interposx = tmp.posx + rap * (tmp.pos2x - tmp.posx);
+          tmp.interposy = tmp.posy + rap * (tmp.pos2y - tmp.posy);
+          emitChange = true;
+      }
+      if (tmp.size != -1 && tmp.size2 != -1)
+      {
+          tmp.intersize = tmp.size + rap * (tmp.size2 - tmp.size);
+          emitChange = true;
+      }
+
     }
   }
   // update the currentSyl and currentText

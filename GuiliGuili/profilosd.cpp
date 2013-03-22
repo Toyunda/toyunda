@@ -2,29 +2,31 @@
 #include "profilosd.h"
 
 
-ProfilOSD::ProfilOSD()
+ProfilOSD::ProfilOSD() : Profil()
 {
     name = "OSD";
-    m_errorHandler = new GraphicErrorHandler();
-    m_qtoyunda = new QToyunda(m_errorHandler);
 }
 
 bool   ProfilOSD::init()
 {
+    m_qtoyunda = new QToyunda(m_errorHandler);
     QDir pluginPath = qApp->applicationDirPath();
     pluginPath.cd("plugins");
     m_qtoyunda->setPluginDirectory(pluginPath);
-    m_qtoyunda->loadPlugins();
+    if (!m_qtoyunda->loadPlugins())
+       return false;
     m_qtoyunda->setPlayerName("qgstaudio");
     m_qtoyunda->setRendererName("qosd");
     QStringList rendererOption;
     rendererOption << "logo=:/main/Toyunda logo.png";
     m_qtoyunda->setRendererOption(rendererOption);
-    m_qtoyunda->init();
+    if (!m_qtoyunda->init())
+        return false;
     QObject::connect(m_qtoyunda, SIGNAL(played()), this, SIGNAL(played()));
     QObject::connect(m_qtoyunda, SIGNAL(paused()), this, SIGNAL(paused()));
     QObject::connect(m_qtoyunda, SIGNAL(stopped()), this, SIGNAL(stopped()));
     QObject::connect(m_qtoyunda, SIGNAL(finished()), this, SIGNAL(finished()));
+    m_initialised = true;
     return true;
 }
 
@@ -41,11 +43,21 @@ void ProfilOSD::play(QString videoPath, QString lyricsPath)
         m_qtoyunda->play();
         m_qtoyunda->showRenderer();
     }
+    else
+        emit error_occured();
 }
 
-void ProfilOSD::setEH(GraphicErrorHandler *err)
+void ProfilOSD::setErrorHandler(SQErrorHandler *err)
 {
-    m_qtoyunda = new QToyunda(err);
+    m_errorHandler = err;
+}
+
+void ProfilOSD::updateConfigDialog()
+{
+}
+
+void ProfilOSD::updateValueFromDialog()
+{
 }
 
 void ProfilOSD::setVolume(int vol)

@@ -42,6 +42,7 @@ class RawSubStream : public ToyundaSubStream
 	int	pos2y;
 	int	lenght;
 	int	size;
+    int size2;
 	uint	pos;
 	QString	text;
 	QColor	color;
