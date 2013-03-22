@@ -81,12 +81,10 @@ int	main(int ac, char *ag[])
 	GstElement	*toyunda;
 	GMainLoop*	loop;
 	GstBus*		bus;
-    GstPad*     gpad, *gpad2;
+	GstPad*     gpad, *gpad2;
 	guint		watch_id;
-    GstStateChangeReturn ret;
-	
-	putenv("GST_DEBUG=*:1");
-	putenv("GST_PLUGIN_PATH=C:/toyunda/gstreamer-toyunda/Debug/");
+	GstStateChangeReturn ret;
+
 	gst_init(&ac, &ag);
 	loop = g_main_loop_new(NULL, FALSE);
 	
@@ -108,12 +106,16 @@ int	main(int ac, char *ag[])
 	audiosink = gst_element_factory_make("autoaudiosink", "autoaudiosink");
 	gst_bin_add_many(audiobin, queuea, convert, resample, audiosink, NULL);
 	gst_element_link_many(queuea, convert, resample, audiosink, NULL);
-    gpad = gst_ghost_pad_new("sink", gst_element_get_static_pad(queuea, "sink"));
+	gpad = gst_ghost_pad_new("sink", gst_element_get_static_pad(queuea, "sink"));
 	gst_element_add_pad(GST_ELEMENT(audiobin), gpad);
 	
 	
 	videobin = gst_bin_new("videobin");
-	videosink = gst_element_factory_make("directdrawsink", "directdrawsink");
+#ifdef G_OS_WIN32
+	videosink = gst_element_factory_make("directdrawsink", "videosink");
+#else
+	videosink = gst_element_factory_make("autovideosink", "videosink");
+#endif
 	queuev = gst_element_factory_make("queue", "queue v");
 	ffmpegrecolor = gst_element_factory_make("ffmpegcolorspace", "ffmpegcolor");
 	videoscale = gst_element_factory_make("videoscale", "videoscale");
@@ -133,7 +135,7 @@ int	main(int ac, char *ag[])
 	gst_element_link(videoscale, toyunda);
 	gst_element_link(toyunda, ffmpegrecolor);
 	gst_element_link(ffmpegrecolor, videosink);
-    gpad2 = gst_ghost_pad_new("sink", gst_element_get_static_pad(queuev, "sink"));
+	gpad2 = gst_ghost_pad_new("sink", gst_element_get_static_pad(queuev, "sink"));
 	gst_element_add_pad(GST_ELEMENT(videobin), gpad2);
 	
 	g_object_set(G_OBJECT(filesrc), "location", ag[1], NULL);

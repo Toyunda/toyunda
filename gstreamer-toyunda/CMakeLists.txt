@@ -1,9 +1,11 @@
 cmake_minimum_required(VERSION 2.8)
 project(gstreamer-toyunda)
 
+set(PROJECT_BINARY_DIR ${PROJECT_SOURCE_DIR}/../build)
+
 IF (WIN32)
 	
-ELSE
+ELSE(WIN32)
 	find_package(PkgConfig REQUIRED)
 	pkg_check_modules(GLIB_PKG glib-2.0)
 	pkg_check_modules(GSTREAMER_PKG gstreamer-0.10)
@@ -65,3 +67,17 @@ target_link_libraries(gsttoyunda ${GSTREAMER_PKG_LIBRARIES} ${GSTREAMER_BASE_PKG
 target_link_libraries(toyunda-player ${GSTREAMER_PKG_LIBRARIES})
 
 #install(TARGETS gstreamer-toyunda RUNTIME DESTINATION bin)
+
+
+GET_TARGET_PROPERTY(TOYUNDA_PLAYER_BIN_NAME toyunda-player LOCATION)
+GET_TARGET_PROPERTY(GST_TOYUNDA_BIN_NAME gsttoyunda LOCATION)
+
+# copy bin to binary folder
+ADD_CUSTOM_COMMAND(TARGET toyunda-player
+          POST_BUILD
+          COMMAND ${CMAKE_COMMAND} -E copy ${TOYUNDA_PLAYER_BIN_NAME} ${PROJECT_BINARY_DIR}/.
+)
+ADD_CUSTOM_COMMAND(TARGET gsttoyunda
+          POST_BUILD
+          COMMAND ${CMAKE_COMMAND} -E copy ${GST_TOYUNDA_BIN_NAME} ${PROJECT_BINARY_DIR}/.
+)

@@ -141,8 +141,11 @@ bool	QGstAudioPlayer::init(const QStringList opt)
     conv = QGst::ElementFactory::make("audioconvert");
         resample = QGst::ElementFactory::make("audioresample");
         m_volume = QGst::ElementFactory::make("volume");
+#ifdef  Q_WS_WIN
     asink = QGst::ElementFactory::make("directsoundsink", "Auto Audio Sink");
-
+#else
+    asink = QGst::ElementFactory::make("autoaudiosink", "Auto Audio Sink");
+#endif
     m_vsink = QGst::ElementFactory::make("fakesink", "Fake sink");
     queuev = QGst::ElementFactory::make("queue", "Queue video");
 

@@ -19,8 +19,8 @@ public:
     QString         default_color;
     unsigned int    width;
     unsigned int    height;
-    unsigned float  v_ratio;
-    unsigned float  h_ratio;
+    float           v_ratio;
+    float           h_ratio;
     bool            altered_version;
     QString         font;
     QString         default_toyunda_logo;

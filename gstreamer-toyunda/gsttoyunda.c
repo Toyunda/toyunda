@@ -1,5 +1,5 @@
 /* GStreamer
- * Copyright (C) 2013 FIXME <fixme@example.com>
+ * Copyright (C) 2013 Sylvain Colinet <scolinet@gmail.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -19,14 +19,14 @@
 /**
  * SECTION:element-gsttoyunda
  *
- * The toyunda element does FIXME stuff.
+ * The toyunda element is a toyunda karaoke video filter.
  *
  * <refsect2>
  * <title>Example launch line</title>
  * |[
- * gst-launch -v fakesrc ! toyunda ! FIXME ! fakesink
+ * gst-launch -v testvideosrc ! toyunda subfile="test.txt" ! autovideosink
  * ]|
- * FIXME Describe what the pipeline does.
+ * display the subtitle describe in test.txt file on a videobuffer
  * </refsect2>
  */
 
@@ -67,16 +67,13 @@ static void gst_toyunda_get_property (GObject * object,
 static void gst_toyunda_dispose (GObject * object);
 static void gst_toyunda_finalize (GObject * object);
 
-static GstPad *gst_toyunda_request_new_pad (GstElement * element,
-    GstPadTemplate * templ, const gchar * name);
-static void gst_toyunda_release_pad (GstElement * element, GstPad * pad);
 static GstStateChangeReturn
 gst_toyunda_change_state (GstElement * element, GstStateChange transition);
 static gboolean gst_toyunda_send_event (GstElement * element, GstEvent * event);
 static gboolean gst_toyunda_query (GstElement * element, GstQuery * query);
 
 static GstCaps* gst_toyunda_sink_getcaps (GstPad *pad);
-static gboolean gst_toyunda_sink_setcaps (GstPad *pad, GstCaps *caps, GstCaps *outcaps);
+static gboolean gst_toyunda_sink_setcaps (GstPad *pad, GstCaps *caps);
 static GstPadLinkReturn gst_toyunda_sink_link (GstPad *pad, GstPad *peer);
 static void gst_toyunda_sink_unlink (GstPad *pad);
 static GstFlowReturn gst_toyunda_sink_bufferalloc (GstPad * pad,
@@ -121,7 +118,7 @@ static	void	gst_toyunda_blend_subtitles(GstToyunda *toyunda, GstBuffer *video_fr
 static inline void gst_toyunda_unpremultiply (GstBuffer* buffer, uint width, uint height);
 
 static	void	gst_toyunda_adjust_default_font_size(GstToyunda *toyunda);
-static	gchar*	gst_toyunda_get_image_path(gchar* image);
+static	gchar*	gst_toyunda_get_image_path(GstToyunda* toyunda, gchar* image);
 
 enum
 {
@@ -193,7 +190,7 @@ gst_toyunda_base_init (gpointer g_class)
       &gst_toyunda_src_template);
 
   gst_element_class_set_details_simple (element_class, "Toyunda",
-      "toyunda", "FIXME Description", "FIXME <fixme@example.com>");
+      "toyunda", "Toyunda Karaoke plugin", "Sylvain \"Skarsnik\" Colinet <scolinet@gmail.com>");
 
 }
 
@@ -215,10 +212,11 @@ gst_toyunda_class_init (GstToyundaClass * klass)
 		         g_param_spec_string ("subfile", "Subfile",
 			  "The subtitle file to parse",
 			  "none", G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-    g_object_class_install_property (G_OBJECT_CLASS (klass), PROP_TOYUNDA_LOGO,
-		         g_param_spec_string ("toyunda_logo", "Toyunda logo",
+  
+  g_object_class_install_property (G_OBJECT_CLASS (klass), PROP_TOYUNDA_LOGO,
+		         g_param_spec_string ("toyunda-logo", "Toyunda logo",
 			  "The default toyunda logo image",
-			  "Toyunda.png", G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+			  "toyunda.tga", G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
 }
 
@@ -320,7 +318,7 @@ gst_toyunda_parse_toyunda_subtitle(GstToyunda* toyunda)
 		g_free(line);
 	}
 	toyunda->subfile_parsed = TRUE;
-	g_sequence_sort(toyunda->subtitles, toyunda_subtitle_compare, NULL);
+	g_sequence_sort(toyunda->subtitles, (GCompareDataFunc) toyunda_subtitle_compare, NULL);
 	return TRUE;
 }
 
@@ -492,7 +490,6 @@ static void	parse_toyunda_options(char *str, int *pos, toyunda_sub_t **sub)
 
 static int	parse_toyunda_option(char* str, int pos, toyunda_sub_t **sub)
 {
-	int	toret;
 	int	startpos = pos;
 	char	strtmp[32];
 	char	buff[255];
@@ -701,6 +698,7 @@ gint toyunda_subtitle_compare(gpointer a, gpointer b, gpointer data)
 	if (t1->start < t2->start)
 		return -1;
 	if (t1->start == t2->start)
+	{
 		if (t1->stop < t2->stop)
 			return -1;
 		else
@@ -710,6 +708,7 @@ gint toyunda_subtitle_compare(gpointer a, gpointer b, gpointer data)
 			else
 				return 1;
 		}
+	}
 	return 1;
 }
 
@@ -792,7 +791,7 @@ static	gchar*	gst_toyunda_get_image_path(GstToyunda* toyunda, gchar* image)
 {
 	gchar	*toret;
 
-	if (strcmp(image, STR_TOYUNDA_LOGO_DEFAULT))
+	if (strcmp(image, STR_TOYUNDA_LOGO_DEFAULT) == 0)
 		return toyunda->toyunda_logo;
 	return toret;
 }
@@ -841,7 +840,7 @@ static GstBuffer*	gst_toyunda_get_image_data(GstToyunda *toyunda, gchar *image_f
 	*width = x;
 	*height = y;
 	/* the output format is RGBA, need bgra */
-	for (cpt = 0; cpt < x * y; cpt++)
+	for (cpt = 0; cpt < (uint)( x * y); cpt++)
 	{
 		r = data[cpt * 4];
 		//g = data[cpt * 4 + 1];
@@ -971,11 +970,18 @@ gst_toyunda_set_property (GObject * object, guint property_id,
 
   switch (property_id) {
 	  case PROP_SUBFILE:
+		  if (toyunda->subfile != NULL)
+			g_free(toyunda->subfile);
 		  toyunda->subfile = g_value_dup_string(value);
 		  toyunda->subfile_parsed = FALSE;
-		  if (toyunda->base_toyunda.current_state != NULL)
+		  if (toyunda->base_toyunda.current_state != GST_STATE_NULL)
 			  gst_toyunda_parse_toyunda_subtitle(toyunda);
 		  break;
+	  case PROP_TOYUNDA_LOGO:
+		if (toyunda->toyunda_logo != NULL)
+			g_free(toyunda->toyunda_logo);
+		toyunda->toyunda_logo = g_value_dup_string(value);
+	break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
@@ -990,13 +996,9 @@ gst_toyunda_get_property (GObject * object, guint property_id,
 
   switch (property_id) {
 	case PROP_SUBFILE:
-		if (toyunda->subfile != NULL)
-			g_free(toyunda->subfile);
-		toyunda->subfile = g_value_dup_string(value);
+		g_value_set_string(value, toyunda->subfile);
 	case PROP_TOYUNDA_LOGO:
-		if (toyunda->toyunda_logo != NULL)
-			g_free(toyunda->toyunda_logo);
-		toyunda->toyunda_logo = g_value_dup_string(value);
+		g_value_set_string(value, toyunda->subfile);
 	break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -1024,21 +1026,6 @@ gst_toyunda_finalize (GObject * object)
   G_OBJECT_CLASS (parent_class)->finalize (object);
 }
 
-
-
-static GstPad *
-gst_toyunda_request_new_pad (GstElement * element, GstPadTemplate * templ,
-    const gchar * name)
-{
-
-  return NULL;
-}
-
-static void
-gst_toyunda_release_pad (GstElement * element, GstPad * pad)
-{
-
-}
 
 static GstStateChangeReturn
 gst_toyunda_change_state (GstElement * element, GstStateChange transition)
@@ -1111,7 +1098,7 @@ gst_toyunda_sink_getcaps (GstPad *pad)
 }
 
 static gboolean
-gst_toyunda_sink_setcaps (GstPad *pad, GstCaps *caps, GstCaps *outcaps)
+gst_toyunda_sink_setcaps (GstPad *pad, GstCaps *caps)
 {
   GstToyunda *toyunda;
   GstStructure *structure;
@@ -1166,82 +1153,7 @@ gst_toyunda_sink_setcaps (GstPad *pad, GstCaps *caps, GstCaps *outcaps)
   return TRUE;
 }
 
-static gboolean
-gst_toyunda_sink_acceptcaps (GstPad *pad, GstCaps *caps)
-{
-  GstToyunda *toyunda;
 
-  toyunda = GST_TOYUNDA (gst_pad_get_parent (pad));
-
-  GST_DEBUG_OBJECT(toyunda, "acceptcaps");
-
-
-  gst_object_unref (toyunda);
-  return TRUE;
-}
-
-static void
-gst_toyunda_sink_fixatecaps (GstPad *pad, GstCaps *caps)
-{
-  GstToyunda *toyunda;
-
-  toyunda = GST_TOYUNDA (gst_pad_get_parent (pad));
-
-  GST_DEBUG_OBJECT(toyunda, "fixatecaps");
-
-
-  gst_object_unref (toyunda);
-}
-
-static gboolean
-gst_toyunda_sink_activate (GstPad *pad)
-{
-  GstToyunda *toyunda;
-  gboolean ret;
-
-  toyunda = GST_TOYUNDA (gst_pad_get_parent (pad));
-
-  GST_DEBUG_OBJECT(toyunda, "activate");
-
-  if (gst_pad_check_pull_range (pad)) {
-    GST_DEBUG_OBJECT (pad, "activating pull");
-    ret = gst_pad_activate_pull (pad, TRUE);
-  } else {
-    GST_DEBUG_OBJECT (pad, "activating push");
-    ret = gst_pad_activate_push (pad, TRUE);
-  }
-
-  gst_object_unref (toyunda);
-  return ret;
-}
-
-static gboolean
-gst_toyunda_sink_activatepush (GstPad *pad, gboolean active)
-{
-  GstToyunda *toyunda;
-
-  toyunda = GST_TOYUNDA (gst_pad_get_parent (pad));
-
-  GST_DEBUG_OBJECT(toyunda, "activatepush");
-
-
-  gst_object_unref (toyunda);
-  return TRUE;
-}
-
-static gboolean
-gst_toyunda_sink_activatepull (GstPad *pad, gboolean active)
-{
-  GstToyunda *toyunda;
-
-  toyunda = GST_TOYUNDA (gst_pad_get_parent (pad));
-
-  GST_DEBUG_OBJECT(toyunda, "activatepull");
-
-
-  gst_object_unref (toyunda);
-  return TRUE;
-}
 
 static GstPadLinkReturn
 gst_toyunda_sink_link (GstPad *pad, GstPad *peer)
@@ -1318,9 +1230,6 @@ void gst_toyunda_draw_grid(GstToyunda* toyunda, GstBuffer* video_frame)
 		comp = gst_video_overlay_composition_new(comprect);
 	}
 	gst_video_overlay_composition_blend(comp, video_frame);
-	/*gst_buffer_unref(buff);
-	gst_video_overlay_composition_unref(comp);
-	gst_video_overlay_rectangle_unref(comprect);*/
 }
 
 static	void	plop_show_data(unsigned char *data, int width, int height)
@@ -1378,9 +1287,20 @@ void gst_toyunda_create_subtitle_buffers(GstToyunda* toyunda)
 					cpt_tmp++;
 				tmptext[cpt_tmp] = 'o';
 			}
+			/* Convert to utf-8 */
+			gsize a, b;
+			GError *g_err = NULL;
+			gchar *converted_text;
+			converted_text = g_convert(tmptext, -1, "UTF-8", "iso-8859-1", &a, &b, &g_err);
+			if (converted_text == NULL)
+			{
+				g_printf("Error converting the text to utf-8 : %s\n", g_err->message);
+				g_free(g_err);
+				converted_text = tmptext;
+			}
 			/* Need this in both case of image or text */
 			pango_layout_set_width(toyunda->pango_layout, -1);
-			pango_layout_set_text(toyunda->pango_layout, tmptext, strlen(tmptext));
+			pango_layout_set_text(toyunda->pango_layout, converted_text, -1);
 			pango_layout_get_pixel_extents (toyunda->pango_layout, &ink_rect, &logical_rect);
 			/* if The text is too long */
 			if (logical_rect.width > toyunda->video_width)
@@ -1393,7 +1313,7 @@ void gst_toyunda_create_subtitle_buffers(GstToyunda* toyunda)
 				pango_layout_set_font_description(toyunda->pango_layout, toyunda->pango_fontdesc);
 		
 				pango_layout_set_width(toyunda->pango_layout, -1);
-				pango_layout_set_text(toyunda->pango_layout, tmptext, strlen(tmptext));
+				pango_layout_set_text(toyunda->pango_layout, converted_text, -1);
 				pango_layout_get_pixel_extents (toyunda->pango_layout, &ink_rect, &logical_rect);
 			}
 			pos_y = sub->positiony * toyunda->video_height;
@@ -1472,7 +1392,7 @@ void gst_toyunda_create_subtitle_buffers(GstToyunda* toyunda)
 				if (pos_x > new_rect.width / 2)
 					pos_x -= new_rect.width / 2;
 				g_printf("POSITION X SYL : %d\n", pos_x);
-				buffer = gst_toyunda_get_image_data(toyunda, gst_toyunda_get_image_path(sub->image), &width, &height);
+				buffer = gst_toyunda_get_image_data(toyunda, gst_toyunda_get_image_path(toyunda, sub->image), &width, &height);
 				if (buffer != NULL)
 				{
 					if (sub_buff->overlay_rect != NULL)
@@ -1483,6 +1403,8 @@ void gst_toyunda_create_subtitle_buffers(GstToyunda* toyunda)
 					sub_buff->to_change = FALSE;
 				}
 			}
+			if (converted_text != sub->text)
+				g_free(converted_text);
 			/* restaure font */
 			if (new_size != 0)
 			{
@@ -1586,20 +1508,6 @@ gst_toyunda_sink_chain (GstPad *pad, GstBuffer *buffer)
   return ret;
 }
 
-static GstFlowReturn
-gst_toyunda_sink_chainlist (GstPad *pad, GstBufferList *bufferlist)
-{
-  GstToyunda *toyunda;
-
-  toyunda = GST_TOYUNDA (gst_pad_get_parent (pad));
-
-  GST_DEBUG_OBJECT(toyunda, "chainlist");
-
-
-  gst_object_unref (toyunda);
-  return GST_FLOW_OK;
-}
-
 static gboolean
 gst_toyunda_sink_event (GstPad *pad, GstEvent *event)
 {
@@ -1668,22 +1576,6 @@ gst_toyunda_sink_bufferalloc (GstPad *pad, guint64 offset, guint size,
   return ret;
 }
 
-static GstIterator *
-gst_toyunda_sink_iterintlink (GstPad *pad)
-{
-  GstToyunda *toyunda;
-  GstIterator *iter;
-
-  toyunda = GST_TOYUNDA (gst_pad_get_parent (pad));
-
-  GST_DEBUG_OBJECT(toyunda, "iterintlink");
-
-  iter = gst_pad_iterate_internal_links_default (pad);
-
-  gst_object_unref (toyunda);
-  return iter;
-}
-
 
 static GstCaps*
 gst_toyunda_src_getcaps (GstPad *pad)
@@ -1732,82 +1624,6 @@ gst_toyunda_src_setcaps (GstPad *pad, GstCaps *caps)
   return TRUE;
 }
 
-static gboolean
-gst_toyunda_src_acceptcaps (GstPad *pad, GstCaps *caps)
-{
-  GstToyunda *toyunda;
-
-  toyunda = GST_TOYUNDA (gst_pad_get_parent (pad));
-
-  GST_DEBUG_OBJECT(toyunda, "acceptcaps");
-
-
-  gst_object_unref (toyunda);
-  return TRUE;
-}
-
-static void
-gst_toyunda_src_fixatecaps (GstPad *pad, GstCaps *caps)
-{
-  GstToyunda *toyunda;
-
-  toyunda = GST_TOYUNDA (gst_pad_get_parent (pad));
-
-  GST_DEBUG_OBJECT(toyunda, "fixatecaps");
-
-
-  gst_object_unref (toyunda);
-}
-
-static gboolean
-gst_toyunda_src_activate (GstPad *pad)
-{
-  GstToyunda *toyunda;
-  gboolean ret;
-
-  toyunda = GST_TOYUNDA (gst_pad_get_parent (pad));
-
-  GST_DEBUG_OBJECT(toyunda, "activate");
-
-  if (gst_pad_check_pull_range (pad)) {
-    GST_DEBUG_OBJECT (pad, "activating pull");
-    ret = gst_pad_activate_pull (pad, TRUE);
-  } else {
-    GST_DEBUG_OBJECT (pad, "activating push");
-    ret = gst_pad_activate_push (pad, TRUE);
-  }
-
-  gst_object_unref (toyunda);
-  return ret;
-}
-
-static gboolean
-gst_toyunda_src_activatepush (GstPad *pad, gboolean active)
-{
-  GstToyunda *toyunda;
-
-  toyunda = GST_TOYUNDA (gst_pad_get_parent (pad));
-
-  GST_DEBUG_OBJECT(toyunda, "activatepush");
-
-
-  gst_object_unref (toyunda);
-  return TRUE;
-}
-
-static gboolean
-gst_toyunda_src_activatepull (GstPad *pad, gboolean active)
-{
-  GstToyunda *toyunda;
-
-  toyunda = GST_TOYUNDA (gst_pad_get_parent (pad));
-
-  GST_DEBUG_OBJECT(toyunda, "activatepull");
-
-
-  gst_object_unref (toyunda);
-  return TRUE;
-}
 
 static GstPadLinkReturn
 gst_toyunda_src_link (GstPad *pad, GstPad *peer)
@@ -1836,20 +1652,7 @@ gst_toyunda_src_unlink (GstPad *pad)
   gst_object_unref (toyunda);
 }
 
-static GstFlowReturn
-gst_toyunda_src_getrange (GstPad *pad, guint64 offset, guint length,
-    GstBuffer **buffer)
-{
-  GstToyunda *toyunda;
 
-  toyunda = GST_TOYUNDA (gst_pad_get_parent (pad));
-
-  GST_DEBUG_OBJECT(toyunda, "getrange");
-
-
-  gst_object_unref (toyunda);
-  return GST_FLOW_OK;
-}
 
 static gboolean
 gst_toyunda_src_event (GstPad *pad, GstEvent *event)
@@ -1889,22 +1692,6 @@ gst_toyunda_src_query (GstPad *pad, GstQuery *query)
 
   gst_object_unref (toyunda);
   return res;
-}
-
-static GstIterator *
-gst_toyunda_src_iterintlink (GstPad *pad)
-{
-  GstToyunda *toyunda;
-  GstIterator *iter;
-
-  toyunda = GST_TOYUNDA (gst_pad_get_parent (pad));
-
-  GST_DEBUG_OBJECT(toyunda, "iterintlink");
-
-  iter = gst_pad_iterate_internal_links_default (pad);
-
-  gst_object_unref (toyunda);
-  return iter;
 }
 
 

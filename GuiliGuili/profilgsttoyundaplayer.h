@@ -20,6 +20,7 @@ public slots:
     void    setVolume(int);
     void    dispose();
     void    on_finish(int);
+    void    process_error(QProcess::ProcessError);
 
 private:
     QProcess*   m_process;
