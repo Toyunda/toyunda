@@ -43,6 +43,7 @@ QVariant PlaylistModel::data(const QModelIndex& index, int role) const
 
 int	PlaylistModel::rowCount(const QModelIndex& parent) const
 {
+	Q_UNUSED(parent);
         return m_playlist->count();
 }
 
@@ -101,6 +102,9 @@ static void decodeDataRecursive(QDataStream &stream, QStandardItem *item)
 
 bool PlaylistModel::dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent)
 {
+	Q_UNUSED(action);
+	Q_UNUSED(row);
+	Q_UNUSED(column);
 	QStringListIterator it(data->formats());
 	
 	while (it.hasNext())
@@ -139,7 +143,7 @@ bool PlaylistModel::dropMimeData(const QMimeData* data, Qt::DropAction action, i
 			right = qMax(c, right);
 		}
                 uint cpt = 0;
-                for (uint i = top; i <= bottom;i++)
+		for (int i = top; i <= bottom;i++)
                 {
                     QStandardItem *item = items[rows.indexOf(i)];
                     if (item->hasChildren())

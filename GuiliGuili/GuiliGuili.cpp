@@ -262,7 +262,7 @@ void	GuiliGuili::song_stopped()
 
 void	GuiliGuili::nextSong()
 {
-	if ((m_currentPos + 1 < m_currentPlaylist.count()))
+	if ((m_currentPos + 1 < (unsigned int) m_currentPlaylist.count()))
 	{
             m_currentPos++;
             ui.playlistView->setCurrentIndex(ui.playlistView->model()->index(m_currentPos, 0));
@@ -441,6 +441,7 @@ void            GuiliGuili::on_volumeSlider_valueChanged(int pos)
 
 void GuiliGuili::playlistView_selectionChanged(const QItemSelection& selected , const QItemSelection& deselected)
 {
+	Q_UNUSED(deselected);
 	QModelIndex index;
 	QModelIndexList items = selected.indexes();
 	

@@ -18,6 +18,7 @@ SOURCES = qosd.cpp \
            ../qtoyunda-lib/toyundarenderer.cpp \
            ../comons/scomponent.cpp \
            ../comons/sqarg.cpp \
+           ../comons/sqerror.cpp \
            ../qtoyunda-lib/toyundasub.cpp \
            ../qtoyunda-lib/toyundasubstream.cpp \
            ../comons/toyundadrawer.cpp

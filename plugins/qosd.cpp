@@ -53,7 +53,7 @@ bool  QOSD::init(QStringList opt)
 #ifdef Q_WS_X11
   if (QX11Info::isCompositingManagerRunning() == false)
   {
-      //emit error(SQError(SQError::Critical, "You are not running a X11 composite manager, QOSD can't work without one"));
+      emit error(SQError(SQError::Critical, "You are not running a X11 composite manager, QOSD can't work without one"));
       return false;
   }
 #endif

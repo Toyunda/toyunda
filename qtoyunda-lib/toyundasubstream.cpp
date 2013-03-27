@@ -31,7 +31,7 @@ ToyundaSubStream::ToyundaSubStream(const QString) : QObject()
 
 void	ToyundaSubStream::seek(const int toseek)
 {
-  ;
+	Q_UNUSED(toseek);
 }
 
 int	ToyundaSubStream::getCurrentFrame() const

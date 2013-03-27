@@ -40,6 +40,7 @@ bool	FakePlayer::init(const QStringList opt)
 
 void	FakePlayer::open(const QString file)
 {
+	Q_UNUSED(file);
     frameNumber = optionValue["start"].toInt();
 }
 
@@ -70,7 +71,7 @@ void	FakePlayer::newTick()
 {
  //   qDebug() << frameNumber;
     emit frameChanged(frameNumber++);
-    if (duration != 0 && frameNumber * interval >= duration) {
+    if (duration != 0 && frameNumber * (int)interval >= duration) {
         emit finished();
         timer.stop();
     }
@@ -89,7 +90,7 @@ void FakePlayer::dispose()
 
 void FakePlayer::setVolume(uint vol)
 {
-    ;
+	Q_UNUSED(vol);
 }
 
 bool FakePlayer::hasVolumeControl()

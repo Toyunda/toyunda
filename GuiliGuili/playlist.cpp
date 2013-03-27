@@ -18,6 +18,7 @@
 
 
 #include "playlist.h"
+#include <QFile>
 
 Playlist::Playlist()
 {
@@ -37,7 +38,7 @@ Playlist::Playlist(QList< Song *> lsg)
 
 Playlist::Playlist(const Playlist& other)
 {
-
+	Q_UNUSED(other);
 }
 
 Playlist::~Playlist()
@@ -47,11 +48,15 @@ Playlist::~Playlist()
 
 bool	Playlist::load(const QString& fileName)
 {
+	Q_UNUSED(fileName);
+	QFile	file(fileName);
+
     return true;
 }
 
 bool	Playlist::save(const QString& fileName) const
 {
+	Q_UNUSED(fileName);
     return true;
 }
 

@@ -25,6 +25,7 @@ ToyundaRenderer::ToyundaRenderer() : SComponent()
 
 bool  ToyundaRenderer::init(QStringList opt)
 {
+	Q_UNUSED(opt);
   return true;
 }
 

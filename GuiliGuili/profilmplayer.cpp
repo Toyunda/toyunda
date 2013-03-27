@@ -49,6 +49,7 @@ void Profilmplayer::stop()
 
 void    Profilmplayer::on_finish(int po)
 {
+	Q_UNUSED(po);
     emit finished();
 }
 

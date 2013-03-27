@@ -95,7 +95,7 @@ bool ProfilModel::setData(const QModelIndex &index, const QVariant &value, int r
     return true;
 }
 
-
+#define PROFIL_DIR "Profils"
 
 bool ProfilModel::loadProfils()
 {

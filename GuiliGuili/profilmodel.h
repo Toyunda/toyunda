@@ -36,7 +36,7 @@ public:
     int                 columnCount(const QModelIndex &parent) const;
     bool                setData(const QModelIndex &index, const QVariant &value, int role);
     bool                setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int=Qt::EditRole)
-                        {return false;}
+    {Q_UNUSED(section); Q_UNUSED(orientation); Q_UNUSED(value); return false;}
     bool                loadProfils();
     bool                saveProfils();
     Profil*             getProfil(int);
