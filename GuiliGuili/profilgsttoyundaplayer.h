@@ -3,9 +3,11 @@
 
 #include "profil.h"
 #include <QProcess>
+#include <QObject>
 
 class ProfilGstToyundaPlayer : public Profil
 {
+Q_OBJECT
 public:
     ProfilGstToyundaPlayer();
     void    setErrorHandler(SQErrorHandler *);

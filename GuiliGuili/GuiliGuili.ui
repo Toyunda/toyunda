@@ -138,7 +138,7 @@
             <item>
              <widget class="QToolButton" name="openPlaylistButton">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="text">
                <string/>
@@ -154,7 +154,7 @@
             <item>
              <widget class="QToolButton" name="savePlaylistButton">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="text">
                <string/>
@@ -183,7 +183,7 @@
             <item>
              <widget class="QToolButton" name="clearPlaylistButton">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="text">
                <string>...</string>

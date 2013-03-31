@@ -28,6 +28,7 @@
 #include <QtGui/QMenuBar>
 #include <QtGui/QAction>
 #include <QTreeWidgetItem>
+#include <QFileDialog>
 #include <qdir.h>
 #include <QDebug>
 #include "playlistmodel.h"
@@ -37,6 +38,7 @@
 #include <qdialog.h>
 #include "profilosd.h"
 #include "profilmplayer.h"
+#include "songtreemodel.h"
 
 
 GuiliGuili::GuiliGuili()
@@ -80,7 +82,9 @@ void GuiliGuili::init()
         }
         //qDebug() << "I am the GuiGui and I am in thread : " << QThread::currentThreadId();
         // Ui elemen
-        QStandardItemModel	*model =  new QStandardItemModel();
+        //QStandardItemModel	*model =  new QStandardItemModel();
+        SongTreeModel*  model = new SongTreeModel();
+        qDebug() << "MODEL init : " << model;
         ui.songTreeView->setModel(model);
 
         setKaraokeDir();
@@ -273,33 +277,21 @@ void	GuiliGuili::nextSong()
 }
 
 
-void    GuiliGuili::addCategorySongView(QStandardItem* parentItem, QMap<QString, QList<Song*> > songList)
+void    GuiliGuili::addCategorySongView(SongTreeModel *model, QMap<QString, QList<Song*> > songList)
 {
-    QMutableMapIterator<QString, QList<Song*> > it(songList);
+    QMapIterator<QString, QList<Song*> >  it(songList);
     while (it.hasNext())
     {
-            it.next();
-            QList<Song *>* lsg = &(it.value());
-            QStandardItem	*categoryItem = new QStandardItem();
-            categoryItem->setData(it.key(), Qt::DisplayRole);
-            QVariant v1 = qVariantFromValue((quintptr) lsg);
-            categoryItem->setData(v1, Qt::UserRole + 1);
-            categoryItem->setEditable(false);
-            parentItem->appendRow(categoryItem);
-            QListIterator<Song *>	itSong(*lsg);
-            while (itSong.hasNext())
-            {
-                    Song *sg = itSong.next();
-                    QStandardItem	*songItem = new QStandardItem();
-                    songItem->setData(sg->title, Qt::DisplayRole);
-                    songItem->setEditable(false);
-                    songItem->setToolTip(sg->iniFile);
-                    QVariant v = qVariantFromValue((quintptr) sg);
-                    songItem->setData(v, Qt::UserRole + 1);
-                    categoryItem->appendRow(songItem);
-            }
+        it.next();
+        QList<Song *>lsg = it.value();
+        QString cat = it.key();
+        QListIterator<Song *> its(lsg);
+        while (its.hasNext())
+        {
+            Song*   sg = its.next();
+            model->addSong(sg, cat);
+        }
     }
-
 }
 
 bool GuiliGuili::initProfil(Profil *prof)
@@ -326,11 +318,10 @@ bool GuiliGuili::initProfil(Profil *prof)
 
 void	GuiliGuili::populateSongView()
 {
-	QStandardItemModel *model = static_cast<QStandardItemModel*>(ui.songTreeView->model());
-	QStandardItem	*parentItem = model->invisibleRootItem();
-        ui.songTreeView->header()->hide();
-        addCategorySongView(parentItem, m_songByType);
-        addCategorySongView(parentItem, m_songByAlpha);
+    SongTreeModel*  model = static_cast<SongTreeModel*>(ui.songTreeView->model());
+    ui.songTreeView->header()->hide();
+    addCategorySongView(model, m_songByType);
+    addCategorySongView(model, m_songByAlpha);
 }
 
 
@@ -351,13 +342,11 @@ void	GuiliGuili::on_playlistView_doubleClicked(const QModelIndex& index)
 
 void     GuiliGuili::on_songTreeView_doubleClicked(const QModelIndex &index)
 {
-    qDebug() << index;
-    QStandardItemModel *model = static_cast<QStandardItemModel*>(ui.songTreeView->model());
-    QStandardItem* curItem = model->itemFromIndex(index);
-    if (curItem->hasChildren())
+    SongTreeModel*  model = static_cast<SongTreeModel*>(ui.songTreeView->model());
+    SongTreeItem* curItem = model->itemForIndex(index);
+    if (curItem->childs.count() != 0)
         return;
-    QVariant qv = model->data(index, Qt::UserRole + 1);
-    Song *sg = (Song *) qv.value<quintptr>();
+    Song *sg = (Song *) curItem->data;
     play_once(sg->videoPath, sg->subtitlePath);
 }
 
@@ -374,48 +363,29 @@ void            GuiliGuili::on_searchInput_editingFinished()
 void            GuiliGuili::on_searchButton_clicked()
 {
     static bool first = false;
-    static QStandardItem *searchItem = NULL;
     QString searchPat = ui.searchInput->text();
+    QModelIndex index;
+    bool    find = false;
 
     if (searchPat.isEmpty())
         return;
     QRegExp exp(searchPat, Qt::CaseInsensitive);
-    QStandardItemModel *model = static_cast<QStandardItemModel*>(ui.songTreeView->model());
-    QStandardItem	*parentItem = model->invisibleRootItem();
-    bool    find = false;
-    if (first == false)
-        searchItem = new QStandardItem();
-    else
-        searchItem->removeRows(0, searchItem->rowCount());
+    SongTreeModel *model = static_cast<SongTreeModel*>(ui.songTreeView->model());
+    if (first != false)
+        model->clearCat("Search Result");
     m_searchResult.clear();
     foreach(Song *sg, m_allsongs)
     {
         if (exp.indexIn(sg->title) != -1)
         {
-            if (find == false)
-            {
-                searchItem->setData("Search Result", Qt::DisplayRole);
-                QVariant v1 = qVariantFromValue((quintptr) &m_searchResult);
-                searchItem->setData(v1, Qt::UserRole + 1);
-                searchItem->setEditable(false);
-                find = true;
-            }
-            QStandardItem *newItem = new QStandardItem();
-            newItem->setData(sg->title, Qt::DisplayRole);
-            newItem->setToolTip(sg->iniFile);
-            QVariant v1 = qVariantFromValue((quintptr) sg);
-            newItem->setData(v1, Qt::UserRole + 1);
-            newItem->setEditable(false);
-            searchItem->appendRow(newItem);
-            m_searchResult.append(sg);
+            index = model->addSong(sg, "Search Result");
+            find = true;
         }
     }
     if (find)
     {
-        if (first == false)
-            parentItem->appendRow(searchItem);
-        ui.songTreeView->expand(searchItem->index());
-        ui.songTreeView->scrollTo(searchItem->index());
+        ui.songTreeView->expand(index.parent());
+        ui.songTreeView->scrollTo(index);
         first = true;
     }
 }
@@ -488,7 +458,7 @@ void GuiliGuili::setKaraokeDir()
     QDir::setCurrent(m_karaoke_dir);
     readKaraokeDir();
     delete ui.songTreeView->model();
-    QStandardItemModel	*model = new QStandardItemModel;
+    SongTreeModel*  model = new SongTreeModel();
     ui.songTreeView->setModel(model);
     populateSongView();
 }
@@ -498,6 +468,9 @@ void GuiliGuili::setKaraokeDir()
 
 void GuiliGuili::on_clearPlaylistButton_clicked()
 {
+    m_currentPlaylist.clear();
+    PlaylistModel* plmodel = static_cast<PlaylistModel *>(ui.playlistView->model());
+    plmodel->setPlaylist(&m_currentPlaylist);
 
 }
 
@@ -512,4 +485,22 @@ void GuiliGuili::on_ProfilComboBox_activated(int index)
     }
     m_currentProfil = new_prof;
     qDebug() << "profil changed : " << m_currentProfil->name;
+}
+
+void GuiliGuili::on_openPlaylistButton_clicked()
+{
+    QString plPath = QFileDialog::getOpenFileName(this, tr("Sélectionnez le fichier de playlist à charger"), "", "*.txt");
+    if (!plPath.isNull())
+    {
+        m_currentPlaylist.load(plPath, m_karaoke_dir);
+        PlaylistModel* plmodel = static_cast<PlaylistModel *>(ui.playlistView->model());
+        plmodel->setPlaylist(&m_currentPlaylist);
+    }
+}
+
+void GuiliGuili::on_savePlaylistButton_clicked()
+{
+    QString plPath = QFileDialog::getSaveFileName(this, tr("Sélectionnez le fichier où enregistrer la playlist"), "playlist.txt", "*.txt");
+    if (!plPath.isNull())
+        m_currentPlaylist.save(plPath, m_karaoke_dir);
 }

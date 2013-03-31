@@ -21,6 +21,7 @@
 #include <qsettings.h>
 #include <qregexp.h>
 #include <QFile>
+#include <QFileInfo>
 
 Song::Song()
 {
@@ -31,8 +32,10 @@ Song::Song(const QString filePath, bool realFile)
 {
 	QRegExp		pathfmt("^([A-Z]+)\\s\\-\\s(.+)\\.ini$");
 
+    QFileInfo   fi(filePath);
+    QString     baseFileName = fi.fileName();
 	iniFile = filePath;
-	if (pathfmt.exactMatch(filePath))
+    if (pathfmt.exactMatch(baseFileName))
 	{	
 		prefix = pathfmt.cap(1);
 		title = pathfmt.cap(2);
@@ -68,6 +71,7 @@ Song::Song(const Song& other)
 	this->subtitlePath = other.subtitlePath;
 	this->videoPath = other.videoPath;
 	this->prefix = other.prefix;
+    this->iniFile = other.iniFile;
 }
 
 Song::~Song()
@@ -94,5 +98,42 @@ QDebug  operator<<(QDebug dbg, const Song& sg)
 bool Song::lessThan(Song* s1, Song* s2)
 {
     return *s1 < *s2;
+}
+
+QByteArray Song::listSerialize(QList<Song> ls)
+{
+    QByteArray toret;
+    QDataStream stream(&toret, QIODevice::WriteOnly);
+    stream << ls.count();
+    QListIterator<Song> it(ls);
+    while(it.hasNext())
+    {
+        const Song& sg = it.next();
+        stream << sg.iniFile;
+        stream << sg.prefix;
+        stream << sg.title;
+        stream << sg.subtitlePath;
+        stream << sg.videoPath;
+    }
+    return toret;
+}
+
+QList<Song> Song::listDeserialize(QByteArray toParse)
+{
+    QList<Song> toret;
+    QDataStream stream(&toParse, QIODevice::ReadOnly);
+    unsigned int    i, nbSong;
+    stream >> nbSong;
+    for (i = 0; i < nbSong; i++)
+    {
+        Song    sg;
+        stream >> sg.iniFile;
+        stream >> sg.prefix;
+        stream >> sg.title;
+        stream >> sg.subtitlePath;
+        stream >> sg.videoPath;
+        toret.append(sg);
+    }
+    return toret;
 }
 

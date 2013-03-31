@@ -38,8 +38,12 @@ public:
 	QString	subtitlePath;
 	QString	videoPath;
 	static bool lessThan(Song*, Song*);
+    static QByteArray   listSerialize(QList<Song>);
+    static QList<Song>  listDeserialize(QByteArray);
 };
 
+const   QString SongMimeType = "application/x-guiliguili-song";
+const   QString SongListMimeType = "application/x-guiliguili-song-list";
 
 bool	operator<(const Song&, const Song&);
 

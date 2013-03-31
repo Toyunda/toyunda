@@ -19,6 +19,8 @@
 
 #include "playlist.h"
 #include <QFile>
+#include <QFileInfo>
+#include <QDebug>
 
 Playlist::Playlist()
 {
@@ -46,18 +48,49 @@ Playlist::~Playlist()
 
 }
 
-bool	Playlist::load(const QString& fileName)
-{
-	Q_UNUSED(fileName);
-	QFile	file(fileName);
+/* The playlist file only containt the base name, so the user can share playlist */
 
-    return true;
+bool	Playlist::load(const QString& fileName, const QString& basePath)
+{
+    QFile	file(fileName);
+
+    clear();
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        while (!file.atEnd())
+        {
+            QString line = file.readLine();
+            line.chop(1);
+            Song sg(basePath + "/" + line);
+            add_song(sg);
+        }
+        file.close();
+        return true;
+    }
+    return false;
 }
 
-bool	Playlist::save(const QString& fileName) const
+bool	Playlist::save(const QString& fileName, const QString& basePath) const
 {
-	Q_UNUSED(fileName);
-    return true;
+    QFile   file(fileName);
+
+    qDebug() << m_songs.count();
+    if (file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        QTextStream stream(&file);
+        QListIterator<Song> i(m_songs);
+        while(i.hasNext())
+        {
+            const Song& sg = i.next();
+            qDebug() << sg.iniFile;
+            QFileInfo   fi(sg.iniFile);
+            stream << fi.fileName() << "\n";
+        }
+        file.close();
+        return true;
+    } else
+        qDebug() <<  file.errorString();
+    return false;
 }
 
 void	Playlist::add_song(const Song toadd)

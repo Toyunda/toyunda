@@ -1262,7 +1262,10 @@ void gst_toyunda_create_subtitle_buffers(GstToyunda* toyunda)
 	guint cpt_tmp;
 	guint outline_size;
 	char			*tmptext;
-	
+	gsize a, b;
+	GError *g_err = NULL;
+	gchar *converted_text;
+
 	it = g_sequence_get_begin_iter(toyunda->current_subtitles);
 	it_end = g_sequence_get_end_iter(toyunda->current_subtitles);
 	
@@ -1288,9 +1291,8 @@ void gst_toyunda_create_subtitle_buffers(GstToyunda* toyunda)
 				tmptext[cpt_tmp] = 'o';
 			}
 			/* Convert to utf-8 */
-			gsize a, b;
-			GError *g_err = NULL;
-			gchar *converted_text;
+
+
 			converted_text = g_convert(tmptext, -1, "UTF-8", "iso-8859-1", &a, &b, &g_err);
 			if (converted_text == NULL)
 			{

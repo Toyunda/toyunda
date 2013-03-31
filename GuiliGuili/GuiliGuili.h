@@ -30,6 +30,7 @@
 #include "profil.h"
 #include "profilmodel.h"
 #include "graphicerrorhandler.h"
+#include "songtreemodel.h"
 
 
 
@@ -66,7 +67,7 @@ private:
 	void		openPlaylist(QString);
 	void		savePlaylist(QString);
 	void		sortAlphaSongMap();
-    void            addCategorySongView(QStandardItem* parentItem, QMap<QString, QList<Song*> > songList);
+    void            addCategorySongView(SongTreeModel* model, QMap<QString, QList<Song*> > songList);
     bool        initProfil(Profil*);
 	
 private slots :
@@ -97,6 +98,10 @@ private slots :
 
 
     void on_ProfilComboBox_activated(int index);
+
+    void on_openPlaylistButton_clicked();
+
+    void on_savePlaylistButton_clicked();
 
 signals:
         void            error_and_quit();

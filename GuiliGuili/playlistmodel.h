@@ -35,6 +35,8 @@ public:
     bool	insertRows ( int row, int count, const QModelIndex & parent = QModelIndex());
     bool	removeRows ( int row, int count, const QModelIndex & parent = QModelIndex());
     Qt::ItemFlags	flags(const QModelIndex &index) const;
+    QStringList     mimeTypes() const;
+    QMimeData       *mimeData(const QModelIndexList &indexes) const;
     
     Qt::DropActions	supportedDropActions() const;
     

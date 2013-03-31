@@ -50,7 +50,7 @@ int	PlaylistModel::rowCount(const QModelIndex& parent) const
 PlaylistModel::PlaylistModel(Playlist* pl)
 {
 	m_playlist = pl;
-	qDebug() << "nyo";
+    setSupportedDragActions(Qt::MoveAction);
 }
 
 PlaylistModel::~PlaylistModel()
@@ -61,6 +61,7 @@ PlaylistModel::~PlaylistModel()
 void PlaylistModel::setPlaylist(Playlist* pl)
 {
 	m_playlist = pl;
+    reset();
 }
 
 
@@ -76,28 +77,11 @@ bool PlaylistModel::insertRows(int row, int count, const QModelIndex& parent)
 
 bool PlaylistModel::removeRows(int row, int count, const QModelIndex& parent)
 {
+    //qDebug() << "Remove row : " << m_playlist->at(row).title;
     m_playlist->removeAt(row);
     return QAbstractItemModel::removeRows(row, count, parent);
 }
 
-
-// From qstandarditemmodel.cpp
-static void decodeDataRecursive(QDataStream &stream, QStandardItem *item)
-{
-    int colCount, childCount;
-    stream >> *item;
-    stream >> colCount >> childCount;
-    item->setColumnCount(colCount);
-    
-    int childPos = childCount;
-    
-    while(childPos > 0) {
-        childPos--;
-        QStandardItem *child = new QStandardItem;
-        decodeDataRecursive(stream, child);
-        item->setChild( childPos / colCount, childPos % colCount, child);
-    }
-}
 
 
 bool PlaylistModel::dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent)
@@ -105,68 +89,23 @@ bool PlaylistModel::dropMimeData(const QMimeData* data, Qt::DropAction action, i
 	Q_UNUSED(action);
 	Q_UNUSED(row);
 	Q_UNUSED(column);
-	QStringListIterator it(data->formats());
-	
-	while (it.hasNext())
-	{
-		qDebug() << it.next();
-	}
-	// drop from songs list
-	if (data->hasFormat("application/x-qstandarditemmodeldatalist"))
-	{
-	
-		/* Code from qstandarditemmodel.cpp in qt */
-		QByteArray encoded = data->data("application/x-qstandarditemmodeldatalist");
-		QDataStream stream(&encoded, QIODevice::ReadOnly);
-
-
-		//code based on QAbstractItemModel::decodeData
-		// adapted to work with QStandardItem
-                int top = INT_MAX;
-                int left = INT_MAX;
-		int bottom = 0;
-		int right = 0;
-		QVector<int> rows, columns;
-		QVector<QStandardItem *> items;
-		while (!stream.atEnd()) {
-			int r, c;
-			QStandardItem *item = new QStandardItem;
-			stream >> r >> c;
-			decodeDataRecursive(stream, item);
-
-			rows.append(r);
-			columns.append(c);
-			items.append(item);
-			top = qMin(r, top);
-			left = qMin(c, left);
-			bottom = qMax(r, bottom);
-			right = qMax(c, right);
-		}
-                uint cpt = 0;
-		for (int i = top; i <= bottom;i++)
-                {
-                    QStandardItem *item = items[rows.indexOf(i)];
-                    if (item->hasChildren())
-                    {
-                            QList<Song*>* sgl = (QList<Song *>*) item->data(Qt::UserRole + 1).value<quintptr>();
-                            QListIterator<Song *> it(*sgl);
-                            while (it.hasNext())
-                            {
-                                    Song *sg = it.next();
-                                    m_playlist->add_song(*sg);
-                            }
-                            insertRows(cpt, sgl->size() , parent);
-                    }
-                    else
-                    {
-
-                            Song* sg = (Song *) item->data(Qt::UserRole + 1).value<quintptr>();
-                            m_playlist->add_song(*sg);
-                            insertRows(cpt, 1 , parent);
-                    }
-                    cpt++;
-                }
-	}		
+    //qDebug() << "drop";
+    if (data->hasFormat(SongListMimeType))
+    {
+        if (row == -1)
+            row = parent.isValid() ? parent.row() + 1 : 0;
+        int cpt = 0;
+        QList<Song> sgl = Song::listDeserialize(data->data(SongListMimeType));
+        beginInsertRows(parent, row, row + sgl.count());
+        QListIterator<Song> it(sgl);
+        while (it.hasNext())
+        {
+            Song sg = it.next();
+            m_playlist->addAt(sg, row + cpt);
+            cpt++;
+        }
+        endInsertRows();
+    }
 	return true;
 }
 
@@ -177,13 +116,37 @@ Qt::ItemFlags PlaylistModel::flags(const QModelIndex& index) const
 	if (index.isValid())
 		return Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | defaultFlags;
 	else
-		return Qt::ItemIsDropEnabled | defaultFlags;
+        return Qt::ItemIsDropEnabled | defaultFlags;
+}
+
+QStringList PlaylistModel::mimeTypes() const
+{
+    return QStringList() << SongListMimeType;
+}
+
+QMimeData *PlaylistModel::mimeData(const QModelIndexList &indexes) const
+{
+    if (indexes.count() < 0)
+        return 0;
+    QListIterator<QModelIndex> it(indexes);
+    QList<Song> songs;
+    while (it.hasNext())
+    {
+        Song sg = m_playlist->at(it.next().row());
+        songs.append(sg);
+    }
+    QMimeData*  toret = new QMimeData();
+    QByteArray  data = Song::listSerialize(songs);
+    toret->setData(SongListMimeType, data);
+    toret->setText(songs.at(0).title);
+    //qDebug() << "drag started ? " << songs.at(0).title;
+    return toret;
 }
 
 
 Qt::DropActions PlaylistModel::supportedDropActions() const
 {
-	return Qt::CopyAction | Qt::MoveAction;
+    return Qt::CopyAction | Qt::MoveAction;
 }
 
 

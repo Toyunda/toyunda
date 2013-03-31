@@ -15,7 +15,7 @@ bool   ProfilOSD::init()
     m_qtoyunda->setPluginDirectory(pluginPath);
     if (!m_qtoyunda->loadPlugins())
        return false;
-    m_qtoyunda->setPlayerName("fake");
+    m_qtoyunda->setPlayerName("qgstaudio");
     m_qtoyunda->setRendererName("qosd");
     QStringList rendererOption;
     rendererOption << "logo=:/main/Toyunda logo.png";

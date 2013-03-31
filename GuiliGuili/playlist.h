@@ -32,8 +32,8 @@ public:
 	Playlist(const Playlist& other);
 	virtual ~Playlist();
 	
-	bool	save(const QString& fileName) const;
-	bool	load(const QString& filename);
+    bool	save(const QString& fileName, const QString& basePath) const;
+    bool	load(const QString& fileName, const QString& basePath);
 	void	add_song(const Song);
 	void	addAt(const Song, const int);
 	void	removeAt(const int);
