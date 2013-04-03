@@ -33,11 +33,6 @@ QVariant PlaylistModel::data(const QModelIndex& index, int role) const
 		return m_playlist->at(index.row()).title;
         if (role == Qt::ToolTipRole)
             return m_playlist->at(index.row()).iniFile;
-	if (role == Qt::UserRole + 1)
-	{
-		QVariant v = qVariantFromValue<Song>(m_playlist->at(index.row()));
-		return v;
-	}
 	return ret;
 }
 
@@ -67,19 +62,21 @@ void PlaylistModel::setPlaylist(Playlist* pl)
 
 bool PlaylistModel::insertRows(int row, int count, const QModelIndex& parent)
 {
-        if (row == -1)
+        /*if (row == -1)
                 row = 0;
         beginInsertRows(parent, row, row + count);
-	endInsertRows();
-	return true;
-	
+        endInsertRows();*/
+        return QAbstractItemModel::insertRows(row, count, parent);
 }
 
 bool PlaylistModel::removeRows(int row, int count, const QModelIndex& parent)
 {
-    //qDebug() << "Remove row : " << m_playlist->at(row).title;
-    m_playlist->removeAt(row);
-    return QAbstractItemModel::removeRows(row, count, parent);
+    if (row < 0 && count < 1)
+        return false;
+    for (int i = 0; i < count; i++)
+        m_playlist->removeAt(row + i);
+    return true;
+    //return QAbstractItemModel::removeRows(row, count, parent);
 }
 
 
@@ -93,7 +90,10 @@ bool PlaylistModel::dropMimeData(const QMimeData* data, Qt::DropAction action, i
     if (data->hasFormat(SongListMimeType))
     {
         if (row == -1)
-            row = parent.isValid() ? parent.row() + 1 : 0;
+            if (parent.isValid())
+                row = parent.row() + 1;
+            else
+                row = m_playlist->count();
         int cpt = 0;
         QList<Song> sgl = Song::listDeserialize(data->data(SongListMimeType));
         beginInsertRows(parent, row, row + sgl.count());

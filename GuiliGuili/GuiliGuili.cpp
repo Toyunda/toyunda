@@ -43,11 +43,19 @@
 
 GuiliGuili::GuiliGuili()
 {
-	ui.setupUi(this);
+        ui.setupUi(this);
         m_settings = new QSettings("skarsnik.nyo.fr", "GuiliGuili");
 
         // Create qtoyunda
 
+#ifdef Q_WS_WIN32
+        char    *mPath, *mGstRoot;
+        mPath = getenv("PATH");
+        mGstRoot = getenv("GSTREAMER_SDK_ROOT_X86");
+        QString mTmp = QString("PATH=%1;%2\\bin\\;%2\\lib").arg(mPath).arg(mGstRoot);
+        qDebug() << mTmp;
+        putenv(mTmp.toLocal8Bit().data());
+#endif
         QObject::connect(this, SIGNAL(error_and_quit()), this, SLOT(on_error_and_quit()));
         QObject::connect(this, SIGNAL(error_only()), this, SLOT(on_error_only()));
 
@@ -333,9 +341,9 @@ void	GuiliGuili::on_stopButton_clicked()
 
 void	GuiliGuili::on_playlistView_doubleClicked(const QModelIndex& index)
 {
-    Song s = index.data(Qt::UserRole + 1).value<Song>();
+    Song sg = m_currentPlaylist.at(index.row());
     m_currentPos = index.row();
-    m_currentSong = s;
+    m_currentSong = sg;
     stop();
     play();
 }
@@ -415,9 +423,8 @@ void GuiliGuili::playlistView_selectionChanged(const QItemSelection& selected , 
 	QModelIndex index;
 	QModelIndexList items = selected.indexes();
 	
-	index = items.at(0);
-	qDebug() << index.data(Qt::DisplayRole);
-	Song s = index.data(Qt::UserRole + 1).value<Song>();
+    index = items.at(0);
+    Song s = m_currentPlaylist.at(index.row());
 	qDebug() << s;
 	qDebug() << s.prefix;
 	m_currentPos = index.row();

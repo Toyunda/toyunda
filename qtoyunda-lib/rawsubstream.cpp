@@ -113,61 +113,65 @@ bool	RawSubStream::createFromFile(QString filePath)
 
 QList<RawSubStream::GenLineDesc>	RawSubStream::parseToyundaLine(QString line)
 {
-  QRegExp	rToyLine("^\\s*\\{(\\d+)\\}\\{(\\d+)\\}");
-  QRegExp	isToyLine("^\\s*\\{(\\d+)\\}\\{(\\d+)\\}.*");
-  QRegExp	isSylLine("^(\\s*)\xff.*");
-  QRegExp	notPipe("^([^|]+)");
+    QRegExp	rToyLine("^\\s*\\{(\\d+)\\}\\{(\\d+)\\}");
+    QRegExp	isToyLine("^\\s*\\{(\\d+)\\}\\{(\\d+)\\}.*");
+    QRegExp	isSylLine("^(\\s*)\xff.*");
+    QRegExp	notPipe("^([^|]+)");
 
-  QList<GenLineDesc> list;
-  if (isToyLine.exactMatch(line)) {
-    GenLineDesc	newline;
-    newline.pipeNumber = 0;
-    newline.size = -1;
-    newline.posx = -1;
-    newline.posy = -1;
-    newline.pos2x = -1;
-    newline.pos2y = -1;
-    newline.size2 = -1;
-    newline.lenght = -1;
-    newline.start = isToyLine.cap(1).toInt();
-    newline.stop = isToyLine.cap(2).toInt();
-    line.replace(rToyLine, "");
-    line.replace(QRegExp("\\n$"), "");
-    parseOption(line, newline);
-    parsePipe(line, newline);
-    parseOption(line, newline);
-    if (isSylLine.exactMatch(line)) {
-      notPipe.indexIn(line);
-      newline.lenght = notPipe.cap(1).size();
-      newline.pos = isSylLine.cap(1).size();
-      list.append(newline);
-      return list;
-    } else {
-	QRegExp	rText("^([^|]+)");
-	if (rText.indexIn(line) != -1) {
-	  newline.text = rText.cap(1);
-	  line.replace(rText, "");
-          list.append(newline);
-	  if (line[0] == '|') {
-            GenLineDesc newline2;
-	    newline2.pipeNumber = 0;
-            newline2.size = -1;
-            newline2.posx = -1;
-            newline2.posy = -1;
-            newline2.lenght = -1;
-	    newline2.start = newline.start;
-	    newline2.stop = newline.stop;
-	    parsePipe(line, newline2);
-	    parseOption(line, newline2);
-	    newline2.text = line;
-	    list.append(newline2);
-	  }
+    QList<GenLineDesc> list;
+    if (isToyLine.exactMatch(line)) {
+        GenLineDesc	newline;
+        newline.pipeNumber = 0;
+        newline.size = -1;
+        newline.posx = -1;
+        newline.posy = -1;
+        newline.pos2x = -1;
+        newline.pos2y = -1;
+        newline.size2 = -1;
+        newline.lenght = -1;
+        newline.start = isToyLine.cap(1).toInt();
+        newline.stop = isToyLine.cap(2).toInt();
+        line.replace(rToyLine, "");
+        line.replace(QRegExp("\\n$"), "");
+        parseOption(line, newline);
+        parsePipe(line, newline);
+        parseOption(line, newline);
+        if (isSylLine.exactMatch(line)) {
+            notPipe.indexIn(line);
+            newline.lenght = notPipe.cap(1).size();
+            newline.pos = isSylLine.cap(1).size();
+            list.append(newline);
+            return list;
+        } else {
+            QRegExp	rText("^([^|]+)");
+            if (rText.indexIn(line) != -1) {
+                newline.text = rText.cap(1);
+                line.replace(rText, "");
+                list.append(newline);
+                while (line[0] == '|') {
+                    GenLineDesc newline2;
+                    newline2.pipeNumber = 0;
+                    newline2.size = -1;
+                    newline2.posx = -1;
+                    newline2.posy = -1;
+                    newline2.lenght = -1;
+                    newline2.start = newline.start;
+                    newline2.stop = newline.stop;
+                    parsePipe(line, newline2);
+                    parseOption(line, newline2);
+                    if (rText.indexIn(line) != -1)
+                    {
+                        newline2.text = rText.cap(1);
+                        line.replace(rText, "");
+                    }
+                    list.append(newline2);
+                }
+            }
+            return list;
         }
-	return list;
     }
-  }
-  else 
-    return list;
+    else
+        return list;
 }
 
 void	RawSubStream::parseOption(QString &line, GenLineDesc &linedesc)

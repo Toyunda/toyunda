@@ -18,9 +18,9 @@ public:
     int             columnCount(const QModelIndex &parent) const;
     QModelIndex     index(int row, int column, const QModelIndex &parent) const;
     QModelIndex     parent(const QModelIndex &child) const;
-    bool            setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int=Qt::EditRole)
-    {return false;}
-    bool            setData(const QModelIndex &index, const QVariant &value, int role)
+    bool            setHeaderData(int , Qt::Orientation , const QVariant , int=Qt::EditRole)
+    { return false;}
+    bool            setData(const QModelIndex , const QVariant , int )
     {return false;}
 
     Qt::DropActions supportedDragActions() const;

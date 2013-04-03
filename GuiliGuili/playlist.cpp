@@ -73,6 +73,7 @@ bool	Playlist::load(const QString& fileName, const QString& basePath)
 bool	Playlist::save(const QString& fileName, const QString& basePath) const
 {
     QFile   file(fileName);
+    Q_UNUSED(basePath);
 
     qDebug() << m_songs.count();
     if (file.open(QIODevice::WriteOnly | QIODevice::Text))

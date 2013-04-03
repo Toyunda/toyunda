@@ -139,6 +139,7 @@ int	main(int ac, char *ag[])
 	gst_element_add_pad(GST_ELEMENT(videobin), gpad2);
 	
 	g_object_set(G_OBJECT(filesrc), "location", ag[1], NULL);
+	//g_object_set(G_OBJECT(toyunda), "location", "C:\\toyunda\\GuiliGuili\\test karaoke dir\\Videos\\Air - AMV - Azurewind.avi", NULL);
 	//g_object_set(G_OBJECT(toyunda), "subfile", "C:\\toyunda\\GuiliGuili\\test karaoke dir\\Lyrics\\Air - AMV - Azurewind.txt", NULL);
 	g_object_set(G_OBJECT(toyunda), "subfile", ag[2], NULL);
 	

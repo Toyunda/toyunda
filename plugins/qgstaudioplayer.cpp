@@ -46,6 +46,7 @@ QGstAudioPlayer::QGstAudioPlayer()
 
 void	QGstAudioPlayer::new_decoded_pad(const QGst::PadPtr &pad, const int gbool) 
 {
+    Q_UNUSED(gbool);
 	QGst::PadPtr	audiopad;
 	QGst::PadPtr	videopad;
 	QGst::CapsPtr	caps;
@@ -203,6 +204,7 @@ void	QGstAudioPlayer::open(const QString file)
 
 void	QGstAudioPlayer::seek(const int toseek)
 {
+    Q_UNUSED(toseek);
 }
 
 void	QGstAudioPlayer::play()

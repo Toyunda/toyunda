@@ -1,10 +1,12 @@
 #include <QApplication>
 #include "profilosd.h"
+#include "osdprofildialog.h"
 
 
 ProfilOSD::ProfilOSD() : Profil()
 {
     name = "OSD";
+    configDialog = new osdprofildialog();
 }
 
 bool   ProfilOSD::init()
