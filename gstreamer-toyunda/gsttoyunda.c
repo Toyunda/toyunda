@@ -1,5 +1,5 @@
-/* GStreamer Toyunda
- * Copyright (C) 2013 Sylvain Colinet <scolinet@gmail.com>
+/* GStreamer
+ * Copyright (C) 2013 FIXME <fixme@example.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -19,14 +19,14 @@
 /**
  * SECTION:element-gsttoyunda
  *
- * The toyunda element is a toyunda karaoke video filter.
+ * The toyunda element does FIXME stuff.
  *
  * <refsect2>
  * <title>Example launch line</title>
  * |[
- * gst-launch -v testvideosrc ! toyunda subfile="test.txt" ! autovideosink
+ * gst-launch -v fakesrc ! toyunda ! FIXME ! fakesink
  * ]|
- * display the subtitle describe in test.txt file on a videobuffer
+ * FIXME Describe what the pipeline does.
  * </refsect2>
  */
 
@@ -35,7 +35,8 @@
 #endif
 
 #include <gst/gst.h>
-#include <gst/gst.h>
+#include <gst/base/gstbasetransform.h>
+#include "gsttoyunda.h"
 #include <glib/gstdio.h>
 #include <string.h>
 #include "gsttoyunda.h"
@@ -53,6 +54,7 @@
 # define CAIRO_ARGB_B 3
 #endif
 
+
 GST_DEBUG_CATEGORY_STATIC (gst_toyunda_debug_category);
 #define GST_CAT_DEFAULT gst_toyunda_debug_category
 
@@ -66,33 +68,40 @@ static void gst_toyunda_get_property (GObject * object,
 static void gst_toyunda_dispose (GObject * object);
 static void gst_toyunda_finalize (GObject * object);
 
-static GstStateChangeReturn
-gst_toyunda_change_state (GstElement * element, GstStateChange transition);
-static gboolean gst_toyunda_send_event (GstElement * element, GstEvent * event);
-static gboolean gst_toyunda_query (GstElement * element, GstQuery * query);
 
-static GstCaps* gst_toyunda_sink_getcaps (GstPad *pad);
-static gboolean gst_toyunda_sink_setcaps (GstPad *pad, GstCaps *caps);
-static GstPadLinkReturn gst_toyunda_sink_link (GstPad *pad, GstPad *peer);
-static void gst_toyunda_sink_unlink (GstPad *pad);
-static GstFlowReturn gst_toyunda_sink_bufferalloc (GstPad * pad,
-    guint64 offset, guint size, GstCaps * caps, GstBuffer ** buffer);
-static GstFlowReturn gst_toyunda_sink_chain (GstPad *pad, GstBuffer *buffer);
-static gboolean gst_toyunda_sink_event (GstPad *pad, GstEvent *event);
-static gboolean gst_toyunda_sink_query (GstPad *pad, GstQuery *query);
+static GstCaps *gst_toyunda_transform_caps (GstBaseTransform * trans,
+    GstPadDirection direction, GstCaps * caps);
+/*static void
+gst_toyunda_fixate_caps (GstBaseTransform * trans,
+    GstPadDirection direction, GstCaps * caps, GstCaps * othercaps);
+static gboolean
+gst_toyunda_transform_size (GstBaseTransform * trans,
+    GstPadDirection direction,
+    GstCaps * caps, guint size, GstCaps * othercaps, guint * othersize);
+static gboolean
+gst_toyunda_get_unit_size (GstBaseTransform * trans, GstCaps * caps,
+    guint * size);*/
+static gboolean
+gst_toyunda_set_caps (GstBaseTransform * trans, GstCaps * incaps,
+    GstCaps * outcaps);
+static gboolean gst_toyunda_start (GstBaseTransform * trans);
+static gboolean gst_toyunda_stop (GstBaseTransform * trans);
+static gboolean gst_toyunda_event (GstBaseTransform * trans, GstEvent * event);
+/*
+static GstFlowReturn
+gst_toyunda_transform (GstBaseTransform * trans, GstBuffer * inbuf,
+    GstBuffer * outbuf);*/
+static GstFlowReturn
+gst_toyunda_transform_ip (GstBaseTransform * trans, GstBuffer * buf);
+/*
+static GstFlowReturn
+gst_toyunda_prepare_output_buffer (GstBaseTransform * trans,
+    GstBuffer * input, gint size, GstCaps * caps, GstBuffer ** buf);*/
 
-
-static GstCaps* gst_toyunda_src_getcaps (GstPad *pad);
-static gboolean gst_toyunda_src_setcaps (GstPad *pad, GstCaps *caps);
-static GstPadLinkReturn gst_toyunda_src_link (GstPad *pad, GstPad *peer);
-static void gst_toyunda_src_unlink (GstPad *pad);
-static gboolean gst_toyunda_src_event (GstPad *pad, GstEvent *event);
-static gboolean gst_toyunda_src_query (GstPad *pad, GstQuery *query);
-
-
-
-
-
+static gboolean
+gst_toyunda_src_event (GstBaseTransform * trans, GstEvent * event);
+/*static void
+gst_toyunda_before_transform (GstBaseTransform * trans, GstBuffer * buffer);*/
 
 /* Render function */
 static	void	gst_toyunda_draw_grid(GstToyunda *toyunda, GstBuffer *video_frame);
@@ -154,50 +163,61 @@ GST_STATIC_PAD_TEMPLATE ("src",
     );
 
 
+
 /* class initialization */
 
 #define DEBUG_INIT(bla) \
   GST_DEBUG_CATEGORY_INIT (gst_toyunda_debug_category, "toyunda", 0, \
       "debug category for toyunda element");
 
-GST_BOILERPLATE_FULL (GstToyunda, gst_toyunda, GstElement,
-    GST_TYPE_ELEMENT, DEBUG_INIT);
+GST_BOILERPLATE_FULL (GstToyunda, gst_toyunda, GstBaseTransform,
+    GST_TYPE_BASE_TRANSFORM, DEBUG_INIT);
 
 static void
 gst_toyunda_base_init (gpointer g_class)
 {
-  GstElementClass *element_class = GST_ELEMENT_CLASS (g_class);
+	GstElementClass *element_class = GST_ELEMENT_CLASS (g_class);
 
-  gst_element_class_add_static_pad_template (element_class,
-      &gst_toyunda_sink_template);
-  gst_element_class_add_static_pad_template (element_class,
-      &gst_toyunda_src_template);
+	gst_element_class_add_static_pad_template (element_class,
+	&gst_toyunda_sink_template);
+	gst_element_class_add_static_pad_template (element_class,
+	&gst_toyunda_src_template);
 
-  gst_element_class_set_details_simple (element_class, "Toyunda",
-      "toyunda", "Toyunda Karaoke plugin", "Sylvain \"Skarsnik\" Colinet <scolinet@gmail.com>");
+	gst_element_class_set_details_simple (element_class, "Toyunda",
+	"toyunda", "Toyunda Karaoke plugin", "Sylvain \"Skarsnik\" Colinet <scolinet@gmail.com>");
 
 }
 
 static void
 gst_toyunda_class_init (GstToyundaClass * klass)
 {
-  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-  GstElementClass *element_class = GST_ELEMENT_CLASS (klass);
+	GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+	GstBaseTransformClass *base_transform_class = GST_BASE_TRANSFORM_CLASS (klass);
 
-  gobject_class->set_property = gst_toyunda_set_property;
-  gobject_class->get_property = gst_toyunda_get_property;
-  gobject_class->dispose = gst_toyunda_dispose;
-  gobject_class->finalize = gst_toyunda_finalize;
-  element_class->change_state = GST_DEBUG_FUNCPTR (gst_toyunda_change_state);
-  element_class->send_event = GST_DEBUG_FUNCPTR (gst_toyunda_send_event);
-  element_class->query = GST_DEBUG_FUNCPTR (gst_toyunda_query);
+	gobject_class->set_property = gst_toyunda_set_property;
+	gobject_class->get_property = gst_toyunda_get_property;
+	gobject_class->dispose = gst_toyunda_dispose;
+	gobject_class->finalize = gst_toyunda_finalize;
+	base_transform_class->transform_caps = GST_DEBUG_FUNCPTR (gst_toyunda_transform_caps);
+	//base_transform_class->fixate_caps = GST_DEBUG_FUNCPTR (gst_toyunda_fixate_caps);
+	//base_transform_class->transform_size = GST_DEBUG_FUNCPTR (gst_toyunda_transform_size);
+	//base_transform_class->get_unit_size = GST_DEBUG_FUNCPTR (gst_toyunda_get_unit_size);
+	base_transform_class->set_caps = GST_DEBUG_FUNCPTR (gst_toyunda_set_caps);
+	base_transform_class->start = GST_DEBUG_FUNCPTR (gst_toyunda_start);
+	base_transform_class->stop = GST_DEBUG_FUNCPTR (gst_toyunda_stop);
+	base_transform_class->event = GST_DEBUG_FUNCPTR (gst_toyunda_event);
+	//base_transform_class->transform = GST_DEBUG_FUNCPTR (gst_toyunda_transform);
+	base_transform_class->transform_ip = GST_DEBUG_FUNCPTR (gst_toyunda_transform_ip);
+	//base_transform_class->prepare_output_buffer = GST_DEBUG_FUNCPTR (gst_toyunda_prepare_output_buffer);
+	base_transform_class->src_event = GST_DEBUG_FUNCPTR (gst_toyunda_src_event);
+	//base_transform_class->before_transform = GST_DEBUG_FUNCPTR (gst_toyunda_before_transform);
   
-  g_object_class_install_property (G_OBJECT_CLASS (klass), PROP_SUBFILE,
+	g_object_class_install_property (G_OBJECT_CLASS (klass), PROP_SUBFILE,
 		         g_param_spec_string ("subfile", "Subfile",
 			  "The subtitle file to parse",
 			  "none", G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
   
-  g_object_class_install_property (G_OBJECT_CLASS (klass), PROP_TOYUNDA_LOGO,
+	g_object_class_install_property (G_OBJECT_CLASS (klass), PROP_TOYUNDA_LOGO,
 		         g_param_spec_string ("toyunda-logo", "Toyunda logo",
 			  "The default toyunda logo image",
 			  "toyunda.tga", G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
@@ -207,101 +227,62 @@ gst_toyunda_class_init (GstToyundaClass * klass)
 static void
 gst_toyunda_init (GstToyunda * toyunda, GstToyundaClass * toyunda_class)
 {
-  char *fontFile;
 
-  toyunda->sinkpad = gst_pad_new_from_static_template (&gst_toyunda_sink_template
-      ,     
-            "sink");
-  gst_pad_set_getcaps_function (toyunda->sinkpad,
-            GST_DEBUG_FUNCPTR(gst_toyunda_sink_getcaps));
-  gst_pad_set_setcaps_function (toyunda->sinkpad,
-            GST_DEBUG_FUNCPTR(gst_toyunda_sink_setcaps));
-  gst_pad_set_link_function (toyunda->sinkpad,
-            GST_DEBUG_FUNCPTR(gst_toyunda_sink_link));
-  gst_pad_set_unlink_function (toyunda->sinkpad,
-            GST_DEBUG_FUNCPTR(gst_toyunda_sink_unlink));
-  gst_pad_set_bufferalloc_function(toyunda->sinkpad,
-	    GST_DEBUG_FUNCPTR(gst_toyunda_sink_bufferalloc));
-  gst_pad_set_chain_function (toyunda->sinkpad,
-            GST_DEBUG_FUNCPTR(gst_toyunda_sink_chain));
-  gst_pad_set_event_function (toyunda->sinkpad,
-            GST_DEBUG_FUNCPTR(gst_toyunda_sink_event));
-  gst_pad_set_query_function (toyunda->sinkpad,
-            GST_DEBUG_FUNCPTR(gst_toyunda_sink_query));
-  gst_element_add_pad (GST_ELEMENT(toyunda), toyunda->sinkpad);
+	toyunda->sinkpad = gst_pad_new_from_static_template (&gst_toyunda_sink_template
+	,     
+		"sink");
 
-
-
-  toyunda->srcpad = gst_pad_new_from_static_template (&gst_toyunda_src_template
-      ,     
-            "src");
-  gst_pad_set_getcaps_function (toyunda->srcpad,
-            GST_DEBUG_FUNCPTR(gst_toyunda_src_getcaps));
-  gst_pad_set_setcaps_function (toyunda->srcpad,
-            GST_DEBUG_FUNCPTR(gst_toyunda_src_setcaps));
-   gst_pad_set_link_function (toyunda->srcpad,
-            GST_DEBUG_FUNCPTR(gst_toyunda_src_link));
-  gst_pad_set_unlink_function (toyunda->srcpad,
-            GST_DEBUG_FUNCPTR(gst_toyunda_src_unlink));
-  gst_pad_set_event_function (toyunda->srcpad,
-            GST_DEBUG_FUNCPTR(gst_toyunda_src_event));
-  gst_pad_set_query_function (toyunda->srcpad,
-		GST_DEBUG_FUNCPTR(gst_toyunda_src_query));
-  gst_element_add_pad (GST_ELEMENT(toyunda), toyunda->srcpad);
-
-	gst_toyunda_field_init(toyunda);
-  toyunda->pango_context = pango_font_map_create_context(pango_cairo_font_map_get_default());
-  toyunda->pango_layout = pango_layout_new(toyunda->pango_context);
-  toyunda->pango_fontdesc = pango_font_description_from_string(toyunda->font_desc);
-  pango_font_description_set_size(toyunda->pango_fontdesc, INT_TOYUNDA_FONT_SIZE * PANGO_SCALE);
-  pango_layout_set_font_description(toyunda->pango_layout, toyunda->pango_fontdesc);
+	toyunda->srcpad = gst_pad_new_from_static_template (&gst_toyunda_src_template
+	,     
+		"src");
+		gst_toyunda_field_init(toyunda);
+	toyunda->pango_context = pango_font_map_create_context(pango_cairo_font_map_get_default());
+	toyunda->pango_layout = pango_layout_new(toyunda->pango_context);
+	toyunda->pango_fontdesc = pango_font_description_from_string(toyunda->font_desc);
+	pango_font_description_set_size(toyunda->pango_fontdesc, INT_TOYUNDA_FONT_SIZE * PANGO_SCALE);
+	pango_layout_set_font_description(toyunda->pango_layout, toyunda->pango_fontdesc);
 }
-
-
-
 
 void
 gst_toyunda_set_property (GObject * object, guint property_id,
     const GValue * value, GParamSpec * pspec)
 {
-  GstToyunda *toyunda = GST_TOYUNDA (object);
+	GstToyunda *toyunda = GST_TOYUNDA (object);
 
-  switch (property_id) {
-	  case PROP_SUBFILE:
-		  if (toyunda->subfile != NULL)
-			g_free(toyunda->subfile);
-		  toyunda->subfile = g_value_dup_string(value);
-		  toyunda->subfile_parsed = FALSE;
-		  if (toyunda->base_toyunda.current_state != GST_STATE_NULL)
-			  gst_toyunda_parse_toyunda_subtitle(toyunda);
-		  break;
-	  case PROP_TOYUNDA_LOGO:
-		if (toyunda->toyunda_logo != NULL)
-			g_free(toyunda->toyunda_logo);
-		toyunda->toyunda_logo = g_value_dup_string(value);
+	switch (property_id) {
+		case PROP_SUBFILE:
+			if (toyunda->subfile != NULL)
+				g_free(toyunda->subfile);
+			toyunda->subfile = g_value_dup_string(value);
+			toyunda->subfile_parsed = FALSE;
+			break;
+		case PROP_TOYUNDA_LOGO:
+			if (toyunda->toyunda_logo != NULL)
+				g_free(toyunda->toyunda_logo);
+			toyunda->toyunda_logo = g_value_dup_string(value);
+		break;
+	default:
+	G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
 	break;
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-      break;
-  }
+	}
 }
 
 void
 gst_toyunda_get_property (GObject * object, guint property_id,
     GValue * value, GParamSpec * pspec)
 {
-  GstToyunda *toyunda = GST_TOYUNDA (object);
+	GstToyunda *toyunda = GST_TOYUNDA (object);
 
-  switch (property_id) {
-	case PROP_SUBFILE:
-		g_value_set_string(value, toyunda->subfile);
-	case PROP_TOYUNDA_LOGO:
-		g_value_set_string(value, toyunda->subfile);
+	switch (property_id) {
+		case PROP_SUBFILE:
+			g_value_set_string(value, toyunda->subfile);
+		case PROP_TOYUNDA_LOGO:
+			g_value_set_string(value, toyunda->subfile);
+		break;
+	default:
+	G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
 	break;
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-      break;
-  }
+	}
 }
 
 void
@@ -325,162 +306,127 @@ gst_toyunda_finalize (GObject * object)
 }
 
 
-static GstStateChangeReturn
-gst_toyunda_change_state (GstElement * element, GstStateChange transition)
+static GstCaps *
+gst_toyunda_transform_caps (GstBaseTransform * trans,
+    GstPadDirection direction, GstCaps * caps)
 {
-  GstToyunda *toyunda;
-  GstStateChangeReturn ret;
+	GstCaps *ret;
+	GstStructure *structure;
 
-  g_printf("TOYUNDA : Change state\n");
-  g_return_val_if_fail (GST_IS_TOYUNDA (element), GST_STATE_CHANGE_FAILURE);
-  toyunda = GST_TOYUNDA (element);
+	/* this function is always called with a simple caps */
+	g_return_val_if_fail (GST_CAPS_IS_SIMPLE (caps), NULL);
 
-  switch (transition) {
-    case GST_STATE_CHANGE_NULL_TO_READY:
-	    if (toyunda->subfile_parsed == FALSE && toyunda->subfile != NULL)
-		    gst_toyunda_parse_toyunda_subtitle(toyunda);
-      break;
-    case GST_STATE_CHANGE_READY_TO_PAUSED:
-      break;
-    case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
-      break;
-    default:
-      break;
-  }
+	GST_DEBUG_OBJECT (trans,
+	"Transforming caps %" GST_PTR_FORMAT " in direction %s", caps,
+	(direction == GST_PAD_SINK) ? "sink" : "src");
 
-  ret = GST_ELEMENT_CLASS (parent_class)->change_state (element, transition);
+	ret = gst_caps_copy (caps);
+	structure = gst_structure_copy (gst_caps_get_structure (ret, 0));
 
-  switch (transition) {
-    case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
-      break;
-    case GST_STATE_CHANGE_PAUSED_TO_READY:
-      break;
-    case GST_STATE_CHANGE_READY_TO_NULL:
-      break;
-    default:
-      break;
-  }
+	gst_structure_set (structure,
+	"width", GST_TYPE_INT_RANGE, 1, G_MAXINT,
+	"height", GST_TYPE_INT_RANGE, 1, G_MAXINT, NULL);
 
-  return ret;
+	/* if pixel aspect ratio, make a range of it */
+	if (gst_structure_has_field (structure, "pixel-aspect-ratio")) {
+	gst_structure_set (structure, "pixel-aspect-ratio", GST_TYPE_FRACTION_RANGE,
+		1, G_MAXINT, G_MAXINT, 1, NULL);
+	}
+	gst_caps_append_structure (ret, structure);
+
+	GST_DEBUG_OBJECT (trans, "returning caps: %" GST_PTR_FORMAT, ret);
+
+	return ret;
+
 }
 
-
-static gboolean
-gst_toyunda_send_event (GstElement * element, GstEvent * event)
+static void
+gst_toyunda_fixate_caps (GstBaseTransform * trans,
+    GstPadDirection direction, GstCaps * caps, GstCaps * othercaps)
 {
 
-  return TRUE;
 }
 
 static gboolean
-gst_toyunda_query (GstElement * element, GstQuery * query)
+gst_toyunda_transform_size (GstBaseTransform * trans,
+    GstPadDirection direction,
+    GstCaps * caps, guint size, GstCaps * othercaps, guint * othersize)
 {
 
   return FALSE;
 }
 
-static GstCaps*
-gst_toyunda_sink_getcaps (GstPad *pad)
+static gboolean
+gst_toyunda_get_unit_size (GstBaseTransform * trans, GstCaps * caps,
+    guint * size)
 {
-  GstToyunda *toyunda;
-  GstCaps *caps;
 
-  toyunda = GST_TOYUNDA (gst_pad_get_parent (pad));
-
-  GST_DEBUG_OBJECT(toyunda, "getcaps");
-
-  caps = gst_caps_copy (gst_pad_get_pad_template_caps (pad));
-
-  gst_object_unref (toyunda);
-  return caps;
+  return FALSE;
 }
 
 static gboolean
-gst_toyunda_sink_setcaps (GstPad *pad, GstCaps *caps)
+gst_toyunda_set_caps (GstBaseTransform * trans, GstCaps * incaps,
+    GstCaps * outcaps)
 {
-  GstToyunda *toyunda;
-  GstStructure *structure;
-  gboolean ret = FALSE;
-  const GValue *fps;
-
-  toyunda = GST_TOYUNDA (gst_pad_get_parent (pad));
-  
-
-  GST_DEBUG_OBJECT(toyunda, "setcaps");
-
-  if (!GST_PAD_IS_SINK (pad))
-    return TRUE;
-
-  g_return_val_if_fail (gst_caps_is_fixed (caps), FALSE);
-
-  if (G_UNLIKELY (!toyunda))
-    return FALSE;
-
-  toyunda->video_width = 0;
-  toyunda->video_height = 0;
-  structure = gst_caps_get_structure (caps, 0);
-  fps = gst_structure_get_value (structure, "framerate");
-
-  if (fps
-      && gst_video_format_parse_caps (caps, &toyunda->format, &toyunda->video_width,
-          &toyunda->video_height)) {
-    ret = gst_pad_set_caps (toyunda->srcpad, caps);
-  }
-  if (ret == TRUE)
-  {
-	structure = gst_caps_get_structure (caps, 0);
-	if (gst_structure_has_name (structure, "video/x-surface"))
-		toyunda->hardware_surface = TRUE;
-	else
-		toyunda->hardware_surface = FALSE;
-  }
-  
-  toyunda->fps_n = gst_value_get_fraction_numerator (fps);
-  toyunda->fps_d = gst_value_get_fraction_denominator (fps);
-  g_printf("video format : %s\n", gst_structure_to_string(structure));
-  g_printf("fps d,n : %f , %f\n", toyunda->fps_d, toyunda->fps_n);
-  g_printf("height : %d, width : %d\n", toyunda->video_height, toyunda->video_width);
-  
-  gst_toyunda_adjust_default_font_size(toyunda);
-  gst_toyunda_reset_subtitle_buffer_statut(toyunda);
-  
-  GST_DEBUG_OBJECT(toyunda, "setcaps");
-
-
-  gst_object_unref (toyunda);
-  return TRUE;
+	GstToyunda*	toyunda = GST_TOYUNDA(trans);
+	GstStructure *structure;
+	gboolean ret = FALSE;
+	const GValue *fps;
+	toyunda->video_width = 0;
+	toyunda->video_height = 0;
+	structure = gst_caps_get_structure (incaps, 0);
+	fps = gst_structure_get_value (structure, "framerate");
+	if (fps
+	&& gst_video_format_parse_caps (incaps, &toyunda->format, &toyunda->video_width,
+		&toyunda->video_height))
+	{
+		structure = gst_caps_get_structure (incaps, 0);
+		if (gst_structure_has_name (structure, "video/x-surface"))
+			toyunda->hardware_surface = TRUE;
+		else
+			toyunda->hardware_surface = FALSE;
+	}
+	
+	toyunda->fps_n = gst_value_get_fraction_numerator (fps);
+	toyunda->fps_d = gst_value_get_fraction_denominator (fps);
+	g_printf("video format : %s\n", gst_structure_to_string(structure));
+	g_printf("fps d,n : %f , %f\n", toyunda->fps_d, toyunda->fps_n);
+	g_printf("height : %d, width : %d\n", toyunda->video_height, toyunda->video_width);
+	
+	gst_toyunda_adjust_default_font_size(toyunda);
+	gst_toyunda_reset_subtitle_buffer_statut(toyunda);
+			
+	return TRUE;
 }
 
-
-
-static GstPadLinkReturn
-gst_toyunda_sink_link (GstPad *pad, GstPad *peer)
+static gboolean
+gst_toyunda_start (GstBaseTransform * trans)
 {
-  GstToyunda *toyunda;
-
-  toyunda = GST_TOYUNDA (gst_pad_get_parent (pad));
-
-  GST_DEBUG_OBJECT(toyunda, "link");
-
-
-  gst_object_unref (toyunda);
-  return GST_PAD_LINK_OK;
+	GstToyunda* toyunda = GST_TOYUNDA(trans);
+	if (toyunda->subfile_parsed == FALSE)
+		gst_toyunda_parse_toyunda_subtitle(toyunda);
+	return TRUE;
 }
 
-static void
-gst_toyunda_sink_unlink (GstPad *pad)
+static gboolean
+gst_toyunda_stop (GstBaseTransform * trans)
 {
-  GstToyunda *toyunda;
-
-  toyunda = GST_TOYUNDA (gst_pad_get_parent (pad));
-
-  GST_DEBUG_OBJECT(toyunda, "unlink");
-
-
-  gst_object_unref (toyunda);
+	return TRUE;
 }
 
+static gboolean
+gst_toyunda_event (GstBaseTransform * trans, GstEvent * event)
+{
+	return TRUE;
+}
 
+static GstFlowReturn
+gst_toyunda_transform (GstBaseTransform * trans, GstBuffer * inbuf,
+    GstBuffer * outbuf)
+{
+
+  return GST_FLOW_ERROR;
+}
 
 void gst_toyunda_draw_grid(GstToyunda* toyunda, GstBuffer* video_frame)
 {
@@ -827,229 +773,51 @@ gst_toyunda_unpremultiply (GstBuffer* buffer, uint width, uint height)
 }
 
 static GstFlowReturn
-gst_toyunda_sink_chain (GstPad *pad, GstBuffer *buffer)
+gst_toyunda_transform_ip (GstBaseTransform * trans, GstBuffer * buf)
 {
-  GstToyunda *toyunda;
-  GstFlowReturn ret;
-  gboolean in_seg = FALSE;
-  float framerate;
-  int framenb;
-  gint64 start, stop, clip_start = 0, clip_stop = 0;
-  
-  toyunda = GST_TOYUNDA (gst_pad_get_parent (pad));
-  start = GST_BUFFER_TIMESTAMP (buffer);
-  framerate = toyunda->fps_n / toyunda->fps_d;
-  framenb = ((start / 1000000) * framerate + 100 )/ 1000;
-  g_printf("Timestamp : %u ---- frame :", start);
-  g_printf("%d\n", framenb);
-  
-  gst_toyunda_select_subtitle(toyunda, framenb);
-  //gst_toyunda_draw_grid(toyunda, buffer);
-  if (toyunda->subtitle_changed == TRUE)
-	gst_toyunda_create_subtitle_buffers(toyunda);
-  toyunda->subtitle_changed = FALSE;
-  gst_toyunda_blend_subtitles(toyunda, buffer);
+	GstToyunda *toyunda;
+	GstFlowReturn ret;
+	gboolean in_seg = FALSE;
+	float framerate;
+	int framenb;
+	gint64 start, stop, clip_start = 0, clip_stop = 0;
 	
-  GST_DEBUG_OBJECT(toyunda, "chain");
-
-
-  ret = gst_pad_push(toyunda->srcpad, buffer);
-  gst_object_unref (toyunda);
-  return ret;
-}
-
-static gboolean
-gst_toyunda_sink_event (GstPad *pad, GstEvent *event)
-{
-  gboolean res;
-  GstToyunda *toyunda;
-
-  toyunda = GST_TOYUNDA (gst_pad_get_parent (pad));
-
-  GST_DEBUG_OBJECT(toyunda, "event");
-
-
-  switch (GST_EVENT_TYPE (event)) {
-    default:
-      res = gst_pad_event_default (pad, event);
-      break;
-  }
-
-  gst_object_unref (toyunda);
-  return res;
-}
-
-static gboolean
-gst_toyunda_sink_query (GstPad *pad, GstQuery *query)
-{
-  gboolean res;
-  GstToyunda *toyunda;
-
-  toyunda = GST_TOYUNDA (gst_pad_get_parent (pad));
-
-  GST_DEBUG_OBJECT(toyunda, "query");
-
-  switch (GST_QUERY_TYPE(query)) {
-    default:
-      res = gst_pad_query_default (pad, query);
-      break;
-  }
-
-  gst_object_unref (toyunda);
-  return res;
+	toyunda = GST_TOYUNDA (trans);
+	start = GST_BUFFER_TIMESTAMP (buf);
+	framerate = toyunda->fps_n / toyunda->fps_d;
+	framenb = ((start / 1000000) * framerate + 100 )/ 1000;
+	g_printf("Timestamp : %u ---- frame :", start);
+	g_printf("%d\n", framenb);
+	
+	gst_toyunda_select_subtitle(toyunda, framenb);
+	//gst_toyunda_draw_grid(toyunda, buffer);
+	if (toyunda->subtitle_changed == TRUE)
+		gst_toyunda_create_subtitle_buffers(toyunda);
+	toyunda->subtitle_changed = FALSE;
+	gst_toyunda_blend_subtitles(toyunda, buf);
+	return GST_FLOW_OK;
 }
 
 static GstFlowReturn
-gst_toyunda_sink_bufferalloc (GstPad *pad, guint64 offset, guint size,
-    GstCaps *caps, GstBuffer **buf)
+gst_toyunda_prepare_output_buffer (GstBaseTransform * trans,
+    GstBuffer * input, gint size, GstCaps * caps, GstBuffer ** buf)
 {
-  GstToyunda *toyunda;
-  GstFlowReturn ret = GST_FLOW_WRONG_STATE;
-  GstPad *allocpad;
 
-  toyunda = GST_TOYUNDA (gst_pad_get_parent (pad));
-
-  GST_DEBUG_OBJECT(toyunda, "bufferalloc");
-
-
-  if (G_UNLIKELY (!toyunda))
-    return GST_FLOW_WRONG_STATE;
-
-  allocpad = toyunda->srcpad ? gst_object_ref (toyunda->srcpad) : NULL;
-
-  if (allocpad) {
-    ret = gst_pad_alloc_buffer (allocpad, offset, size, caps, buf);
-    gst_object_unref (allocpad);
-  }
-
-  gst_object_unref (toyunda);
-  return ret;
-}
-
-
-static GstCaps*
-gst_toyunda_src_getcaps (GstPad *pad)
-{
-  GstToyunda *toyunda;
-  GstCaps *caps;
-
-  toyunda = GST_TOYUNDA (gst_pad_get_parent (pad));
-
-  GST_DEBUG_OBJECT(toyunda, "getcaps");
-
-  caps = gst_pad_peer_get_caps (toyunda->sinkpad);
-  if (caps) {
-    GstCaps *temp;
-    const GstCaps *templ;
-
-    //GST_DEBUG_OBJECT (pad, "peer caps  %" GST_PTR_FORMAT, caps);
-
-    /* filtered against our padtemplate */
-    templ = gst_pad_get_pad_template_caps (toyunda->sinkpad);
-    //GST_DEBUG_OBJECT (pad, "our template  %" GST_PTR_FORMAT, templ);
-    temp = gst_caps_intersect (caps, templ);
-    //GST_DEBUG_OBJECT (pad, "intersected %" GST_PTR_FORMAT, temp);
-    gst_caps_unref (caps);
-    /* this is what we can do */
-    caps = temp;
-  } else {
-    /* no peer, our padtemplate is enough then */
-    caps = gst_caps_copy (gst_pad_get_pad_template_caps (pad));
-  }
-  
-  gst_object_unref (toyunda);
-  return caps;
+  return GST_FLOW_ERROR;
 }
 
 static gboolean
-gst_toyunda_src_setcaps (GstPad *pad, GstCaps *caps)
+gst_toyunda_src_event (GstBaseTransform * trans, GstEvent * event)
 {
-  GstToyunda *toyunda;
 
-  toyunda = GST_TOYUNDA (gst_pad_get_parent (pad));
-
-  GST_DEBUG_OBJECT(toyunda, "setcaps");
-
-  gst_object_unref (toyunda);
-  return TRUE;
-}
-
-
-static GstPadLinkReturn
-gst_toyunda_src_link (GstPad *pad, GstPad *peer)
-{
-  GstToyunda *toyunda;
-
-  toyunda = GST_TOYUNDA (gst_pad_get_parent (pad));
-
-  GST_DEBUG_OBJECT(toyunda, "link");
-
-
-  gst_object_unref (toyunda);
-  return GST_PAD_LINK_OK;
+  return FALSE;
 }
 
 static void
-gst_toyunda_src_unlink (GstPad *pad)
+gst_toyunda_before_transform (GstBaseTransform * trans, GstBuffer * buffer)
 {
-  GstToyunda *toyunda;
 
-  toyunda = GST_TOYUNDA (gst_pad_get_parent (pad));
-
-  GST_DEBUG_OBJECT(toyunda, "unlink");
-
-
-  gst_object_unref (toyunda);
 }
-
-
-
-static gboolean
-gst_toyunda_src_event (GstPad *pad, GstEvent *event)
-{
-  gboolean res;
-  GstToyunda *toyunda;
-
-  toyunda = GST_TOYUNDA (gst_pad_get_parent (pad));
-
-  GST_DEBUG_OBJECT(toyunda, "event");
-
-  switch (GST_EVENT_TYPE (event)) {
-    default:
-      res = gst_pad_push_event(toyunda->sinkpad, event);
-      break;
-  }
-
-  gst_object_unref (toyunda);
-  return res;
-}
-
-static gboolean
-gst_toyunda_src_query (GstPad *pad, GstQuery *query)
-{
-  gboolean res;
-  GstToyunda *toyunda;
-
-  toyunda = GST_TOYUNDA (gst_pad_get_parent (pad));
-
-  GST_DEBUG_OBJECT(toyunda, "query");
-
-  switch (GST_QUERY_TYPE(query)) {
-    default:
-      res = gst_pad_query_default (pad, query);
-      break;
-  }
-
-  gst_object_unref (toyunda);
-  return res;
-}
-
-
-static void	gst_toyunda_cleanup_subtitles_seq(GSequence *seq)
-{
-	/* TODO */
-}
-
 
 static gboolean
 plugin_init (GstPlugin * plugin)
@@ -1063,10 +831,10 @@ plugin_init (GstPlugin * plugin)
 #define VERSION "0.0.FIXME"
 #endif
 #ifndef PACKAGE
-#define PACKAGE "toyunda"
+#define PACKAGE "FIXME_package"
 #endif
 #ifndef PACKAGE_NAME
-#define PACKAGE_NAME "toyunda"
+#define PACKAGE_NAME "FIXME_package_name"
 #endif
 #ifndef GST_PACKAGE_ORIGIN
 #define GST_PACKAGE_ORIGIN "http://FIXME.org/"

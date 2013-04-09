@@ -247,3 +247,9 @@ static	gchar*	gst_toyunda_get_image_path(GstToyunda* toyunda, gchar* image)
 		return toyunda->toyunda_logo;
 	return toret;
 }
+
+
+static void	gst_toyunda_cleanup_subtitles_seq(GSequence *seq)
+{
+	/* TODO */
+}

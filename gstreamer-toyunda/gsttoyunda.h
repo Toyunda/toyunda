@@ -1,5 +1,5 @@
-/* GStreamer Toyunda
- * Copyright (C) 2013 Sylvain Colinet <scolinet@gmail.com>
+/* GStreamer
+ * Copyright (C) 2013 FIXME <fixme@example.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -20,11 +20,13 @@
 #ifndef _GST_TOYUNDA_H_
 #define _GST_TOYUNDA_H_
 
+#include <gst/base/gstbasetransform.h>
 #include <gst/gst.h>
 #include <gst/video/video.h>
 #include "toyundatype.h"
 #include <gst/video/video-overlay-composition.h>
 #include <pango/pangocairo.h>
+
 
 G_BEGIN_DECLS
 
@@ -36,6 +38,7 @@ G_BEGIN_DECLS
 
 typedef struct _GstToyunda GstToyunda;
 typedef struct _GstToyundaClass GstToyundaClass;
+
 
 typedef struct _toyunda_sub_and_buff 	toyunda_sub_and_buff_t;
 typedef struct _toyunda_image		toyunda_image_t;
@@ -55,45 +58,44 @@ struct	_toyunda_image
 	guint		height;
 };
 
+
 struct _GstToyunda
 {
-  GstElement base_toyunda;
+	GstBaseTransform base_toyunda;
 
-  GstPad *sinkpad;
-  GstPad *srcpad;
-  
-  gfloat	fps_d;
-  gfloat	fps_n;
-  
-  guint		video_width;
-  guint		video_height;
-  guint		window_width;
-  guint		window_height;
-  GstVideoFormat	format;
-  
-  PangoContext*		pango_context;
-  PangoLayout*		pango_layout;
-  PangoFontDescription*	pango_fontdesc;
-  
-  GSequence*	subtitles;
-  GSequence*	current_subtitles;
-  GSequence*	images;
-  
-  GSequenceIter* current_sub_it;
-  
-  gchar*	subfile;
-  gchar*	font_desc;
-  gchar*	toyunda_logo;
-  
-  gboolean	subfile_parsed;
-  gboolean	subtitle_changed;
-  gboolean	hardware_surface;
-  
+	GstPad *sinkpad;
+	GstPad *srcpad;
+	gfloat	fps_d;
+	gfloat	fps_n;
+	
+	guint		video_width;
+	guint		video_height;
+	guint		window_width;
+	guint		window_height;
+	GstVideoFormat	format;
+	
+	PangoContext*		pango_context;
+	PangoLayout*		pango_layout;
+	PangoFontDescription*	pango_fontdesc;
+	
+	GSequence*	subtitles;
+	GSequence*	current_subtitles;
+	GSequence*	images;
+	
+	GSequenceIter* current_sub_it;
+	
+	gchar*	subfile;
+	gchar*	font_desc;
+	gchar*	toyunda_logo;
+	
+	gboolean	subfile_parsed;
+	gboolean	subtitle_changed;
+	gboolean	hardware_surface;
 };
 
 struct _GstToyundaClass
 {
-  GstElementClass base_toyunda_class;
+  GstBaseTransformClass base_toyunda_class;
 };
 
 GType gst_toyunda_get_type (void);
