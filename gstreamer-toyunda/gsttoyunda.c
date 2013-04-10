@@ -106,7 +106,7 @@ gst_toyunda_before_transform (GstBaseTransform * trans, GstBuffer * buffer);*/
 /* Render function */
 static	void	gst_toyunda_draw_grid(GstToyunda *toyunda, GstBuffer *video_frame);
 static	void	gst_toyunda_blend_subtitles(GstToyunda *toyunda, GstBuffer *video_frame);
-static inline void gst_toyunda_unpremultiply (GstBuffer* buffer, uint width, uint height);
+static inline void gst_toyunda_unpremultiply (GstBuffer* buffer, guint width, guint height);
 
 
 
@@ -649,7 +649,7 @@ void gst_toyunda_create_subtitle_buffers(GstToyunda* toyunda)
 				/*Can't create overlayrect with negative position*/
 				if (pos_x >= 0 && pos_y >= 0)
 				{
-					g_printf("text : %s -- Pos x : %d -- log.rec : %d -- ink.rec: %d\n", tmptext, pos_x, logical_rect.width, ink_rect.width);
+					//g_printf("text : %s -- Pos x : %d -- log.rec : %d -- ink.rec: %d\n", tmptext, pos_x, logical_rect.width, ink_rect.width);
 					sub_buff->overlay_rect = gst_video_overlay_rectangle_new_argb(buffer, logical_rect.width,
 					logical_rect.height, logical_rect.width * 4, pos_x, pos_y, logical_rect.width, logical_rect.height,
 					GST_VIDEO_OVERLAY_FORMAT_FLAG_NONE);
@@ -685,7 +685,7 @@ void gst_toyunda_create_subtitle_buffers(GstToyunda* toyunda)
 					if ((int)pos_x > new_rect.width / 2)
 						pos_x -= new_rect.width / 2;
 				}
-				g_printf("POSITION X SYL : %d\n", pos_x);
+				//g_printf("POSITION X SYL : %d\n", pos_x);
 				buffer = gst_toyunda_get_image_data(toyunda, gst_toyunda_get_image_path(toyunda, sub->image), &width, &height);
 				if (buffer != NULL)
 				{
@@ -760,7 +760,7 @@ void gst_toyunda_blend_subtitles(GstToyunda* toyunda, GstBuffer* video_frame)
 } G_STMT_END
 
 static inline void
-gst_toyunda_unpremultiply (GstBuffer* buffer, uint width, uint height)
+gst_toyunda_unpremultiply (GstBuffer* buffer, guint width, guint height)
 {
   guint i, j;
   guint8 *pimage, *text_image = GST_BUFFER_DATA (buffer);
@@ -790,8 +790,8 @@ gst_toyunda_transform_ip (GstBaseTransform * trans, GstBuffer * buf)
 	start = GST_BUFFER_TIMESTAMP (buf);
 	framerate = toyunda->fps_n / toyunda->fps_d;
 	framenb = ((start / 1000000) * framerate + 100 )/ 1000;
-	g_printf("Timestamp : %u ---- frame :", start);
-	g_printf("%d\n", framenb);
+	//g_printf("Timestamp : %u ---- frame :", start);
+	//g_printf("%d\n", framenb);
 	
 	gst_toyunda_select_subtitle(toyunda, framenb);
 	//gst_toyunda_draw_grid(toyunda, buffer);

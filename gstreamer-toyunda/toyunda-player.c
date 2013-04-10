@@ -81,7 +81,7 @@ xoverlay_cb (GstBus * bus, GstMessage * message, GstPipeline * pipeline)
 	} else {
 		g_warning ("Should have obtained video_window_xid by now!");
 	}
-	//g_object_set (G_OBJECT (GST_MESSAGE_SRC(message)), "force-aspect-ratio", TRUE, NULL);
+	g_object_set (G_OBJECT (GST_MESSAGE_SRC(message)), "force-aspect-ratio", TRUE, NULL);
 	gst_message_unref (message);
 	return GST_BUS_DROP;
 }
@@ -97,13 +97,14 @@ static gboolean
 key_press_event_cb(GtkWidget *widget, GdkEventKey *event, gpointer data)	
 {	
 	GstCaps*	new_caps;
+	gboolean is_fullscreen;
 
 	data = data;
 	widget = widget;
 	if (event->keyval == 'f')
 	{	    
 		g_print("Toggling fullscreen\n");		
-		gboolean is_fullscreen = (gdk_window_get_state(GDK_WINDOW(widget->window)) == GDK_WINDOW_STATE_FULLSCREEN);		
+		is_fullscreen = (gdk_window_get_state(GDK_WINDOW(widget->window)) == GDK_WINDOW_STATE_FULLSCREEN);		
 		if (is_fullscreen)
 		{
 			gtk_window_unfullscreen(GTK_WINDOW(widget));
@@ -136,15 +137,16 @@ static gboolean	event_config_cb(GtkWidget* wid, GdkEventConfigure* event, gpoint
 	static gint old_width, old_height = 0;
 	gint	new_height, new_width;
 	GstCaps*	new_caps;
+	GtkAllocation* al;
 
 	wid = wid;
 	data = data;
-	g_printf("____________________Size changed : %dx%d\n", event->width, event->height);
+	//g_printf("____________________Size changed : %dx%d\n", event->width, event->height);
 	if (event->height != old_height || event->width != old_width)
 	{
-		g_printf("=================Size changed : %dx%d\n", event->width, event->height);
+		//g_printf("=================Size changed : %dx%d\n", event->width, event->height);
 		calc_scaled_size(event->width, event->height, &new_width, &new_height);
-		
+		//g_printf("=================Scaled new size : %dx%d\n", new_width, new_height);
 		new_caps = gst_caps_new_simple	("video/x-raw-yuv",
 					"width", G_TYPE_INT, new_width,
 					"height", G_TYPE_INT, new_height,
@@ -153,7 +155,6 @@ static gboolean	event_config_cb(GtkWidget* wid, GdkEventConfigure* event, gpoint
 		gst_caps_unref(new_caps);
 		old_height = event->height;
 		old_width = event->width;
-		GtkAllocation* al;
 		al = g_new(GtkAllocation, 1);
 		al->x = 0;
 		al->y = 0;
@@ -161,14 +162,25 @@ static gboolean	event_config_cb(GtkWidget* wid, GdkEventConfigure* event, gpoint
 		al->height = event->height;
 		gtk_widget_size_allocate(video_window, al);
 		gtk_container_resize_children(GTK_CONTAINER(main_window));
+		g_free(al);
 	}
 	return TRUE;
 }
 
 static void	create_ui()
 {
+	GdkPixbuf *pixbuf;
+	GError *error = NULL;
+	pixbuf = gdk_pixbuf_new_from_file("toyunda.tga", &error);
+
 	main_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	video_window = gtk_drawing_area_new();
+	if(!pixbuf) {
+		fprintf(stderr, "%s\n", error->message);
+		g_error_free(error);
+	}
+	else
+		gtk_window_set_icon(GTK_WINDOW(main_window), pixbuf);
 	gtk_window_set_default_size(GTK_WINDOW(main_window), 800, 600);
 	gtk_window_set_resizable(GTK_WINDOW(main_window), FALSE);
 	gtk_widget_set_size_request(video_window, 800, 600);
@@ -268,7 +280,7 @@ void	on_autoplug_continue(GstElement* object,
 	{
 		g_printf("Width : %d, Height : %d\n", original_width, original_height);
 		calc_scaled_size(800, 600, &scaled_width, &scaled_height);
-		g_printf("Width : %d, Height : %d\n",scaled_width, scaled_height);
+		//g_printf("Width : %d, Height : %d\n",scaled_width, scaled_height);
 		new_caps = gst_caps_new_simple	("video/x-raw-yuv",
 					"width", G_TYPE_INT, scaled_width,
 					"height", G_TYPE_INT, scaled_height,
@@ -378,6 +390,7 @@ void	gst_start(char *video, char * sub)
 {
 	GstStateChange	ret;
 	char*		tmpstr;
+	GFile		*fi;
 
 	g_object_set(G_OBJECT(filesrc), "location", video, NULL);
 	g_object_set(G_OBJECT(toyunda), "subfile", sub, NULL);
@@ -401,7 +414,7 @@ void	gst_start(char *video, char * sub)
 		}
 		dispose_and_exit();
 	}
-	GFile	*fi = g_file_parse_name(sub);
+	fi = g_file_parse_name(sub);
 
 	tmpstr = g_new(char, strlen("GSToyunda Player") + strlen(g_file_get_basename(fi)) + 5);
 	strcpy(tmpstr, "GSToyunda Player : ");
@@ -412,10 +425,11 @@ void	gst_start(char *video, char * sub)
 
 int	main(int ac, char *ag[])
 {
+	//putenv("GST_PLUGIN_PATH=C:\\toyunda\\build\\");
 
-	
 	gtk_init(&ac, &ag);
 	gst_init(&ac, &ag);
+	
 	
 	create_ui();
 	gstreamer_create_pipeline();

@@ -93,8 +93,8 @@ static void	gst_toyunda_select_subtitle(GstToyunda *toyunda, int framenb)
 		sub = (toyunda_sub_t*) g_sequence_get(it);
 		if (sub->start == framenb)
 		{
-			g_printf("ADD SUBTITLE : ");
-			print_toyunda_sub_t(*sub);
+			/*g_printf("ADD SUBTITLE : ");
+			print_toyunda_sub_t(*sub);*/
 			sub_buff = g_new(toyunda_sub_and_buff_t, 1);
 			sub_buff->subtitle = sub;
 			sub_buff->overlay_rect = NULL;
@@ -119,8 +119,8 @@ static void	gst_toyunda_select_subtitle(GstToyunda *toyunda, int framenb)
 		sub = sub_buff->subtitle;
 		if ((sub->stop <= framenb))
 		{
-			g_printf("REMOVE SUBTITLE : ");
-			print_toyunda_sub_t(*sub);
+			/*g_printf("REMOVE SUBTITLE : ");
+			print_toyunda_sub_t(*sub);*/
 			g_sequence_remove(it);
 			if (sub_buff->overlay_rect != NULL)
 				gst_video_overlay_rectangle_unref(sub_buff->overlay_rect);

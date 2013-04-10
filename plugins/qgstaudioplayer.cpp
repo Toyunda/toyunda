@@ -118,9 +118,6 @@ bool	QGstAudioPlayer::init(const QStringList opt)
 	handleOption(opt);
 	connect(m_timer, SIGNAL(timeout()), this, SLOT(checkFrame()));
 #ifdef Q_WS_WIN
-        QString tmpstr("GST_PLUGIN_PATH=" + qApp->applicationDirPath().toLatin1() + "/gst-plugins/");
-        qDebug() << "Plugin path is : " << tmpstr;
-        putenv(tmpstr.toLatin1().constData());
         putenv("GST_DEBUG=*:2");
 #endif
         try {
