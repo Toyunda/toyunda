@@ -397,9 +397,7 @@ gst_toyunda_set_caps (GstBaseTransform * trans, GstCaps * incaps,
 	gst_toyunda_adjust_default_font_size(toyunda);
 	toyunda->subtitle_changed = TRUE;
 	gst_toyunda_reset_subtitle_buffer_statut(toyunda);
-	
-	GST_DEBUG_OBJECT (trans, "SET CAPS - INCAPS: %" GST_PTR_FORMAT, incaps);
-	GST_DEBUG_OBJECT (trans, "SET CAPS - OUTCAPS: %" GST_PTR_FORMAT, incaps);
+
 	return TRUE;
 	
 }
@@ -537,6 +535,7 @@ void gst_toyunda_create_subtitle_buffers(GstToyunda* toyunda)
 				if (sub_buff->overlay_rect != NULL)
 					gst_video_overlay_rectangle_unref(sub_buff->overlay_rect);
 				sub_buff->overlay_rect = NULL;
+				it = g_sequence_iter_next(it);
 				continue;
 			}
 			if (strcmp(sub->image, STR_TOYUNDA_LOGO_NONE) == 0)
@@ -650,7 +649,7 @@ void gst_toyunda_create_subtitle_buffers(GstToyunda* toyunda)
 				/*Can't create overlayrect with negative position*/
 				if (pos_x >= 0 && pos_y >= 0)
 				{
-					//g_printf("text : %s -- Pos x : %d -- log.rec : %d -- ink.rec: %d\n", tmptext, pos_x, logical_rect.width, ink_rect.width);
+					g_printf("text : %s -- Pos x : %d -- log.rec : %d -- ink.rec: %d\n", tmptext, pos_x, logical_rect.width, ink_rect.width);
 					sub_buff->overlay_rect = gst_video_overlay_rectangle_new_argb(buffer, logical_rect.width,
 					logical_rect.height, logical_rect.width * 4, pos_x, pos_y, logical_rect.width, logical_rect.height,
 					GST_VIDEO_OVERLAY_FORMAT_FLAG_NONE);

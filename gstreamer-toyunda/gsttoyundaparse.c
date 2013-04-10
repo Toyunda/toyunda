@@ -197,7 +197,9 @@ pipehandle :
 	new_sub->text[strtmppos] = '\0';
 	/* Position calculation, pipe have incidence*/
 	if (new_sub->positiony == -1)
-		new_sub->positiony =  ((float)1/(float)12) * (pipecpt);
+		new_sub->positiony = ((float)1/(float)12) * (pipecpt);
+	else
+		new_sub->positiony += ((float)1/(float)12) * (pipecpt);
 	print_toyunda_sub_t(*new_sub);
 	g_sequence_append(subtitles, new_sub);
 	/* we got a new line in the line*/
