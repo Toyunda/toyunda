@@ -11,8 +11,12 @@ ELSE(WIN32)
 	pkg_check_modules(GSTREAMER_PKG gstreamer-0.10)
 	pkg_check_modules(GSTREAMER_BASE_PKG gstreamer-base-0.10)
 	pkg_check_modules(GSTREAMER_VIDEO_PKG gstreamer-video-0.10)
+	pkg_check_modules(GSTREAMER_INTERFACE_PKG gstreamer-interfaces-0.10)
 	pkg_check_modules(PANGO_PKG pango)
 	pkg_check_modules(PANGOCAIRO_PKG pangocairo)
+	pkg_check_modules(GTK2_PKG gtk+-2.0)
+	pkg_check_modules(GIO2_PKG gio-2.0)
+	
 
 	IF (GLIB_PKG_FOUND)
 	    message(Found glib-2.0)
@@ -38,6 +42,12 @@ ELSE(WIN32)
 		include_directories(${GSTREAMER_VIDEO_PKG_INCLUDE_DIRS})
 	ENDIF()
 
+	IF (GSTREAMER_INTERFACE_PKG_FOUND)
+	    message(Found gstreamer-interfaces-0.10)
+		link_libraries(${GSTREAMER_INTERFACE_PKG_LDFLAGS})
+		include_directories(${GSTREAMER_INTERFACE_PKG_INCLUDE_DIRS})
+	ENDIF()
+	
 	IF (PANGO_PKG_FOUND)
 	    message(Found pango)
 		link_libraries(${PANGO_PKG_LDFLAGS})
@@ -48,6 +58,17 @@ ELSE(WIN32)
 	    message(Found pangocairo)
 		link_libraries(${PANGOCAIRO_PKG_LDFLAGS})
 		include_directories(${PANGOCAIRO_PKG_INCLUDE_DIRS})
+	ENDIF()
+	
+	IF (GTK2_PKG_FOUND)
+		message(Found GTK2+)
+		link_libraries(${GTK2_PKG_LDFLAGS})
+		include_directories(${GTK2_PKG_INCLUDE_DIRS})
+	ENDIF()
+	IF (GIO2_PKG_FOUND)
+		message(Found GIO2)
+		link_libraries(${GIO2_PKG_LDFLAGS})
+		include_directories(${GIO2_PKG_INCLUDE_DIRS})
 	ENDIF()
 
 ENDIF()
@@ -64,7 +85,8 @@ target_link_libraries(gsttoyunda ${GSTREAMER_PKG_LIBRARIES} ${GSTREAMER_BASE_PKG
 
 
 #target_link_libraries(gstreamer-toyunda ${GLIB_PKG_LIBRARIES})
-target_link_libraries(toyunda-player ${GSTREAMER_PKG_LIBRARIES})
+target_link_libraries(toyunda-player ${GSTREAMER_PKG_LIBRARIES} ${GTK2_PKG_LIBRARIES} ${GSTREAMER_INTERFACE_PKG_LIBRARIES}
+					${GIO2_PKG_LIBRARIES})
 
 #install(TARGETS gstreamer-toyunda RUNTIME DESTINATION bin)
 

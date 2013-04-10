@@ -221,6 +221,7 @@ gst_toyunda_class_init (GstToyundaClass * klass)
 		         g_param_spec_string ("toyunda-logo", "Toyunda logo",
 			  "The default toyunda logo image",
 			  "toyunda.tga", G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+	base_transform_class->passthrough_on_same_caps = TRUE;
 
 }
 
@@ -317,7 +318,7 @@ gst_toyunda_transform_caps (GstBaseTransform * trans,
 	g_return_val_if_fail (GST_CAPS_IS_SIMPLE (caps), NULL);
 
 	GST_DEBUG_OBJECT (trans,
-	"Transforming caps %" GST_PTR_FORMAT " in direction %s", caps,
+	"INCAPS %" GST_PTR_FORMAT " in direction %s", caps,
 	(direction == GST_PAD_SINK) ? "sink" : "src");
 
 	ret = gst_caps_copy (caps);
@@ -332,9 +333,9 @@ gst_toyunda_transform_caps (GstBaseTransform * trans,
 	gst_structure_set (structure, "pixel-aspect-ratio", GST_TYPE_FRACTION_RANGE,
 		1, G_MAXINT, G_MAXINT, 1, NULL);
 	}
-	gst_caps_append_structure (ret, structure);
+	//gst_caps_append_structure (ret, structure);
 
-	GST_DEBUG_OBJECT (trans, "returning caps: %" GST_PTR_FORMAT, ret);
+	GST_DEBUG_OBJECT (trans, "OUTS caps: %" GST_PTR_FORMAT, ret);
 
 	return ret;
 
@@ -394,9 +395,13 @@ gst_toyunda_set_caps (GstBaseTransform * trans, GstCaps * incaps,
 	g_printf("height : %d, width : %d\n", toyunda->video_height, toyunda->video_width);
 	
 	gst_toyunda_adjust_default_font_size(toyunda);
+	toyunda->subtitle_changed = TRUE;
 	gst_toyunda_reset_subtitle_buffer_statut(toyunda);
-			
+	
+	GST_DEBUG_OBJECT (trans, "SET CAPS - INCAPS: %" GST_PTR_FORMAT, incaps);
+	GST_DEBUG_OBJECT (trans, "SET CAPS - OUTCAPS: %" GST_PTR_FORMAT, incaps);
 	return TRUE;
+	
 }
 
 static gboolean

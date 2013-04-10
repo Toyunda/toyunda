@@ -77,8 +77,7 @@ static void	gst_toyunda_select_subtitle(GstToyunda *toyunda, int framenb)
 	toyunda_sub_t*	sub;
 	toyunda_sub_and_buff_t* sub_buff;
 	GSequenceIter* it_next;
-	
-	toyunda->subtitle_changed = FALSE;
+
 	if (toyunda->current_subtitles == NULL)
 		toyunda->current_subtitles = g_sequence_new(NULL);
 	if (toyunda->current_sub_it != NULL)
