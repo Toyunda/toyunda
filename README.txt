@@ -128,7 +128,7 @@ Plateform notes :
 		
 		9/ You should have a working toyunda project
 		
-		You have to run deploy_win32.bat each time you change something in gstreamer-toyundasub
+		You have to run deploy_win32.bat each time you change something in gstreamer-toyunda
 		
 		If you want to create the installer, open the qtoyunda-installer VS solution
 
