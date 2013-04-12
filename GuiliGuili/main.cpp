@@ -18,12 +18,54 @@
 
 #include <QtGui/QApplication>
 #include "GuiliGuili.h"
+#include <QTextStream>
 
+static QTextStream logfile;
+static QTextStream cout(stdout);
+
+void myMessageOutput(QtMsgType type, const char *msg)
+{
+    switch (type)
+    {
+        case QtDebugMsg:
+            logfile << "Debug : " << msg;
+            break;
+        case QtCriticalMsg:
+            logfile << "Critical : " << msg;
+            break;
+        case QtWarningMsg:
+            logfile << "Warning : " << msg;
+            break;
+        case QtFatalMsg:
+            logfile << "Fatal : " << msg;
+            break;
+    }
+    logfile << "\n";
+    logfile.flush();
+    cout << msg << "\n";
+    cout.flush();
+}
 
 
 int main(int argc, char** argv)
 {
     QApplication app(argc, argv);
+
+
+    QFile   mlog(qApp->applicationDirPath().toLocal8Bit() + "/log.txt");
+
+#ifdef Q_WS_WIN32
+        char    *mPath, *mGstRoot;
+        mPath = getenv("PATH");
+        mGstRoot = getenv("GSTREAMER_SDK_ROOT_X86");
+        QString mTmp = QString("PATH=%1;%2\\bin\\;%2\\lib").arg(mPath).arg(mGstRoot);
+        qDebug() << mTmp;
+        putenv(mTmp.toLocal8Bit().data());
+#endif
+
+    logfile.setDevice(&mlog);
+    if (mlog.open(QIODevice::WriteOnly | QIODevice::Text))
+        qInstallMsgHandler(myMessageOutput);
     GuiliGuili foo;
     foo.show();
     return app.exec();

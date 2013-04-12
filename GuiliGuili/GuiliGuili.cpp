@@ -48,14 +48,6 @@ GuiliGuili::GuiliGuili()
 
         // Create qtoyunda
 
-#ifdef Q_WS_WIN32
-        char    *mPath, *mGstRoot;
-        mPath = getenv("PATH");
-        mGstRoot = getenv("GSTREAMER_SDK_ROOT_X86");
-        QString mTmp = QString("PATH=%1;%2\\bin\\;%2\\lib").arg(mPath).arg(mGstRoot);
-        qDebug() << mTmp;
-        putenv(mTmp.toLocal8Bit().data());
-#endif
         QObject::connect(this, SIGNAL(error_and_quit()), this, SLOT(on_error_and_quit()));
         QObject::connect(this, SIGNAL(error_only()), this, SLOT(on_error_only()));
 

@@ -42,6 +42,7 @@ QOSD::QOSD(QWidget *parent) : ToyundaRenderer(), QWidget(parent)
   setAttribute(Qt::WA_NoSystemBackground, true);
   setStyleSheet("background:transparent;");
   setAttribute(Qt::WA_TranslucentBackground, true);
+  setWindowTitle("QToyunda Overlay");
   setIdentifier("qosd");
 }
 
