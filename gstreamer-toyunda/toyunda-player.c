@@ -16,6 +16,11 @@
 #include <gdk/gdkquartz.h>
 #endif
 
+#define	VIDEO_SINK_DEF_WIN32 "directdrawsink"
+#define	AUDIO_SINK_DEF_WIN32 "autoaudiosink"
+#define	VIDEO_SINK_DEF_OTHER "autovideosink"
+#define	AUDIO_SINK_DEF_OTHER "autoaudiosink"
+
 static GstBin*		videobin;
 static GstBin*		audiobin;
 static GstElement*	videosink;
@@ -32,7 +37,23 @@ static gint		original_height = 0;
 static gint		scaled_height = 0;
 static gint		scaled_width = 0;
 
-static gulong video_window_xid = 0;
+
+static	gboolean	fakefullscreen = FALSE;
+static	gboolean	fullscreen = FALSE;
+static	gchar*		video_output = NULL;
+static	gchar*		audio_output = AUDIO_SINK_DEF_OTHER;
+
+static	GOptionEntry	opt_entry[] = 
+{
+	{"fakefullscreen", 'e', 0, G_OPTION_ARG_NONE, &fakefullscreen, "enable fake fullscreen mode (The video output scale himself the video)" , NULL},
+	{"fullscreen", 'f', 0, G_OPTION_ARG_NONE, &fullscreen, "Start the video fullscreen" , NULL},
+	{"videooutput", 'p', 0, G_OPTION_ARG_STRING, &video_output, "Select the video output (aka gstreamer video sink element)" , "the video sink element"},
+	{"audiooutput", 'a', 0, G_OPTION_ARG_STRING, &audio_output, "Select the audio output (aka gstreamer audio sink element)" , "the audio sink element"},
+	{NULL}
+};
+
+static	gulong video_window_xid = 0;
+static	gboolean	fullscreen_request = FALSE;
 
 void	dispose_and_exit();
 static void	realize_cb(GtkWidget*, void*);
@@ -77,6 +98,8 @@ xoverlay_cb (GstBus * bus, GstMessage * message, GstPipeline * pipeline)
 		if (xoverlay == NULL)
 			dispose_and_exit();
 		gst_x_overlay_set_window_handle (xoverlay, video_window_xid);
+		if (fullscreen == TRUE)
+			gtk_window_fullscreen(GTK_WINDOW(main_window));
 		//gst_x_overlay_set_render_rectangle(xoverlay, 0, 0, 800, 600 );
 	} else {
 		g_warning ("Should have obtained video_window_xid by now!");
@@ -108,17 +131,23 @@ key_press_event_cb(GtkWidget *widget, GdkEventKey *event, gpointer data)
 		if (is_fullscreen)
 		{
 			gtk_window_unfullscreen(GTK_WINDOW(widget));
-			new_caps = gst_caps_new_simple	("video/x-raw-yuv",
+			if (fakefullscreen == FALSE)
+			{
+				new_caps = gst_caps_new_simple	("video/x-raw-yuv",
 						"width", G_TYPE_INT, scaled_width,
 						"height", G_TYPE_INT, scaled_width,
 						NULL);
-			g_object_set(G_OBJECT(capsfilter), "caps", new_caps, NULL);
-			gst_caps_unref(new_caps);
+				g_object_set(G_OBJECT(capsfilter), "caps", new_caps, NULL);
+				gst_caps_unref(new_caps);
+			}
 			gtk_widget_set_size_request(video_window, 800, 600);
 			gtk_container_resize_children(GTK_CONTAINER(main_window));
 		}
-		else	
+		else
+		{
 			gtk_window_fullscreen(GTK_WINDOW(widget));
+			fullscreen_request = TRUE;
+		}
 	}
 	if (event->keyval == 'q' || event->keyval == GDK_KEY_Escape)
 		dispose_and_exit();
@@ -144,15 +173,17 @@ static gboolean	event_config_cb(GtkWidget* wid, GdkEventConfigure* event, gpoint
 	//g_printf("____________________Size changed : %dx%d\n", event->width, event->height);
 	if (event->height != old_height || event->width != old_width)
 	{
-		//g_printf("=================Size changed : %dx%d\n", event->width, event->height);
-		calc_scaled_size(event->width, event->height, &new_width, &new_height);
-		//g_printf("=================Scaled new size : %dx%d\n", new_width, new_height);
-		new_caps = gst_caps_new_simple	("video/x-raw-yuv",
-					"width", G_TYPE_INT, new_width,
-					"height", G_TYPE_INT, new_height,
-					NULL);
-		g_object_set(G_OBJECT(capsfilter), "caps", new_caps, NULL);
-		gst_caps_unref(new_caps);
+		if (fakefullscreen == FALSE)
+		{
+			calc_scaled_size(event->width, event->height, &new_width, &new_height);
+			//g_printf("=================Scaled new size : %dx%d\n", new_width, new_height);
+				new_caps = gst_caps_new_simple	("video/x-raw-yuv",
+				"width", G_TYPE_INT, new_width,
+				"height", G_TYPE_INT, new_height,
+				NULL);
+			g_object_set(G_OBJECT(capsfilter), "caps", new_caps, NULL);
+			gst_caps_unref(new_caps);
+		}
 		old_height = event->height;
 		old_width = event->width;
 		al = g_new(GtkAllocation, 1);
@@ -163,6 +194,8 @@ static gboolean	event_config_cb(GtkWidget* wid, GdkEventConfigure* event, gpoint
 		gtk_widget_size_allocate(video_window, al);
 		gtk_container_resize_children(GTK_CONTAINER(main_window));
 		g_free(al);
+		fullscreen_request = FALSE;
+		//g_printf("=================Size changed : %dx%d\n", event->width, event->height);
 	}
 	return TRUE;
 }
@@ -348,7 +381,7 @@ void	gstreamer_create_pipeline()
 	convert = gst_element_factory_make("audioconvert", "audioconvert");
 	resample = gst_element_factory_make("audioresample", "audioresample");
 	queuea = gst_element_factory_make("queue", "queue a");
-	audiosink = gst_element_factory_make("autoaudiosink", "autoaudiosink");
+	audiosink = gst_element_factory_make(audio_output, "audiosink");
 	gst_bin_add_many(audiobin, queuea, convert, resample, audiosink, NULL);
 	gst_element_link_many(queuea, convert, resample, audiosink, NULL);
 	gpad = gst_ghost_pad_new("sink", gst_element_get_static_pad(queuea, "sink"));
@@ -356,11 +389,7 @@ void	gstreamer_create_pipeline()
 	
 	
 	videobin = gst_bin_new("videobin");
-#ifdef G_OS_WIN32
-	videosink = gst_element_factory_make("directdrawsink", "videosink");
-#else
-	videosink = gst_element_factory_make("autovideosink", "videosink");
-#endif
+	videosink = gst_element_factory_make(video_output, "videosink");
 	queuev = gst_element_factory_make("queue", "queue v");
 	ffmpegrecolor = gst_element_factory_make("ffmpegcolorspace", "ffmpegcolor");
 	videoscale = gst_element_factory_make("videoscale", "videoscale");
@@ -425,8 +454,26 @@ void	gst_start(char *video, char * sub)
 
 int	main(int ac, char *ag[])
 {
+	GError* error = NULL;
+	GOptionContext*	opt_context;
 	//putenv("GST_PLUGIN_PATH=C:\\toyunda\\build\\");
+	
 
+#ifdef G_OS_WIN32
+	video_output = g_new(gchar, strlen(VIDEO_SINK_DEF_WIN32) + 1);
+	strcpy(video_output, VIDEO_SINK_DEF_WIN32);
+#else
+	video_output = g_new(gchar, strlen(VIDEO_SINK_DEF_OTHER) + 1);
+	strcpy(video_output, VIDEO_SINK_DEF_OTHER);
+#endif
+	opt_context = g_option_context_new("videofile lyricsfile");
+	g_option_context_add_main_entries(opt_context, opt_entry, NULL);
+	g_option_context_add_group (opt_context, gtk_get_option_group (TRUE));
+	if (!g_option_context_parse (opt_context, &ac, &ag, &error))
+	{
+		g_print("option parsing failed: %s\n", error->message);
+		exit (1);
+	}
 	gtk_init(&ac, &ag);
 	gst_init(&ac, &ag);
 	

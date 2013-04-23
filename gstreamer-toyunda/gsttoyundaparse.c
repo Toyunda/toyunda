@@ -200,6 +200,8 @@ pipehandle :
 		new_sub->positiony = ((float)1/(float)12) * (pipecpt);
 	else
 		new_sub->positiony += ((float)1/(float)12) * (pipecpt);
+	if (new_sub->position2y != -1)
+		new_sub->position2y += ((float)1/(float)12) * (pipecpt);
 	//print_toyunda_sub_t(*new_sub);
 	g_sequence_append(subtitles, new_sub);
 	/* we got a new line in the line*/
