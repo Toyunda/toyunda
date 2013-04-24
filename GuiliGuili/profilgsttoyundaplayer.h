@@ -13,6 +13,8 @@ public:
     void    setErrorHandler(SQErrorHandler *);
     void    updateConfigDialog();
     void    updateValueFromDialog();
+    bool    save(QString fileName);
+    bool    load(QString fileName);
 
 
 public slots:

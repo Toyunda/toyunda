@@ -78,4 +78,14 @@ void ProfilGstToyundaPlayer::updateValueFromDialog()
 {
 }
 
+bool ProfilGstToyundaPlayer::save(QString fileName)
+{
+    return true;
+}
+
+bool ProfilGstToyundaPlayer::load(QString fileName)
+{
+    return true;
+}
+
 

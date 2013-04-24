@@ -14,6 +14,8 @@ public:
     void    setErrorHandler(SQErrorHandler*);
     void    updateConfigDialog();
     void    updateValueFromDialog();
+    bool    load(QString fileName);
+    bool    save(QString fileName);
 
 public slots:
     void    play(QString, QString);

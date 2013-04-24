@@ -18,12 +18,14 @@ public:
 public:
     explicit Profil(QObject *parent = 0);
     virtual void        setErrorHandler(SQErrorHandler *) = 0;
-    QString	name;
-    QString	description;
-    QDialog	*configDialog;
-    BaseType	baseType;
+    QString         name;
+    QString         description;
+    QDialog*        configDialog;
+    BaseType        baseType;
     virtual void    updateConfigDialog() = 0;
     virtual void    updateValueFromDialog() = 0;
+    virtual bool    save(QString fileName) = 0;
+    virtual bool    load(QString fileName) = 0;
     bool            isInitialised() const;
 
 protected:

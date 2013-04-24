@@ -16,6 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <QApplication>
 #include "profilmodel.h"
 #include "profilgsttoyundaplayer.h"
 
@@ -96,6 +97,10 @@ bool ProfilModel::setData(const QModelIndex &index, const QVariant &value, int r
 }
 
 #define PROFIL_DIR "Profils"
+#define PROFIL_TYPE_STRING "ProfilType"
+#define PROFIL_TYPE_QOSD "ProfilQOSD"
+#define PROFIL_TYPE_MPLAYER "ProfilMplayer"
+#define PROFIL_TYPE_GSTOYUNDA "ProfilGSToyunda"
 
 bool ProfilModel::loadProfils()
 {
@@ -116,10 +121,63 @@ bool ProfilModel::loadProfils()
     m_profilList.append(mpProfil);
     m_profilList.append(gstprofil);
     return true;
+
+    QDir    pdir(qApp->applicationDirPath().toLocal8Bit() + PROFIL_DIR);
+    QStringList dirFilter;
+    dirFilter << "*.txt";
+    pdir.setNameFilters(dirFilter);
+    QStringList strlt = pdir.entryList();
+    QStringListIterator it(strlt);
+
+    return true;
+    while (it.hasNext())
+    {
+        const QString fileName = it.next();
+        QFile   pfile(fileName);
+        if (!pfile.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            qDebug() << "Can't load " << fileName << pfile.errorString();
+        }
+        else
+        {
+            QString str = pfile.readLine();
+            QRegExp keyValue("([^=]+)=([^\\n]+)\\n");
+            if (keyValue.exactMatch(str))
+            {
+                if (keyValue.cap(1) == PROFIL_TYPE_STRING)
+                {
+                    Profil* newProf = NULL;
+                    if (keyValue.cap(2) == PROFIL_TYPE_QOSD)
+                        newProf = new ProfilOSD();
+                    if (keyValue.cap(2) == PROFIL_TYPE_MPLAYER)
+                        newProf = new Profilmplayer();
+                    if (keyValue.cap(2) == PROFIL_TYPE_GSTOYUNDA)
+                        newProf = new ProfilGstToyundaPlayer();
+                    if (newProf == NULL)
+                    {
+                        qDebug() << "Can't find a profil type matching : " << keyValue.cap(2);
+                        continue;
+                    }
+                    if (!newProf->load(fileName))
+                    {
+                        qDebug() << "Can't load this profil file - type : "<< keyValue.cap(2) << ", File : " << fileName;
+                    }
+                    else
+                        m_profilList.append(newProf);
+                }
+            }
+        }
+    }
+    return true;
 }
 
 bool ProfilModel::saveProfils()
 {
+    QListIterator<Profil*>it(m_profilList);
+    while (it.hasNext())
+    {
+
+    }
     return true;
 }
 

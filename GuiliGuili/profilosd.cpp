@@ -62,6 +62,16 @@ void ProfilOSD::updateValueFromDialog()
 {
 }
 
+bool ProfilOSD::load(QString fileName)
+{
+    return true;
+}
+
+bool ProfilOSD::save(QString fileName)
+{
+    return true;
+}
+
 void ProfilOSD::setVolume(int vol)
 {
     m_qtoyunda->setVolume(vol);

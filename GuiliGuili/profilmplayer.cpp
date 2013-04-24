@@ -33,6 +33,16 @@ void Profilmplayer::updateValueFromDialog()
     m_mplayer_font_path = diag->mplayerFontPath;
 }
 
+bool Profilmplayer::load(QString fileName)
+{
+    return true;
+}
+
+bool Profilmplayer::save(QString fileName)
+{
+    return true;
+}
+
 void Profilmplayer::play(QString video, QString lyrics)
 {
     QStringList arg = m_mplayer_default_arg;
