@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QDialog>
+#include <QSettings>
 #include "../comons/sqerrorhandler.h"
 
 class Profil : public QObject
@@ -21,16 +22,19 @@ public:
     QString         name;
     QString         description;
     QDialog*        configDialog;
+    QString         fileName;
     BaseType        baseType;
     virtual void    updateConfigDialog() = 0;
     virtual void    updateValueFromDialog() = 0;
-    virtual bool    save(QString fileName) = 0;
+    virtual bool    save() = 0;
     virtual bool    load(QString fileName) = 0;
     bool            isInitialised() const;
-
+    static          const QString     ProfilDirectory;
 protected:
     SQErrorHandler* m_errorHandler;
     bool            m_initialised;
+    void            baseSave(QSettings *iniFile);
+    void            baseLoad(QSettings *iniFile);
 
 signals:
     void    played();
@@ -46,5 +50,6 @@ public slots:
     virtual void    setVolume(int) = 0;
     virtual void    dispose() = 0;
 };
+
 
 #endif // PROFIL_H

@@ -21,6 +21,7 @@ void mplayerProfilDialog::updateValue()
     ui->mplayerExecLineEdit->setText(mplayerExecPath);
     ui->addArgLineEdit->setText(mplayerAdditionnalArg);
     ui->wdLineEdit->setText(mplayerWDPath);
+    ui->checkBox->setChecked(fullscreen);
 }
 
 void mplayerProfilDialog::on_mplayerExecPathChooserButton_clicked()
@@ -43,7 +44,8 @@ void mplayerProfilDialog::on_wdButton_clicked()
 
 void mplayerProfilDialog::on_checkBox_stateChanged(int arg1)
 {
-	qDebug() << arg1;
+    if (arg1 == Qt::Checked || arg1 == Qt::Unchecked)
+        fullscreen = ui->checkBox->isChecked();
 }
 
 void mplayerProfilDialog::on_buttonBox_accepted()

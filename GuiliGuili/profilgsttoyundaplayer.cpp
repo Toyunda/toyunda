@@ -1,11 +1,13 @@
 #include "profilgsttoyundaplayer.h"
+#include "gstplayerprofildialog.h"
 #include <QApplication>
 #include <QDebug>
 
 ProfilGstToyundaPlayer::ProfilGstToyundaPlayer() : Profil()
 {
-    name = "Gsttoyunda Player";
-    configDialog = new QDialog();
+    m_fullscreen = false;
+    m_scaled_fullscreen = true;
+    configDialog = new GstPlayerProfilDialog();
 }
 
 void ProfilGstToyundaPlayer::setErrorHandler(SQErrorHandler *)
@@ -16,6 +18,14 @@ void ProfilGstToyundaPlayer::setErrorHandler(SQErrorHandler *)
 void ProfilGstToyundaPlayer::play(QString video, QString lyrics)
 {
     QStringList arg;
+    if (m_fullscreen)
+        arg << "-f";
+    if (!m_scaled_fullscreen)
+        arg << "-e";
+    if (!m_audiosink.isEmpty())
+        arg << "--audioouput" << m_audiosink;
+    if (!m_videosink.isEmpty())
+        arg << "--videooutput" << m_videosink;
     arg << video << lyrics;
     QString tmp = qApp->applicationDirPath();
     tmp.append("/toyunda-player");
@@ -71,20 +81,42 @@ void ProfilGstToyundaPlayer::process_error(QProcess::ProcessError err)
 
 void ProfilGstToyundaPlayer::updateConfigDialog()
 {
+    GstPlayerProfilDialog   *diag = static_cast<GstPlayerProfilDialog*>(configDialog);
+    diag->fullscreen = m_fullscreen;
+    diag->scaled_fullscreen = m_scaled_fullscreen;
+    diag->videosink = m_videosink;
+    diag->audiosink = m_audiosink;
+    diag->updateValue();
 }
 
 
 void ProfilGstToyundaPlayer::updateValueFromDialog()
 {
+    GstPlayerProfilDialog   *diag = static_cast<GstPlayerProfilDialog*>(configDialog);
+    m_fullscreen = diag->fullscreen;
+    m_scaled_fullscreen = diag->scaled_fullscreen;
+    m_videosink = diag->videosink;
+    m_audiosink = diag->audiosink;
 }
 
-bool ProfilGstToyundaPlayer::save(QString fileName)
+bool ProfilGstToyundaPlayer::save()
 {
-    return true;
+    QSettings   conf(fileName, QSettings::IniFormat);
+    baseSave(&conf);
+    conf.setValue("fullscreen", m_fullscreen);
+    conf.setValue("scaled_fullscreen", m_scaled_fullscreen);
+    conf.setValue("audiosink", m_audiosink);
+    conf.setValue("videosink", m_videosink);
 }
 
 bool ProfilGstToyundaPlayer::load(QString fileName)
 {
+    QSettings   conf(fileName, QSettings::IniFormat);
+    baseLoad(&conf);
+    m_fullscreen = conf.value("fullscreen").toBool();
+    m_scaled_fullscreen = conf.value("scaled_fullscreen").toBool();
+    m_videosink = conf.value("videosink").toString();
+    m_audiosink = conf.value("audiosink").toString();
     return true;
 }
 

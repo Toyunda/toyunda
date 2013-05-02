@@ -18,7 +18,8 @@ HEADERS += \
     osdprofildialog.h \
     profilgsttoyundaplayer.h \
     songtreemodel.h \
-    songtreeitem.h
+    songtreeitem.h \
+    gstplayerprofildialog.h
 
 
 SOURCES += \
@@ -37,13 +38,15 @@ SOURCES += \
     osdprofildialog.cpp \
     profilgsttoyundaplayer.cpp \
     songtreemodel.cpp \
-    songtreeitem.cpp
+    songtreeitem.cpp \
+    gstplayerprofildialog.cpp
 
 FORMS += \
     GuiliGuili.ui \
     configDialog.ui \
     osdprofildialog.ui \
-    mplayerprofildialog.ui
+    mplayerprofildialog.ui \
+    gstplayerprofildialog.ui
 
 RESOURCES += \
     icone.qrc

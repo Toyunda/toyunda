@@ -13,7 +13,7 @@ public:
     void    setErrorHandler(SQErrorHandler *);
     void    updateConfigDialog();
     void    updateValueFromDialog();
-    bool    save(QString fileName);
+    bool    save();
     bool    load(QString fileName);
 
 
@@ -28,6 +28,10 @@ public slots:
 
 private:
     QProcess*   m_process;
+    bool        m_scaled_fullscreen;
+    bool        m_fullscreen;
+    QString     m_videosink;
+    QString     m_audiosink;
 };
 
 #endif // GSTTOYUNDAPLAYERPROFIL_H

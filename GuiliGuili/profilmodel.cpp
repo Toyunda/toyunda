@@ -19,6 +19,7 @@
 #include <QApplication>
 #include "profilmodel.h"
 #include "profilgsttoyundaplayer.h"
+#include <QSettings>
 
 ProfilModel::ProfilModel(QObject *parent) :
     QAbstractTableModel(parent)
@@ -96,7 +97,6 @@ bool ProfilModel::setData(const QModelIndex &index, const QVariant &value, int r
     return true;
 }
 
-#define PROFIL_DIR "Profils"
 #define PROFIL_TYPE_STRING "ProfilType"
 #define PROFIL_TYPE_QOSD "ProfilQOSD"
 #define PROFIL_TYPE_MPLAYER "ProfilMplayer"
@@ -104,6 +104,62 @@ bool ProfilModel::setData(const QModelIndex &index, const QVariant &value, int r
 
 bool ProfilModel::loadProfils()
 {
+    if (!QFile::exists(Profil::ProfilDirectory))
+        if (!QDir(qApp->applicationDirPath()).mkdir(Profil::ProfilDirectory))
+            return createDefaultProfils(false);
+
+    QDir    pdir(qApp->applicationDirPath().toLocal8Bit() + "/" + Profil::ProfilDirectory);
+    QStringList dirFilter;
+    dirFilter << "*.ini";
+    pdir.setNameFilters(dirFilter);
+    QStringList strlt = pdir.entryList();
+    QStringListIterator it(strlt);
+    if (strlt.isEmpty())
+        return createDefaultProfils();
+    while (it.hasNext())
+    {
+        Profil* newProfil;
+        QString fileName = qApp->applicationDirPath().toLocal8Bit() + "/" + Profil::ProfilDirectory + "/" + it.next();
+        QSettings* fileIni = new QSettings(fileName, QSettings::IniFormat);
+        if (fileIni->value(PROFIL_TYPE_STRING).toString() == PROFIL_TYPE_GSTOYUNDA)
+                newProfil = new ProfilGstToyundaPlayer;
+        if (fileIni->value(PROFIL_TYPE_STRING).toString() == PROFIL_TYPE_MPLAYER)
+                newProfil = new Profilmplayer;
+        if (fileIni->value(PROFIL_TYPE_STRING).toString() == PROFIL_TYPE_QOSD)
+                newProfil = new ProfilOSD;
+        newProfil->fileName = fileName;
+        delete fileIni;
+        newProfil->load(fileName);
+        m_profilList.append(newProfil);
+    }
+    m_defaultProfil = m_profilList.first();
+    return true;
+}
+
+bool ProfilModel::saveProfils()
+{
+    QListIterator<Profil*>it(m_profilList);
+    while (it.hasNext())
+    {
+        Profil* myProf = it.next();
+        if (myProf->fileName.isEmpty())
+            myProf->fileName = qApp->applicationDirPath().toLocal8Bit() + "/" + Profil::ProfilDirectory + "/" + myProf->name + ".ini";
+        QSettings*  mConf = new QSettings(myProf->fileName, QSettings::IniFormat);
+        if (myProf->baseType == Profil::OSD)
+            mConf->setValue(PROFIL_TYPE_STRING, PROFIL_TYPE_QOSD);
+        if (myProf->baseType == Profil::MPLAYER)
+            mConf->setValue(PROFIL_TYPE_STRING, PROFIL_TYPE_MPLAYER);
+        if (myProf->baseType == Profil::GSTPLAYER)
+            mConf->setValue(PROFIL_TYPE_STRING, PROFIL_TYPE_GSTOYUNDA);
+        delete mConf;
+        myProf->save();
+    }
+    return true;
+}
+
+bool ProfilModel::createDefaultProfils(bool createFile)
+{
+    qDebug() << "Creating default Profil";
     Profil *osdProfil = new	ProfilOSD();
     osdProfil->baseType = Profil::OSD;
     Profil	*mpProfil = new Profilmplayer;
@@ -120,63 +176,12 @@ bool ProfilModel::loadProfils()
     m_profilList.append(osdProfil);
     m_profilList.append(mpProfil);
     m_profilList.append(gstprofil);
-    return true;
-
-    QDir    pdir(qApp->applicationDirPath().toLocal8Bit() + PROFIL_DIR);
-    QStringList dirFilter;
-    dirFilter << "*.txt";
-    pdir.setNameFilters(dirFilter);
-    QStringList strlt = pdir.entryList();
-    QStringListIterator it(strlt);
-
-    return true;
-    while (it.hasNext())
+    if (createFile)
     {
-        const QString fileName = it.next();
-        QFile   pfile(fileName);
-        if (!pfile.open(QIODevice::ReadOnly | QIODevice::Text))
-        {
-            qDebug() << "Can't load " << fileName << pfile.errorString();
-        }
-        else
-        {
-            QString str = pfile.readLine();
-            QRegExp keyValue("([^=]+)=([^\\n]+)\\n");
-            if (keyValue.exactMatch(str))
-            {
-                if (keyValue.cap(1) == PROFIL_TYPE_STRING)
-                {
-                    Profil* newProf = NULL;
-                    if (keyValue.cap(2) == PROFIL_TYPE_QOSD)
-                        newProf = new ProfilOSD();
-                    if (keyValue.cap(2) == PROFIL_TYPE_MPLAYER)
-                        newProf = new Profilmplayer();
-                    if (keyValue.cap(2) == PROFIL_TYPE_GSTOYUNDA)
-                        newProf = new ProfilGstToyundaPlayer();
-                    if (newProf == NULL)
-                    {
-                        qDebug() << "Can't find a profil type matching : " << keyValue.cap(2);
-                        continue;
-                    }
-                    if (!newProf->load(fileName))
-                    {
-                        qDebug() << "Can't load this profil file - type : "<< keyValue.cap(2) << ", File : " << fileName;
-                    }
-                    else
-                        m_profilList.append(newProf);
-                }
-            }
-        }
-    }
-    return true;
-}
-
-bool ProfilModel::saveProfils()
-{
-    QListIterator<Profil*>it(m_profilList);
-    while (it.hasNext())
-    {
-
+        mpProfil->fileName = qApp->applicationDirPath().toLocal8Bit() + "/" + Profil::ProfilDirectory + "/" + "DefaultMplayer.ini";
+        osdProfil->fileName = qApp->applicationDirPath().toLocal8Bit() + "/" + Profil::ProfilDirectory + "/" +  "DefaultOSD.ini";
+        gstprofil->fileName = qApp->applicationDirPath().toLocal8Bit() + "/" + Profil::ProfilDirectory + "/" + "DefaultGST.ini";
+        saveProfils();
     }
     return true;
 }
@@ -189,4 +194,24 @@ Profil *ProfilModel::getProfil(int index)
 Profil* ProfilModel::getDefaultProfil()
 {
     return m_defaultProfil;
+}
+
+void ProfilModel::setDefaultProfil(QString name)
+{
+    foreach(Profil *prof, m_profilList)
+    {
+        if (prof->name == name)
+        {
+            m_defaultProfil = prof;
+            break;
+        }
+    }
+}
+
+int ProfilModel::getProfilIndex(Profil *prof)
+{
+    for (int i = 0; i < m_profilList.count(); i++)
+        if (m_profilList[i] == prof)
+            return i;
+    return -1;
 }

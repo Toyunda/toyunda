@@ -62,13 +62,17 @@ void ProfilOSD::updateValueFromDialog()
 {
 }
 
-bool ProfilOSD::load(QString fileName)
+bool ProfilOSD::load(QString sfileName)
 {
+    QSettings conf(sfileName, QSettings::IniFormat);
+    baseLoad(&conf);
     return true;
 }
 
-bool ProfilOSD::save(QString fileName)
+bool ProfilOSD::save()
 {
+    QSettings conf(fileName, QSettings::IniFormat);
+    baseSave(&conf);
     return true;
 }
 

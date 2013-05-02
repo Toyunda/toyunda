@@ -16,7 +16,7 @@ public:
     ~osdprofildialog();
 
     float           global_ratio;
-    QString         default_color;
+    QColor         default_color;
     unsigned int    width;
     unsigned int    height;
     float           v_ratio;
@@ -26,6 +26,9 @@ public:
     QString         default_toyunda_logo;
 
     
+private slots:
+    void on_colorButton_clicked();
+
 private:
     Ui::osdprofildialog *ui;
 };

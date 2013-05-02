@@ -65,6 +65,8 @@ void GuiliGuili::init()
 
         m_profilmodel = new ProfilModel();
         m_profilmodel->loadProfils();
+        if (!m_settings->value("CurrentProfil").toString().isEmpty())
+            m_profilmodel->setDefaultProfil(m_settings->value("CurrentProfil").toString());
         m_configDialog.setProfilModel(m_profilmodel);
         ui.ProfilComboBox->setModel(m_profilmodel);
         ui.ProfilComboBox->setModelColumn(0);
@@ -75,6 +77,7 @@ void GuiliGuili::init()
             if (diagretour) {
                 m_karaoke_dir = m_configDialog.ui.karaokeDirLineEdit->text();
                 m_settings->setValue("karaoke_dir", m_karaoke_dir);
+                m_profilmodel->saveProfils();
             }
         } else
         {
@@ -90,6 +93,7 @@ void GuiliGuili::init()
         setKaraokeDir();
         //m_qtoyunda->setRendererQWidgetParent(this);
         m_currentProfil = m_profilmodel->getDefaultProfil();
+        ui.ProfilComboBox->setCurrentIndex(m_profilmodel->getProfilIndex(m_currentProfil));
         m_errorHandler = new GraphicErrorHandler();
         PlaylistModel *plmodel = new PlaylistModel(&m_currentPlaylist);
         ui.playlistView->setModel(plmodel);
@@ -394,11 +398,12 @@ void    GuiliGuili::on_configurationButton_clicked()
 {
         m_configDialog.ui.karaokeDirLineEdit->setText(m_karaoke_dir);
         if (m_configDialog.exec())
-	{
-	    m_karaoke_dir = m_configDialog.ui.karaokeDirLineEdit->text();
-	    m_settings->setValue("karaoke_dir", m_karaoke_dir);
-	    setKaraokeDir();
-	}
+        {
+            m_profilmodel->saveProfils();
+            m_karaoke_dir = m_configDialog.ui.karaokeDirLineEdit->text();
+            m_settings->setValue("karaoke_dir", m_karaoke_dir);
+            setKaraokeDir();
+        }
 }
 
 
@@ -446,6 +451,7 @@ void GuiliGuili::PopulateTreePluginInfo(QList<PluginInfo> plInfo)
 */
 void GuiliGuili::closeEvent(QCloseEvent *)
 {
+    m_settings->setValue("CurrentProfil", m_currentProfil->name);
     m_currentProfil->dispose();
 }
 

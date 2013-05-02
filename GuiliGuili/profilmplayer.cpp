@@ -4,11 +4,8 @@
 
 Profilmplayer::Profilmplayer() : Profil()
 {
-    name = "MPlayer-Toyunda";
-    m_mplayer_exec = "/home/skarsnik/compile/MPlayer-0.9X-Toyunda-b8dev-ffmpeg-xv-alsa/mplayer-toyunda";
-    m_mplayer_default_arg << "-fs" << "-font" << "/home/skarsnik/compile/MPlayer-0.9X-Toyunda-b8dev-ffmpeg-xv-alsa/fonts/font.desc";
-    m_mplayer_exec_path = "/home/skarsnik/compile/MPlayer-0.9X-Toyunda-b8dev-ffmpeg-xv-alsa/tga";
     configDialog = new mplayerProfilDialog();
+    m_fullscreen = true;
 }
 
 void Profilmplayer::setErrorHandler(SQErrorHandler *)
@@ -18,34 +15,53 @@ void Profilmplayer::setErrorHandler(SQErrorHandler *)
 void Profilmplayer::updateConfigDialog()
 {
     mplayerProfilDialog *diag = static_cast<mplayerProfilDialog*>(configDialog);
-    diag->mplayerAdditionnalArg = "";
+    diag->mplayerAdditionnalArg = m_mplayer_additional_arg;
     diag->mplayerExecPath = m_mplayer_exec;
-    diag->mplayerWDPath = m_mplayer_exec_path;
+    diag->mplayerWDPath = m_mplayer_WD;
     diag->mplayerFontPath = m_mplayer_font_path;
+    diag->fullscreen = m_fullscreen;
     diag->updateValue();
 }
 
 void Profilmplayer::updateValueFromDialog()
 {
     mplayerProfilDialog *diag = static_cast<mplayerProfilDialog*>(configDialog);
+    m_mplayer_additional_arg = diag->mplayerAdditionnalArg;
     m_mplayer_exec = diag->mplayerExecPath;
-    m_mplayer_exec_path = diag->mplayerWDPath;
+    m_mplayer_WD = diag->mplayerWDPath;
     m_mplayer_font_path = diag->mplayerFontPath;
+    m_fullscreen = diag->fullscreen;
 }
 
 bool Profilmplayer::load(QString fileName)
 {
-    return true;
+    QSettings   conf(fileName, QSettings::IniFormat);
+    baseLoad(&conf);
+    m_mplayer_exec = conf.value("mplayer_exec").toString();
+    m_mplayer_additional_arg = conf.value("mplayer_add_args").toString();
+    m_mplayer_font_path = conf.value("mplayer_font_path").toString();
+    m_mplayer_WD = conf.value("mplayer_WD").toString();
+    m_fullscreen = conf.value("fullscreen").toBool();
 }
 
-bool Profilmplayer::save(QString fileName)
+bool Profilmplayer::save()
 {
-    return true;
+    QSettings   conf(fileName, QSettings::IniFormat);
+    baseSave(&conf);
+    conf.setValue("mplayer_exec", m_mplayer_exec);
+    conf.setValue("mplayer_add_args", m_mplayer_additional_arg);
+    conf.setValue("mplayer_font_path", m_mplayer_font_path);
+    conf.setValue("mplayer_WD", m_mplayer_WD);
+    conf.setValue("fullscreen", m_fullscreen);
 }
 
 void Profilmplayer::play(QString video, QString lyrics)
 {
-    QStringList arg = m_mplayer_default_arg;
+    QStringList arg;
+    if (!m_mplayer_font_path.isEmpty())
+        arg << "-font" << m_mplayer_font_path;
+    if (m_fullscreen)
+        arg << "-fs";
     arg << "-sub" << lyrics << video;
     qDebug() << m_mplayer_exec << arg;
     m_process->start(m_mplayer_exec, arg);
@@ -66,7 +82,7 @@ void    Profilmplayer::on_finish(int po)
 bool Profilmplayer::init()
 {
     m_process = new QProcess(this);
-    m_process->setWorkingDirectory(m_mplayer_exec_path);
+    m_process->setWorkingDirectory(m_mplayer_WD);
     QObject::connect(m_process, SIGNAL(started()), this, SIGNAL(played()));
     QObject::connect(m_process, SIGNAL(finished(int)), this, SIGNAL(finished()));
     m_initialised = true;

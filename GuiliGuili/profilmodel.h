@@ -37,10 +37,14 @@ public:
     bool                setData(const QModelIndex &index, const QVariant &value, int role);
     bool                setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int=Qt::EditRole)
     {Q_UNUSED(section); Q_UNUSED(orientation); Q_UNUSED(value); return false;}
+
     bool                loadProfils();
     bool                saveProfils();
+    bool                createDefaultProfils(bool createFile = true);
     Profil*             getProfil(int);
     Profil*             getDefaultProfil();
+    void                setDefaultProfil(QString name);
+    int                 getProfilIndex(Profil *prof);
 
 private:
     QList<Profil*>	m_profilList;

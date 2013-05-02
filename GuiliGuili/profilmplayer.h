@@ -15,7 +15,7 @@ public:
     void    updateConfigDialog();
     void    updateValueFromDialog();
     bool    load(QString fileName);
-    bool    save(QString fileName);
+    bool    save();
 
 public slots:
     void    play(QString, QString);
@@ -27,10 +27,11 @@ public slots:
 
  private:
     QString     m_mplayer_exec;
-    QStringList m_mplayer_default_arg;
-    QString     m_mplayer_exec_path;
+    QString     m_mplayer_additional_arg;
+    QString     m_mplayer_WD;
     QString     m_mplayer_font_path;
-    QProcess*    m_process;
+    bool        m_fullscreen;
+    QProcess*   m_process;
 };
 
 #endif // PROFILMPLAYER_H

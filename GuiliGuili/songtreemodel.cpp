@@ -85,7 +85,7 @@ int SongTreeModel::columnCount(const QModelIndex &parent) const
 
 QModelIndex SongTreeModel::index(int row, int column, const QModelIndex &parent) const
 {
-    if (!m_rootItem || row < 0 || column < 0 || column >= 1 || parent.isValid() && parent.column() != 0)
+    if (!m_rootItem || row < 0 || column < 0 || column >= 1 || (parent.isValid() && parent.column() != 0))
         return QModelIndex();
     SongTreeItem*   parentItem = itemForIndex(parent);
     if (SongTreeItem* item = parentItem->childs.at(row))

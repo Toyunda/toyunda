@@ -59,15 +59,17 @@ void ConfigDialog::on_newProfilButton_clicked()
 
 void ConfigDialog::on_profilTableView_doubleClicked(const QModelIndex &index)
 {
-    Profil *profil;
 
-    ProfilModel* pm = static_cast<ProfilModel*>(ui.profilTableView->model());
-    profil = pm->getProfil(index.row());
-    showProfilDialog(profil);
 }
 
 void    ConfigDialog::showProfilDialog(Profil *profil)
 {
     profil->updateConfigDialog();
-    profil->configDialog->exec();
+    profil->configDialog->setWindowTitle(profil->name);
+    int diagRet = profil->configDialog->exec();
+    if (diagRet == QDialog::Accepted)
+    {
+        profil->updateValueFromDialog();
+        profil->save();
+    }
 }
