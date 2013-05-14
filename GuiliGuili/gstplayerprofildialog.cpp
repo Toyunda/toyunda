@@ -65,5 +65,5 @@ void GstPlayerProfilDialog::on_fsCheckBox_stateChanged(int arg1)
 void GstPlayerProfilDialog::on_sfscheckBox_stateChanged(int arg1)
 {
     if (arg1 == Qt::Checked || arg1 == Qt::Unchecked)
-        scaled_fullscreen = ui->fsCheckBox->isChecked();
+        scaled_fullscreen = ui->sfscheckBox->isChecked();
 }

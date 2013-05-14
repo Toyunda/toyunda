@@ -400,9 +400,12 @@ void    GuiliGuili::on_configurationButton_clicked()
         if (m_configDialog.exec())
         {
             m_profilmodel->saveProfils();
-            m_karaoke_dir = m_configDialog.ui.karaokeDirLineEdit->text();
-            m_settings->setValue("karaoke_dir", m_karaoke_dir);
-            setKaraokeDir();
+            if (m_karaoke_dir != m_configDialog.ui.karaokeDirLineEdit->text())
+            {
+                m_karaoke_dir = m_configDialog.ui.karaokeDirLineEdit->text();
+                m_settings->setValue("karaoke_dir", m_karaoke_dir);
+                setKaraokeDir();
+            }
         }
 }
 

@@ -44,7 +44,7 @@ bool ProfilGstToyundaPlayer::init()
     m_process = new QProcess(this);
     m_process->setWorkingDirectory(qApp->applicationDirPath());
     QStringList env = QProcess::systemEnvironment();
-    env << "GST_PLUGIN_PATH=" + qApp->applicationDirPath();
+    env << "GST_PLUGIN_PATH=" + qApp->applicationDirPath() + "/gsttoyunda/";
     m_process->setEnvironment(env);
     QObject::connect(m_process, SIGNAL(started()), this, SIGNAL(played()));
     QObject::connect(m_process, SIGNAL(finished(int)), this, SLOT(on_finish(int)));
@@ -107,6 +107,7 @@ bool ProfilGstToyundaPlayer::save()
     conf.setValue("scaled_fullscreen", m_scaled_fullscreen);
     conf.setValue("audiosink", m_audiosink);
     conf.setValue("videosink", m_videosink);
+    return true;
 }
 
 bool ProfilGstToyundaPlayer::load(QString fileName)

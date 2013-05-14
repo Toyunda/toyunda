@@ -4,7 +4,7 @@ set qtgstreamerPath=c:\qt-gstreamer\install\
 set QtPath=C:\Qt\4.8.4\
 set deployPath=C:\toyunda\build\
 set basePath=C:\toyunda\
-
+set visualPath="C:\Program Files\Microsoft Visual Studio 10.0\"
 
 echo Echoing some variable
 
@@ -33,6 +33,14 @@ xcopy /y %QtPath%\plugins\imageformats\qsvgd4.dll %deployPath%\imageformats\
 
 echo Copying gstreamertoyunda file
 
+mkdir %deployPath%\gsttoyunda
+
 xcopy /y %basePath%\gstreamer-toyunda\Debug\toyunda-player.exe %deployPath%
-xcopy /y %basePath%\gstreamer-toyunda\Debug\gsttoyunda.dll %deployPath%
+xcopy /y %basePath%\gstreamer-toyunda\Debug\gsttoyunda.dll %deployPath%\gsttoyunda
+
+echo Copying Visual C library
+
+xcopy /y %visualPath%\vc\redist\debug_nonredist\x86\Microsoft.VC100.DebugCRT\msvcp100d.dll %deployPath%
+xcopy /y %visualPath%\vc\redist\debug_nonredist\x86\Microsoft.VC100.DebugCRT\msvcr100d.dll %deployPath%
+
 

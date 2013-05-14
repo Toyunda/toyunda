@@ -42,6 +42,7 @@ bool Profilmplayer::load(QString fileName)
     m_mplayer_font_path = conf.value("mplayer_font_path").toString();
     m_mplayer_WD = conf.value("mplayer_WD").toString();
     m_fullscreen = conf.value("fullscreen").toBool();
+    return true;
 }
 
 bool Profilmplayer::save()
@@ -53,6 +54,7 @@ bool Profilmplayer::save()
     conf.setValue("mplayer_font_path", m_mplayer_font_path);
     conf.setValue("mplayer_WD", m_mplayer_WD);
     conf.setValue("fullscreen", m_fullscreen);
+    return true;
 }
 
 void Profilmplayer::play(QString video, QString lyrics)
