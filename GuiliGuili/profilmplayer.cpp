@@ -31,6 +31,7 @@ void Profilmplayer::updateValueFromDialog()
     m_mplayer_WD = diag->mplayerWDPath;
     m_mplayer_font_path = diag->mplayerFontPath;
     m_fullscreen = diag->fullscreen;
+    m_process->setWorkingDirectory(m_mplayer_WD);
 }
 
 bool Profilmplayer::load(QString fileName)

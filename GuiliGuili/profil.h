@@ -13,8 +13,8 @@ class Profil : public QObject
 public:
 	enum	BaseType {
 		OSD,
-        MPLAYER,
-        GSTPLAYER
+		MPLAYER,
+		GSTPLAYER
 	};
 public:
     explicit Profil(QObject *parent = 0);

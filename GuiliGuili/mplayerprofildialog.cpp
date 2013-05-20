@@ -38,7 +38,7 @@ void mplayerProfilDialog::on_fontPathButton_clicked()
 
 void mplayerProfilDialog::on_wdButton_clicked()
 {
-	mplayerWDPath = QFileDialog::getOpenFileName(this, "Sélectionnez le répertoire où lancer mplayer-toyunda");
+	mplayerWDPath = QFileDialog::getExistingDirectory(this, "Choississez le répertoire d'execution de mplayer", "", QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 	ui->wdLineEdit->setText(mplayerWDPath);
 }
 
