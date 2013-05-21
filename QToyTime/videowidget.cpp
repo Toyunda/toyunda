@@ -1,18 +1,18 @@
 #include <QDebug>
-#include <QtGStreamer/QGst/Init>
-#include <QtGStreamer/QGst/ElementFactory>
-#include <QtGStreamer/QGst/Bin>
-#include <QtGStreamer/QGst/Pad>
-#include <QtGStreamer/QGst/Bus>
-#include <QtGStreamer/QGst/Query>
-#include <QtGStreamer/QGst/GhostPad>
-#include <QtGStreamer/QGlib/Connect>
-#include <QtGStreamer/QGst/ClockTime>
-#include <QtGStreamer/QGlib/Connect>
-#include <QtGStreamer/QGlib/Error>
-#include <QtGStreamer/QGst/Fraction>
-#include <QtGStreamer/QGst/Event>
-#include <QtGStreamer/QGst/Message>
+#include <QGst/Init>
+#include <QGst/ElementFactory>
+#include <QGst/Bin>
+#include <QGst/Pad>
+#include <QGst/Bus>
+#include <QGst/Query>
+#include <QGst/GhostPad>
+#include <QGlib/Connect>
+#include <QGst/ClockTime>
+#include <QGlib/Connect>
+#include <QGlib/Error>
+#include <QGst/Fraction>
+#include <QGst/Event>
+#include <QGst/Message>
 
 #include <QApplication>
 #include "videowidget.h"
@@ -303,7 +303,8 @@ void VideoWidget::setVideoFile(QString file)
        m_pipeline->setState(QGst::StateReady);
     if (!m_videosink_set)
     {
-        setVideoSink(m_vsink);
+        //setVideoSink(m_vsink);
+        watchPipeline(m_pipeline);
         m_videosink_set = true;
     }
     m_src->setProperty("location", file);

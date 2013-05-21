@@ -3,10 +3,10 @@
 
 #include <QWidget>
 #include <QTime>
-#include <QtGStreamer/QGst/Ui/VideoWidget>
-#include <QtGStreamer/QGst/Pipeline>
-#include <QtGStreamer/QGst/Element>
-#include <QtGStreamer/QGst/Bin>
+#include <QGst/Ui/VideoWidget>
+#include <QGst/Pipeline>
+#include <QGst/Element>
+#include <QGst/Bin>
 #include <QKeyEvent>
 #include <QTimer>
 

@@ -20,6 +20,7 @@ echo Starting copying file
 
 xcopy /y %qtgstreamerPath%\lib\QtGstreamer-0.10.dll %deployPath%
 xcopy /y %qtgstreamerPath%\lib\QtGLib-2.0.dll %deployPath%
+xcopy /y %qtgstreamerPath%\lib\QtGStreamerUi-0.10.dll %deployPath%
 
 echo Copying Qt's file
 

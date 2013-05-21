@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <QDebug>
-
+#include <QApplication>
 #include "sqhandlegstpath.h"
 
 void    sq_set_gstlib_env()
@@ -17,14 +17,14 @@ void    sq_set_gstlib_env()
         }
         QString mTmp = QString("PATH=%1;%2\\bin\\;%2\\lib").arg(mPath).arg(mGstRoot);
         qDebug() << mTmp;
-        putenv(mTmp.toLocal8Bit().data());
+        _putenv(mTmp.toLocal8Bit().data());
         //free(mGstRoot);
 #endif
 }
 
 void    sq_add_gsttoyunda_plugin_path(QString appPath)
 {
-    setenv("GST_PLUGIN_PATH", sq_get_gsttoyunda_plugin_path(appPath).toLatin1().constData(), 1);
+    _putenv(QString("GST_PLUGIN_PATH=" + sq_get_gsttoyunda_plugin_path(appPath)).toLatin1().constData());
 }
 
 QString sq_get_gsttoyunda_plugin_path(QString appPath)

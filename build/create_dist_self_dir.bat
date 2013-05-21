@@ -19,7 +19,7 @@ FOR %%p IN (plugins\qtoyunda_debugrendererd.dll plugins\qtoyunda_qgstaudioplayer
 
 echo Copying Qt File
 
-FOR %%p IN (QtGstreamer-0.10.dll QtGLib-2.0.dll QtCored4.dll QtGuid4.dll QtSvgd4.dll QtXmld4.dll) DO xcopy /y %baseBuildDir%\%%p %distDir%
+FOR %%p IN (QtGstreamerUi-0.10.dll QtGstreamer-0.10.dll QtGLib-2.0.dll QtCored4.dll QtGuid4.dll QtSvgd4.dll QtXmld4.dll) DO xcopy /y %baseBuildDir%\%%p %distDir%
 
 mkdir %distDir%\iconengines
 mkdir %distDir%\imageformats

@@ -612,12 +612,14 @@ void QToyTime::on_actionPreview_Last_Frame_Input_triggered()
     {
         qDebug() << m_cacheFrame;
         generateToyundaSubtitle(ui->lyrFileEdit->toPlainText(), ui->frmFileEdit->toPlainText() + "\n" + m_cacheFrame, tmpFile);
-        m_previewWindow->setSubFile(tmpFile);
+
         int firstFrame = m_cacheFrame.split('\n').first().split(' ').first().toInt();
         qDebug() << "Firstframe : " << firstFrame;
         QTime pos = m_videoWidget->getTimeFromFrame(firstFrame);
         pos = pos.addSecs(-3);
         qDebug() << "seek to : " << pos;
+        qDebug() << tmpFile;
+        m_previewWindow->setSubFile(tmpFile);
         m_previewWindow->show();
         m_previewWindow->play();
         m_previewWindow->setPosition(pos);

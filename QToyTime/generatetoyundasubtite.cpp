@@ -4,7 +4,6 @@
 #include <QStringList>
 #include <QDebug>
 #include <QThread>
-#include <unistd.h>
 
 bool    generateToyundaSubtitle(QString lyr, QString frm, QString outFile)
 {
