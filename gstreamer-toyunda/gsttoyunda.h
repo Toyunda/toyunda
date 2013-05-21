@@ -87,10 +87,12 @@ struct _GstToyunda
 	gchar*	subfile;
 	gchar*	font_desc;
 	gchar*	toyunda_logo;
+	gchar*	images_base_path;
 	
 	gboolean	subfile_parsed;
 	gboolean	subtitle_changed;
 	gboolean	hardware_surface;
+	gboolean	sub_enabled;
 };
 
 struct _GstToyundaClass

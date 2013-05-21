@@ -42,6 +42,7 @@ static	gboolean	fakefullscreen = FALSE;
 static	gboolean	fullscreen = FALSE;
 static	gchar*		video_output = NULL;
 static	gchar*		audio_output = AUDIO_SINK_DEF_OTHER;
+static	gchar*		base_image_path = NULL;
 
 static	GOptionEntry	opt_entry[] = 
 {
@@ -49,6 +50,7 @@ static	GOptionEntry	opt_entry[] =
 	{"fullscreen", 'f', 0, G_OPTION_ARG_NONE, &fullscreen, "Start the video fullscreen" , NULL},
 	{"videooutput", 'p', 0, G_OPTION_ARG_STRING, &video_output, "Select the video output (aka gstreamer video sink element)" , "the video sink element"},
 	{"audiooutput", 'a', 0, G_OPTION_ARG_STRING, &audio_output, "Select the audio output (aka gstreamer audio sink element)" , "the audio sink element"},
+	{"base_image_path", 'b', 0, G_OPTION_ARG_STRING, &base_image_path, "Set the base image path for image balise", "the path to image (usualy the karaoke dir"},
 	{NULL}
 };
 
@@ -157,6 +159,29 @@ key_press_event_cb(GtkWidget *widget, GdkEventKey *event, gpointer data)
 			gst_element_set_state (pipeline, GST_STATE_PLAYING);
 		else
 			gst_element_set_state (pipeline, GST_STATE_PAUSED);
+	}
+	if (event->keyval == GDK_KEY_Right || event->keyval == GDK_KEY_Left)
+	{
+		gint64 position, toseek;
+		gint64 duration;
+		GstFormat format = GST_FORMAT_TIME;
+		GstEvent *seek_event;
+   
+		/* Obtain the current position, needed for the seek event */
+		gst_element_query_duration(pipeline, &format, &duration);
+  		gst_element_query_position (pipeline, &format, &position);
+		if (event->keyval == GDK_KEY_Right)
+			if (position + 20 * GST_SECOND > duration)
+				toseek = duration;
+			else
+				toseek = position + 20 * GST_SECOND;
+		if (event->keyval == GDK_KEY_Left)
+			if (position - 20 * GST_SECOND < 0)
+				toseek = 0;
+			else
+				toseek = position - 20 * GST_SECOND;
+		gst_element_seek_simple (pipeline, GST_FORMAT_TIME,
+			GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_KEY_UNIT, toseek);
 	}
 	return TRUE;
 }
@@ -423,6 +448,8 @@ void	gst_start(char *video, char * sub)
 
 	g_object_set(G_OBJECT(filesrc), "location", video, NULL);
 	g_object_set(G_OBJECT(toyunda), "subfile", sub, NULL);
+	if (base_image_path != NULL)
+		g_object_set(G_OBJECT(toyunda), "image-base-dir", base_image_path, NULL);
 	
 	ret = gst_element_set_state (pipeline, GST_STATE_PLAYING);
 	if (ret == GST_STATE_CHANGE_FAILURE) {

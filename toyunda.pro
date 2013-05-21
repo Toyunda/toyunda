@@ -9,5 +9,6 @@ SUBDIRS += \
 	qtoyunda-lib \
 	qtoyunda-cmd  \
 	plugins	\
-	GuiliGuili
+	GuiliGuili \
+    QToyTime
 

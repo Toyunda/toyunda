@@ -117,7 +117,9 @@ enum
 {
   PROP_0,
   PROP_SUBFILE,
-  PROP_TOYUNDA_LOGO
+  PROP_TOYUNDA_LOGO,
+  PROP_IMAGE_DIR,
+  PROP_SUB_ENABLED
 };
 
 /* pad templates */
@@ -221,6 +223,14 @@ gst_toyunda_class_init (GstToyundaClass * klass)
 		         g_param_spec_string ("toyunda-logo", "Toyunda logo",
 			  "The default toyunda logo image",
 			  "toyunda.tga", G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+	g_object_class_install_property (G_OBJECT_CLASS (klass), PROP_IMAGE_DIR,
+		         g_param_spec_string ("image-base-dir", "The base directory for image",
+			  "The base directory for image",
+			  NULL, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+	g_object_class_install_property (G_OBJECT_CLASS (klass), PROP_SUB_ENABLED,
+		         g_param_spec_boolean ("sub-enabled", "Enable or disable subtitle rendering",
+			  "Enable or disable subtitle rendering",
+			  TRUE, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 	base_transform_class->passthrough_on_same_caps = TRUE;
 
 }
@@ -236,7 +246,7 @@ gst_toyunda_init (GstToyunda * toyunda, GstToyundaClass * toyunda_class)
 	toyunda->srcpad = gst_pad_new_from_static_template (&gst_toyunda_src_template
 	,     
 		"src");
-		gst_toyunda_field_init(toyunda);
+	gst_toyunda_field_init(toyunda);
 	toyunda->pango_context = pango_font_map_create_context(pango_cairo_font_map_get_default());
 	toyunda->pango_layout = pango_layout_new(toyunda->pango_context);
 	toyunda->pango_fontdesc = pango_font_description_from_string(toyunda->font_desc);
@@ -261,7 +271,15 @@ gst_toyunda_set_property (GObject * object, guint property_id,
 			if (toyunda->toyunda_logo != NULL)
 				g_free(toyunda->toyunda_logo);
 			toyunda->toyunda_logo = g_value_dup_string(value);
-		break;
+			break;
+		case PROP_IMAGE_DIR:
+			if (toyunda->images_base_path != NULL)
+				g_free(toyunda->images_base_path);
+			toyunda->images_base_path = g_value_dup_string(value);
+			break;
+		case PROP_SUB_ENABLED:
+			toyunda->sub_enabled = g_value_get_boolean(value);
+			break;
 	default:
 	G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
 	break;
@@ -277,9 +295,16 @@ gst_toyunda_get_property (GObject * object, guint property_id,
 	switch (property_id) {
 		case PROP_SUBFILE:
 			g_value_set_string(value, toyunda->subfile);
+			break;
 		case PROP_TOYUNDA_LOGO:
-			g_value_set_string(value, toyunda->subfile);
-		break;
+			g_value_set_string(value, toyunda->toyunda_logo);
+			break;
+		case PROP_IMAGE_DIR:
+			g_value_set_string(value, toyunda->images_base_path);
+			break;
+		case PROP_SUB_ENABLED:
+			g_value_set_boolean(value, toyunda->sub_enabled);
+			break;
 	default:
 	G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
 	break;
@@ -420,6 +445,19 @@ gst_toyunda_stop (GstBaseTransform * trans)
 static gboolean
 gst_toyunda_event (GstBaseTransform * trans, GstEvent * event)
 {
+	GstToyunda*	toyunda = GST_TOYUNDA(trans);
+	switch(GST_EVENT_TYPE(event))
+	{
+		case GST_EVENT_SEEK:
+		{
+			toyunda->current_sub_it = NULL;
+			g_sequence_free(toyunda->current_subtitles);
+			toyunda->current_subtitles = NULL;
+			break;
+		}
+		default:
+			break;
+	}
 	return TRUE;
 }
 
@@ -792,13 +830,15 @@ gst_toyunda_transform_ip (GstBaseTransform * trans, GstBuffer * buf)
 	framenb = ((start / 1000000) * framerate + 100 )/ 1000;
 	//g_printf("Timestamp : %u ---- frame :", start);
 	//g_printf("%d\n", framenb);
-	
-	gst_toyunda_select_subtitle(toyunda, framenb);
-	//gst_toyunda_draw_grid(toyunda, buffer);
-	if (toyunda->subtitle_changed == TRUE)
-		gst_toyunda_create_subtitle_buffers(toyunda);
-	toyunda->subtitle_changed = FALSE;
-	gst_toyunda_blend_subtitles(toyunda, buf);
+	if (toyunda->subfile != NULL && toyunda->sub_enabled == TRUE)
+	{
+		gst_toyunda_select_subtitle(toyunda, framenb);
+		//gst_toyunda_draw_grid(toyunda, buffer);
+		if (toyunda->subtitle_changed == TRUE)
+			gst_toyunda_create_subtitle_buffers(toyunda);
+		toyunda->subtitle_changed = FALSE;
+		gst_toyunda_blend_subtitles(toyunda, buf);
+	}
 	return GST_FLOW_OK;
 }
 
@@ -813,8 +853,17 @@ gst_toyunda_prepare_output_buffer (GstBaseTransform * trans,
 static gboolean
 gst_toyunda_src_event (GstBaseTransform * trans, GstEvent * event)
 {
-
-  return FALSE;
+	GstToyunda* toyunda = GST_TOYUNDA(trans);
+	switch(GST_EVENT_TYPE(event)) {
+		case GST_EVENT_SEEK:
+			toyunda->current_sub_it = NULL;
+			g_sequence_free(toyunda->current_subtitles);
+			toyunda->current_subtitles = NULL;
+			break;
+		default:
+			break;
+	}
+	return FALSE;
 }
 
 static void

@@ -40,8 +40,10 @@ static void gst_toyunda_field_init(GstToyunda *toyunda)
 	toyunda->current_subtitles = NULL;
 	toyunda->hardware_surface = FALSE;
 	toyunda->toyunda_logo = g_new(char, strlen(STR_TOYUNDA_LOGO_DEFAULT) + 1);
+	toyunda->images_base_path = NULL;
 	strcpy(toyunda->toyunda_logo, STR_TOYUNDA_LOGO_DEFAULT);
 	toyunda->font_desc = STR_TOYUNDA_FONT_DESCRIPTION;
+	toyunda->sub_enabled = TRUE;
 }
 
 void gst_toyunda_reset_subtitle_buffer_statut(GstToyunda* toyunda)
@@ -91,7 +93,7 @@ static void	gst_toyunda_select_subtitle(GstToyunda *toyunda, int framenb)
 	while (it != it_end)
 	{
 		sub = (toyunda_sub_t*) g_sequence_get(it);
-		if (sub->start == framenb)
+		if (sub->start == framenb || sub->start < framenb && sub->stop >= framenb)
 		{
 			/*g_printf("ADD SUBTITLE : ");
 			print_toyunda_sub_t(*sub);*/
@@ -241,10 +243,21 @@ void gst_toyunda_adjust_default_font_size(GstToyunda* toyunda)
 static	gchar*	gst_toyunda_get_image_path(GstToyunda* toyunda, gchar* image)
 {
 	gchar	*toret;
+	uint 	sizeM;
 
 	if (strcmp(image, STR_TOYUNDA_LOGO_DEFAULT) == 0)
 		return toyunda->toyunda_logo;
-	return toret;
+	else
+	{
+		sizeM = strlen(toyunda->images_base_path) + 1 + strlen(image) + 1;
+		toret = g_new(char, sizeM);
+		toret[0] = '\0';
+		if (toyunda->images_base_path != NULL)
+			strcpy(toret, toyunda->images_base_path);
+		strcat(toret, "/");
+		strcat(toret, image);
+		return toret;
+	}
 }
 
 

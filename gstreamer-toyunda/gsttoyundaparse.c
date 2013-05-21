@@ -210,9 +210,9 @@ pipehandle :
 		g_printf("Multiline :(\n");
 		tmp_sub = g_new(toyunda_sub_t, 1);
 		toyunda_sub_t_partial_cpy(tmp_sub, new_sub);
+		tmp_sub->image = g_new(char, strlen(new_sub->image) + 1);
+		strcpy(tmp_sub->image, new_sub->image);
 		new_sub = tmp_sub;
-		new_sub->image = g_new(char, strlen(STR_TOYUNDA_LOGO_NONE));
-		strcpy(new_sub->image, STR_TOYUNDA_LOGO_NONE);
 		goto pipehandle;
 	}
 	
@@ -229,6 +229,7 @@ static void	parse_toyunda_options(char *str, int *pos, toyunda_sub_t **sub)
 		if ((strtmppos = parse_toyunda_option(str, *pos, sub)) == 0)
 		{
 			g_printf("Expecting Option\n");
+			g_printf(str);
 			return ;
 		}
 		else
@@ -236,6 +237,7 @@ static void	parse_toyunda_options(char *str, int *pos, toyunda_sub_t **sub)
 		if (str[*pos] != '}')
 		{
 			g_printf("Expecting end of Option '}'\n");
+			g_printf(str);
 			return ;
 		}
 		(*pos)++;
@@ -253,7 +255,8 @@ static int	parse_toyunda_option(char* str, int pos, toyunda_sub_t **sub)
 	int	tmp;
 	int	cpt;
 
-	/* c = color, o = pos, s = size */
+	//g_printf("Option : %c\n", str[pos]);
+	/* c = color, o = pos, s = size, b = image */
 	if (str[pos] == 'c' || str[pos] == 'C')
 	{
 		if (str[pos + 1] == ':')
@@ -342,6 +345,7 @@ static int	parse_toyunda_option(char* str, int pos, toyunda_sub_t **sub)
 				if (str[pos + 1] == ':')
 				{
 					pos += 2;
+					cpt = 0;
 					while (str[pos] != '}')
 					{
 						buff[cpt] = str[pos];
@@ -355,7 +359,7 @@ static int	parse_toyunda_option(char* str, int pos, toyunda_sub_t **sub)
 				}
 			}
 			else
-				if (str[pos] == 's')
+				if (str[pos] == 's' || str[pos] == 'S')
 				{
 					if (str[pos + 1] == ':')
 					{

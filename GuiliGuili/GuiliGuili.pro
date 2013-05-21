@@ -19,7 +19,8 @@ HEADERS += \
     profilgsttoyundaplayer.h \
     songtreemodel.h \
     songtreeitem.h \
-    gstplayerprofildialog.h
+    gstplayerprofildialog.h \
+    ../comons/sqhandlegstpath.h
 
 
 SOURCES += \
@@ -39,7 +40,8 @@ SOURCES += \
     profilgsttoyundaplayer.cpp \
     songtreemodel.cpp \
     songtreeitem.cpp \
-    gstplayerprofildialog.cpp
+    gstplayerprofildialog.cpp \
+    ../comons/sqhandlegstpath.cpp
 
 FORMS += \
     GuiliGuili.ui \

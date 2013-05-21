@@ -19,6 +19,7 @@
 #include <QtGui/QApplication>
 #include "GuiliGuili.h"
 #include <QTextStream>
+#include "../comons/sqhandlegstpath.h"
 
 static QTextStream logfile;
 static QTextStream cout(stdout);
@@ -56,24 +57,7 @@ int main(int argc, char** argv)
     logfile.setDevice(&mlog);
     if (mlog.open(QIODevice::WriteOnly | QIODevice::Text))
         qInstallMsgHandler(myMessageOutput);
-
-#ifdef Q_WS_WIN32
-        char    *mPath, *mGstRoot;
-        mPath = getenv("PATH");
-        mGstRoot = getenv("GSTREAMER_SDK_ROOT_X86");
-        if (mGstRoot == NULL)
-        {
-            QString tmpL = qApp->applicationDirPath().toLocal8Bit() + "\\gstreamer-sdk\\0.10\\x86\\";
-            mGstRoot = (char *)malloc(strlen(tmpL.toLocal8Bit().data()) + 1);
-            strcpy(mGstRoot, tmpL.toLocal8Bit().data());
-        }
-        QString mTmp = QString("PATH=%1;%2\\bin\\;%2\\lib").arg(mPath).arg(mGstRoot);
-        qDebug() << mTmp;
-        putenv(mTmp.toLocal8Bit().data());
-        //free(mGstRoot);
-#endif
-
-
+    sq_set_gstlib_env();
     GuiliGuili foo;
     foo.show();
     return app.exec();
