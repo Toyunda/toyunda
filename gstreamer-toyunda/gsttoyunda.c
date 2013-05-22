@@ -431,7 +431,7 @@ static gboolean
 gst_toyunda_start (GstBaseTransform * trans)
 {
 	GstToyunda* toyunda = GST_TOYUNDA(trans);
-	if (toyunda->subfile_parsed == FALSE)
+	if (toyunda->subfile_parsed == FALSE && toyunda->subfile != NULL)
 		gst_toyunda_parse_toyunda_subtitle(toyunda);
 	return TRUE;
 }
@@ -451,8 +451,12 @@ gst_toyunda_event (GstBaseTransform * trans, GstEvent * event)
 		case GST_EVENT_SEEK:
 		{
 			toyunda->current_sub_it = NULL;
-			g_sequence_free(toyunda->current_subtitles);
-			toyunda->current_subtitles = NULL;
+			if (toyunda->current_subtitles != NULL)
+			{
+				gst_toyunda_cleanup_current_subtitles(toyunda->current_subtitles);
+				g_sequence_free(toyunda->current_subtitles);
+				toyunda->current_subtitles = NULL;
+			}
 			break;
 		}
 		default:
@@ -825,6 +829,7 @@ gst_toyunda_transform_ip (GstBaseTransform * trans, GstBuffer * buf)
 	gint64 start, stop, clip_start = 0, clip_stop = 0;
 	
 	toyunda = GST_TOYUNDA (trans);
+	GST_OBJECT_LOCK(toyunda);
 	start = GST_BUFFER_TIMESTAMP (buf);
 	framerate = toyunda->fps_n / toyunda->fps_d;
 	framenb = ((start / 1000000) * framerate + 100 )/ 1000;
@@ -839,6 +844,7 @@ gst_toyunda_transform_ip (GstBaseTransform * trans, GstBuffer * buf)
 		toyunda->subtitle_changed = FALSE;
 		gst_toyunda_blend_subtitles(toyunda, buf);
 	}
+	GST_OBJECT_UNLOCK(toyunda);
 	return GST_FLOW_OK;
 }
 
@@ -856,9 +862,16 @@ gst_toyunda_src_event (GstBaseTransform * trans, GstEvent * event)
 	GstToyunda* toyunda = GST_TOYUNDA(trans);
 	switch(GST_EVENT_TYPE(event)) {
 		case GST_EVENT_SEEK:
+			GST_OBJECT_LOCK(toyunda);
 			toyunda->current_sub_it = NULL;
-			g_sequence_free(toyunda->current_subtitles);
-			toyunda->current_subtitles = NULL;
+			if (toyunda->current_subtitles != NULL)
+			{
+				gst_toyunda_cleanup_current_subtitles(toyunda->current_subtitles);
+				g_sequence_free(toyunda->current_subtitles);
+				toyunda->current_subtitles = NULL;
+			}
+			g_printf("Seek event\n");
+			GST_OBJECT_UNLOCK(toyunda);
 			break;
 		default:
 			break;

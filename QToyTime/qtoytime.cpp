@@ -43,7 +43,6 @@ QToyTime::QToyTime(QWidget *parent) :
     /*ui->lyrFileEdit->resize(400, ui->lyrFileEdit->height());
     ui->frmFileEdit->resize(200, ui->frmFileEdit->height());*/
     createToolBarFrmLyr();
-    //m_videoWidget->setVideoFile("/media/sf_Document_partages/Air - AMV - Azurewind.avi");
     m_process = new QProcess();
     m_process->setWorkingDirectory(qApp->applicationDirPath());
     QStringList env = QProcess::systemEnvironment();
@@ -54,6 +53,22 @@ QToyTime::QToyTime(QWidget *parent) :
 
     m_previewWindow = new PreviewWindow(this);
     m_previewWindow->hide();
+    QString videosink;
+    if (m_settings->contains("videosink"))
+    {
+        m_configDialog.setVideoSink(m_settings->value("videosink").toString());
+        videosink = m_settings->value("videosink").toString();
+    }
+    m_videoWidget->setFixedSize(480, 320);
+    m_videoWidget->init(videosink);
+    m_previewWindow->init(videosink);
+    m_frameExtraSel.format.setBackground(QBrush(Qt::lightGray));
+
+    if (m_settings->contains("windowGeometry"))
+    {
+        restoreGeometry(m_settings->value("windowGeometry").toByteArray());
+        restoreState(m_settings->value("windowState").toByteArray());
+    }
 }
 
 QToyTime::~QToyTime()
@@ -63,15 +78,28 @@ QToyTime::~QToyTime()
 
 void QToyTime::onVideoMousePress(int frameNb)
 {
+    if (m_cacheFrame.isEmpty())
+    {
+        m_frameExtraSel.cursor = ui->frameOutputEdit->textCursor();
+        m_frameExtraSel.cursor.setPosition(ui->frameOutputEdit->toPlainText().size() - 1);
+    }
     ui->frameOutputEdit->insertPlainText(QString().setNum(frameNb) + " ");
     m_cacheFrame.append(QString().setNum(frameNb) + " ");
 }
 
 void QToyTime::onVideoMouseRelease(int frameNb)
 {
+    QList<QTextEdit::ExtraSelection> sel;
+
     ui->frameOutputEdit->insertPlainText(QString().setNum(frameNb) + "\n");
     ui->frameOutputEdit->verticalScrollBar()->setValue(ui->frameOutputEdit->verticalScrollBar()->maximum());
+
+    m_frameExtraSel.cursor.setPosition(ui->frameOutputEdit->toPlainText().size(), QTextCursor::KeepAnchor);
+    sel.append(m_frameExtraSel);
+    ui->frameOutputEdit->setExtraSelections(sel);
     m_cacheFrame.append(QString().setNum(frameNb) + "\n");
+
+
 }
 
 void QToyTime::onVideoWidgetKeyEvent(QKeyEvent ev)
@@ -83,7 +111,7 @@ void QToyTime::onVideoWidgetKeyEvent(QKeyEvent ev)
         else
         {
             m_videoWidget->play();
-            m_cacheFrame.clear();
+            clearCacheFrame();
         }
     }
     if (ev.key() ==  Qt::Key_K)
@@ -302,6 +330,13 @@ void QToyTime::onSliderMoved(int pos)
     }
 }
 
+void QToyTime::closeEvent(QCloseEvent *ev)
+{
+    m_settings->setValue("windowState", saveState());
+    m_settings->setValue("windowGeometry", saveGeometry());
+    QMainWindow::closeEvent(ev);
+}
+
 void QToyTime::print_syldesc(const QToyTime::SylDesc& desc)
 {
     qDebug() << QString("\tLyrEdit : %1,%2 : $%3$").arg(desc.posStartInLyrEdit).arg(desc.posEndInLyrEdit)
@@ -319,6 +354,12 @@ void QToyTime::print_linedesc(const QToyTime::lineSylDesc& line)
     {
         print_syldesc(sylDesc);
     }
+}
+
+void QToyTime::clearCacheFrame()
+{
+    m_cacheFrame.clear();
+    ui->frameOutputEdit->setExtraSelections(QList<QTextEdit::ExtraSelection>());
 }
 
 QToyTime::lineSylDesc *QToyTime::getLineSylDesc(bool fromLyr, bool fromFrm, int posInEdit, bool posOnly)
@@ -621,8 +662,8 @@ void QToyTime::on_actionPreview_Last_Frame_Input_triggered()
         qDebug() << tmpFile;
         m_previewWindow->setSubFile(tmpFile);
         m_previewWindow->show();
-        m_previewWindow->play();
         m_previewWindow->setPosition(pos);
+        m_previewWindow->play();
     }
 }
 
@@ -647,5 +688,13 @@ void QToyTime::on_actionOpen_last_Project_triggered()
         frmOpen();
         lyrOpen();
         loadVideo();
+    }
+}
+
+void QToyTime::on_actionConfiguration_triggered()
+{
+    if (m_configDialog.exec())
+    {
+        m_settings->setValue("videosink", m_configDialog.videoSink);
     }
 }

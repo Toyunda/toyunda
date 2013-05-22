@@ -21,6 +21,13 @@
 VideoWidget::VideoWidget(QWidget *parent) :
     QGst::Ui::VideoWidget(parent)
 {
+    setFocusPolicy(Qt::ClickFocus);
+    m_posTimer = new QTimer();
+    connect(m_posTimer, SIGNAL(timeout()), this, SIGNAL(positionChanged()));
+}
+
+bool VideoWidget::init(QString videoSink)
+{
     QGst::BusPtr bus;
     QGst::ElementPtr conv, asink, queuea, queuev, resample, vscale, recolor;
 
@@ -33,10 +40,16 @@ VideoWidget::VideoWidget(QWidget *parent) :
     resample = QGst::ElementFactory::make("audioresample");
 #ifdef  Q_WS_WIN
     asink = QGst::ElementFactory::make("directsoundsink", "Auto Audio Sink");
-    m_vsink = QGst::ElementFactory::make("directdrawsink", "video sink");
+    if (videoSink.isEmpty())
+        m_vsink = QGst::ElementFactory::make("directdrawsink", "video sink");
+    else
+        m_vsink = QGst::ElementFactory::make(videoSink, "video sink");
 #else
     asink = QGst::ElementFactory::make("autoaudiosink", "Auto Audio Sink");
-    m_vsink = QGst::ElementFactory::make("ximagesink", "video sink");
+    if (videoSink.isEmpty())
+        m_vsink = QGst::ElementFactory::make("autovideosink", "video sink");
+    else
+        m_vsink = QGst::ElementFactory::make(videoSink, "video sink");
 #endif
     m_toyunda = QGst::ElementFactory::make("toyunda", "Toyunda");
     vscale = QGst::ElementFactory::make("videoscale", "videoscale");
@@ -58,7 +71,6 @@ VideoWidget::VideoWidget(QWidget *parent) :
     CHECK_GST_IS_NULL(queuev);
     bus = m_pipeline->bus();
     bus->addSignalWatch();
-    //watchPipeline(m_pipeline);
     m_dec->setProperty<int>("connection-speed", 56);
     QGlib::connect(bus, "message", this, &VideoWidget::onBusMessage);
     QGlib::connect(m_dec, "new-decoded-pad", this, &VideoWidget::new_decoded_pad);
@@ -74,8 +86,6 @@ VideoWidget::VideoWidget(QWidget *parent) :
     resample->link(asink);
     QGst::GhostPadPtr gpad = QGst::GhostPad::create(audiopad, "sink");
     m_audiobin->addPad(gpad);
-
-    qDebug() << "End audio definition, start video";
     m_videobin = QGst::Bin::create("-Video bin");
 
     m_vsink->setProperty<bool>("sync", true);
@@ -90,19 +100,18 @@ VideoWidget::VideoWidget(QWidget *parent) :
     m_pipeline->add(m_audiobin, m_videobin);
     m_currentState = QGst::StateNull;
 
-    setFixedSize(480, 320);
-    setFocusPolicy(Qt::ClickFocus);
-    m_posTimer = new QTimer();
-    connect(m_posTimer, SIGNAL(timeout()), this, SIGNAL(positionChanged()));
+
     m_toyunda->setProperty("toyunda-logo", qApp->applicationDirPath() + "/toyunda.tga");
     m_videosink_set = false;
 }
+
 
 VideoWidget::~VideoWidget()
 {
     if (m_pipeline)
         m_pipeline->setState(QGst::StateNull);
 }
+
 
 void VideoWidget::setPosition(const QTime &pos)
 {
@@ -179,7 +188,7 @@ void	VideoWidget::new_decoded_pad(const QGst::PadPtr &pad, const int gbool)
 bool	VideoWidget::autoplug_continue(const QGst::PadPtr &pad, const QGst::CapsPtr &cap)
 {
     QGst::StructurePtr str = cap->internalStructure(0);
-        qDebug() << "Name : " << pad->name() << "Cap :" << cap;
+        //qDebug() << "Name : " << pad->name() << "Cap :" << cap;
     if (str->hasField("framerate"))
     {
        QGst::Fraction frac = str->value("framerate").get<QGst::Fraction>();
@@ -268,14 +277,16 @@ double VideoWidget::framerate() const
     return m_framerate;
 }
 
-void VideoWidget::GstInit(int &ac, char **ag[])
+bool VideoWidget::GstInit(int &ac, char **ag[])
 {
     try {
         QGst::init(&ac, ag);
     } catch (QGlib::Error qgerr)
     {
         qCritical() << "Can't init gstreamer";
+        return false;
     }
+    return true;
 }
 
 
@@ -303,8 +314,8 @@ void VideoWidget::setVideoFile(QString file)
        m_pipeline->setState(QGst::StateReady);
     if (!m_videosink_set)
     {
-        //setVideoSink(m_vsink);
-        watchPipeline(m_pipeline);
+        setVideoSink(m_vsink);
+        //watchPipeline(m_pipeline);
         m_videosink_set = true;
     }
     m_src->setProperty("location", file);

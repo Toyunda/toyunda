@@ -7,6 +7,8 @@
 #include <QProcess>
 #include "previewwindow.h"
 #include <QSettings>
+#include "configdialog.h"
+#include <QTextEdit>
 
 namespace Ui {
 class QToyTime;
@@ -40,6 +42,7 @@ private slots:
     void    onLyrCursorPositionChanged();
     void    onFrmCursorPositionChanged();
     void    onSliderMoved(int);
+    void    closeEvent(QCloseEvent *ev);
 
 
     void on_actionPreview_Last_Frame_Input_triggered();
@@ -47,6 +50,8 @@ private slots:
     void on_actionInsert_last_frame_input_triggered();
 
     void on_actionOpen_last_Project_triggered();
+
+    void on_actionConfiguration_triggered();
 
 private:
     struct  SylDesc;
@@ -85,10 +90,12 @@ private:
     QString m_subFile;
     PreviewWindow   *m_previewWindow;
     QSettings   *m_settings;
+    configDialog    m_configDialog;
 
     bool    m_modifiedFrm;
     bool    m_modifiedLyr;
     QString m_cacheFrame;
+    QTextEdit::ExtraSelection m_frameExtraSel;
 
 
 
@@ -101,6 +108,7 @@ private:
 
     void print_syldesc(const QToyTime::SylDesc& desc);
     void print_linedesc(const QToyTime::lineSylDesc& line);
+    void    clearCacheFrame();
 
     void    iniOpen();
     void    iniSave();

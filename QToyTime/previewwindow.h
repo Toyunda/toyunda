@@ -13,6 +13,7 @@ public:
     void    setSubFile(QString filePath);
     void    setSubText(QString subText);
     void    setPosition(const QTime& pos);
+    bool    init(QString vSink = QString());
     
 signals:
     

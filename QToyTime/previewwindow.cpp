@@ -4,8 +4,8 @@ PreviewWindow::PreviewWindow(QWidget *parent) :
     QWidget(parent)
 {
     m_videoWidget = new VideoWidget(this);
-    m_videoWidget->activateSubtitle(true);
     m_videoWidget->setFixedSize(800, 600);
+    setFixedSize(800, 600);
     setWindowFlags(Qt::Window);
     setWindowTitle("QToyTime Preview Window");
 }
@@ -29,6 +29,12 @@ void PreviewWindow::setPosition(const QTime &pos)
 {
     m_prevPos = pos;
     m_videoWidget->setPosition(pos);
+}
+
+bool PreviewWindow::init(QString vSink)
+{
+    m_videoWidget->init(vSink);
+    m_videoWidget->activateSubtitle(true);
 }
 
 

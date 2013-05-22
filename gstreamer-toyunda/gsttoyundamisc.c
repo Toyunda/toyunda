@@ -23,12 +23,15 @@
 static GstBuffer*	gst_toyunda_get_image_data(GstToyunda *toyunda, gchar *image_file, uint *width, uint *height);
 
 static void	gst_toyunda_select_subtitle(GstToyunda* toyunda, int framenb);
-static void	gst_toyunda_cleanup_subtitles_seq(GSequence *seq);
+static void	gst_toyunda_cleanup_current_subtitles(GSequence *seq);
+static void	gst_toyunda_cleanup_all_subtitles(GSequence *seq);
+
 static void	gst_toyunda_reset_subtitle_buffer_statut(GstToyunda *toyunda);
 
 static	void	gst_toyunda_adjust_default_font_size(GstToyunda *toyunda);
 static	gchar*	gst_toyunda_get_image_path(GstToyunda* toyunda, gchar* image);
 static	void	gst_toyunda_field_init(GstToyunda *toyunda);
+gboolean	gst_toyunda_parse_toyunda_subtitle(GstToyunda* toyunda);
 
 
 static void gst_toyunda_field_init(GstToyunda *toyunda)
@@ -80,11 +83,14 @@ static void	gst_toyunda_select_subtitle(GstToyunda *toyunda, int framenb)
 	toyunda_sub_and_buff_t* sub_buff;
 	GSequenceIter* it_next;
 
+	if (toyunda->subfile_parsed == FALSE)
+		gst_toyunda_parse_toyunda_subtitle(toyunda);
 	if (toyunda->current_subtitles == NULL)
+	{
 		toyunda->current_subtitles = g_sequence_new(NULL);
-	if (toyunda->current_sub_it != NULL)
-		it = toyunda->current_sub_it;
-	else
+		//g_printf("creating new sequence\n");
+	}
+	if (toyunda->current_sub_it == NULL)
 		toyunda->current_sub_it = g_sequence_get_begin_iter(toyunda->subtitles);
 	
 	/* Add new subtitle to current according to framenb */
@@ -95,8 +101,8 @@ static void	gst_toyunda_select_subtitle(GstToyunda *toyunda, int framenb)
 		sub = (toyunda_sub_t*) g_sequence_get(it);
 		if (sub->start == framenb || sub->start < framenb && sub->stop >= framenb)
 		{
-			/*g_printf("ADD SUBTITLE : ");
-			print_toyunda_sub_t(*sub);*/
+			//g_printf("ADD SUBTITLE : ");
+			//print_toyunda_sub_t(*sub);
 			sub_buff = g_new(toyunda_sub_and_buff_t, 1);
 			sub_buff->subtitle = sub;
 			sub_buff->overlay_rect = NULL;
@@ -110,7 +116,7 @@ static void	gst_toyunda_select_subtitle(GstToyunda *toyunda, int framenb)
 	}
 	toyunda->current_sub_it = it;
 	/* Remove subtitle */
-	/*g_printf("==Current subtitle lenght : %d\n", g_sequence_get_length(toyunda->current_subtitles));*/
+	//g_printf("==Current subtitle lenght : %d\n", g_sequence_get_length(toyunda->current_subtitles));
 	it = g_sequence_get_begin_iter(toyunda->current_subtitles);
 	it_end = g_sequence_get_end_iter(toyunda->current_subtitles);
 
@@ -121,8 +127,8 @@ static void	gst_toyunda_select_subtitle(GstToyunda *toyunda, int framenb)
 		sub = sub_buff->subtitle;
 		if ((sub->stop <= framenb))
 		{
-			/*g_printf("REMOVE SUBTITLE : ");
-			print_toyunda_sub_t(*sub);*/
+			//g_printf("REMOVE SUBTITLE : ");
+			//print_toyunda_sub_t(*sub);
 			g_sequence_remove(it);
 			if (sub_buff->overlay_rect != NULL)
 				gst_video_overlay_rectangle_unref(sub_buff->overlay_rect);
@@ -160,7 +166,7 @@ static void	gst_toyunda_select_subtitle(GstToyunda *toyunda, int framenb)
 				sub_buff->to_change = TRUE;
 			}
 		}
-		it = g_sequence_iter_next(it);
+		it = it_next;
 	}
 		
 }
@@ -261,7 +267,33 @@ static	gchar*	gst_toyunda_get_image_path(GstToyunda* toyunda, gchar* image)
 }
 
 
-static void	gst_toyunda_cleanup_subtitles_seq(GSequence *seq)
+static void	gst_toyunda_cleanup_current_subtitles(GSequence *seq)
 {
-	/* TODO */
+	GSequenceIter* it = g_sequence_get_begin_iter(seq);
+	GSequenceIter* it_end = g_sequence_get_end_iter(seq);
+	toyunda_sub_and_buff_t* sub_buff;
+	
+	while (it != it_end)
+	{
+		sub_buff = g_sequence_get(it);
+		if (sub_buff->overlay_rect != NULL)
+			gst_video_overlay_rectangle_unref(sub_buff->overlay_rect);
+		g_free(sub_buff);
+		it = g_sequence_iter_next(it);
+	}
+}
+
+static void	gst_toyunda_cleanup_all_subtitles(GSequence *seq)
+{
+	GSequenceIter* it = g_sequence_get_begin_iter(seq);
+	GSequenceIter* it_end = g_sequence_get_end_iter(seq);
+	toyunda_sub_t*	sub;
+	while (it != it_end)
+	{
+		sub = g_sequence_get(it);
+		if (sub->image != NULL)
+			g_free(sub->image);
+		g_free(sub);
+		it = g_sequence_iter_next(it);
+	}
 }

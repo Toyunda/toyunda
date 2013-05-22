@@ -24,7 +24,12 @@ void    sq_set_gstlib_env()
 
 void    sq_add_gsttoyunda_plugin_path(QString appPath)
 {
+#ifdef Q_WS_WIN32
     _putenv(QString("GST_PLUGIN_PATH=" + sq_get_gsttoyunda_plugin_path(appPath)).toLatin1().constData());
+#endif
+#ifdef Q_WS_X11
+    setenv("GST_PLUGIN_PATH", sq_get_gsttoyunda_plugin_path(appPath).toLatin1().constData(), 1);
+#endif
 }
 
 QString sq_get_gsttoyunda_plugin_path(QString appPath)

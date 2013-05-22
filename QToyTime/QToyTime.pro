@@ -27,7 +27,8 @@ SOURCES += main.cpp\
     lyrsyntaxhighlighter.cpp \
     frmsyntaxhighlighter.cpp \
     ../comons/sqhandlegstpath.cpp \
-    previewwindow.cpp
+    previewwindow.cpp \
+    configdialog.cpp
 
 HEADERS  += qtoytime.h \
     videowidget.h \
@@ -36,13 +37,16 @@ HEADERS  += qtoytime.h \
     lyrsyntaxhighlighter.h \
     frmsyntaxhighlighter.h  \
     ../comons/sqhandlegstpath.h \
-    previewwindow.h
+    previewwindow.h \
+    configdialog.h
 
 
 DESTDIR = $$BASE_PATH
 
 FORMS    += qtoytime.ui \
-    newtimedialog.ui
+    newtimedialog.ui \
+    configdialog.ui
+
 
 win32:LIBS += C:/qt-gstreamer/install/lib/QtGStreamer-0.10.lib \
               C:/qt-gstreamer/install/lib/QtGLib-2.0.lib \

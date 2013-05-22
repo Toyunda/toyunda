@@ -19,6 +19,7 @@ public:
     explicit VideoWidget(QWidget *parent = 0);
     ~VideoWidget();
 
+    bool    init(QString videoSink = QString());
     void    setPosition(const QTime &pos);
     void    setPosition(int frame);
     QTime   getTimeFromFrame(int) const;
@@ -30,7 +31,7 @@ public:
     void    reloadSub();
     void    activateSubtitle(bool act);
     double  framerate() const;
-    static  void    GstInit(int& ac, char **ag[]);
+    static  bool    GstInit(int& ac, char **ag[]);
 
     
 signals:

@@ -33,7 +33,8 @@ static size_t 	mygetline(char **lineptr, size_t *n, FILE *stream);
 static gint	toyunda_subtitle_compare(gpointer a, gpointer b, gpointer data);
 static gboolean is_valid_rgba_color_t(rgba_color_t);
 
-static void	gst_toyunda_cleanup_subtitles_seq(GSequence *seq);
+static void	gst_toyunda_cleanup_all_subtitles(GSequence *seq);
+static void	gst_toyunda_cleanup_current_subtitles(GSequence *seq);
 
 gboolean
 gst_toyunda_parse_toyunda_subtitle(GstToyunda* toyunda)
@@ -44,8 +45,11 @@ gst_toyunda_parse_toyunda_subtitle(GstToyunda* toyunda)
 	
 	if (toyunda->subtitles != NULL)
 	{
-		gst_toyunda_cleanup_subtitles_seq(toyunda->subtitles);
-		gst_toyunda_cleanup_subtitles_seq(toyunda->current_subtitles);	
+		gst_toyunda_cleanup_all_subtitles(toyunda->subtitles);
+		g_sequence_free(toyunda->subtitles);
+		gst_toyunda_cleanup_current_subtitles(toyunda->current_subtitles);
+		g_sequence_free(toyunda->current_subtitles);
+		toyunda->current_subtitles = NULL;
 	}
 	toyunda->subtitles = g_sequence_new(NULL);
 	file_id = g_fopen(toyunda->subfile, "r");
