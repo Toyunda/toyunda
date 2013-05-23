@@ -24,7 +24,7 @@ xcopy /y %qtgstreamerPath%\lib\QtGStreamerUi-0.10.dll %deployPath%
 
 echo Copying Qt's file
 
-FOR %%p IN (QtCored4.dll QtGuid4.dll QtSvgd4.dll QtXmld4.dll) DO xcopy /y %QtPath%\bin\%%p %deployPath%
+FOR %%p IN (QtOpenGLd4.dll QtCored4.dll QtGuid4.dll QtSvgd4.dll QtXmld4.dll) DO xcopy /y %QtPath%\bin\%%p %deployPath%
 
 mkdir %deployPath%\iconengines
 mkdir %deployPath%\imageformats

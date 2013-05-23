@@ -43,6 +43,7 @@ static	gboolean	fullscreen = FALSE;
 static	gchar*		video_output = NULL;
 static	gchar*		audio_output = AUDIO_SINK_DEF_OTHER;
 static	gchar*		base_image_path = NULL;
+static	gchar*		logo = NULL;
 
 static	GOptionEntry	opt_entry[] = 
 {
@@ -51,6 +52,7 @@ static	GOptionEntry	opt_entry[] =
 	{"videooutput", 'p', 0, G_OPTION_ARG_STRING, &video_output, "Select the video output (aka gstreamer video sink element)" , "the video sink element"},
 	{"audiooutput", 'a', 0, G_OPTION_ARG_STRING, &audio_output, "Select the audio output (aka gstreamer audio sink element)" , "the audio sink element"},
 	{"base_image_path", 'b', 0, G_OPTION_ARG_STRING, &base_image_path, "Set the base image path for image balise", "the path to image (usualy the karaoke dir"},
+	{"logo", 'l', 0, G_OPTION_ARG_STRING, &logo, "Set the toyunda default logo", "the logo path"},
 	{NULL}
 };
 
@@ -448,6 +450,8 @@ void	gst_start(char *video, char * sub)
 
 	g_object_set(G_OBJECT(filesrc), "location", video, NULL);
 	g_object_set(G_OBJECT(toyunda), "subfile", sub, NULL);
+	if (logo != NULL)
+		g_object_set(G_OBJECT(toyunda), "toyunda-logo", logo, NULL);
 	if (base_image_path != NULL)
 		g_object_set(G_OBJECT(toyunda), "image-base-dir", base_image_path, NULL);
 	

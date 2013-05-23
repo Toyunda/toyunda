@@ -48,6 +48,9 @@ QToyTime::QToyTime(QWidget *parent) :
     QStringList env = QProcess::systemEnvironment();
     env << "GST_PLUGIN_PATH=" + sq_get_gsttoyunda_plugin_path(qApp->applicationDirPath());
     m_process->setEnvironment(env);
+    m_process->setStandardOutputFile(qApp->applicationDirPath() + "/toyunda-player.log");
+    m_process->setStandardErrorFile(qApp->applicationDirPath() + "/toyunda-player.log");
+    m_process->setWorkingDirectory(qApp->applicationDirPath());
     LyrSyntaxHighlighter    *lyrSyn = new LyrSyntaxHighlighter(ui->lyrFileEdit->document());
     frmSyntaxHighlighter    *frmSyn = new frmSyntaxHighlighter(ui->frmFileEdit->document());
 
@@ -276,7 +279,7 @@ void QToyTime::runPreview()
     {
         m_process->kill();
         QStringList arg;
-        arg << QDir::currentPath() + "/" + m_videoFile << tmpFile;
+        arg << QDir::currentPath().toUtf8() + "/"  + m_videoFile << tmpFile;
         QString tmp = qApp->applicationDirPath();
         tmp.append("/toyunda-player");
         qDebug() << tmp << arg;

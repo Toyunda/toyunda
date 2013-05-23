@@ -1,0 +1,25 @@
+#-------------------------------------------------
+#
+# Project created by QtCreator 2013-05-23T00:45:15
+#
+#-------------------------------------------------
+
+include(../proconfig.pri)
+
+QT       += core
+
+QT       -= gui
+
+TARGET = QToyTimeWinLauncher
+
+CONFIG   -= app_bundle
+
+TEMPLATE = app
+
+
+SOURCES += main.cpp \
+            ../comons/sqhandlegstpath.cpp
+
+DESTDIR = $$BASE_PATH
+
+

@@ -35,6 +35,7 @@ bool PreviewWindow::init(QString vSink)
 {
     m_videoWidget->init(vSink);
     m_videoWidget->activateSubtitle(true);
+    return true;
 }
 
 

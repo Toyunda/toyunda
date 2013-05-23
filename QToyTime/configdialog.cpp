@@ -6,7 +6,7 @@ configDialog::configDialog(QWidget *parent) :
     ui(new Ui::configDialog)
 {
     ui->setupUi(this);
-#ifdef  Q_WS_W32
+#ifdef  Q_WS_WIN32
     ui->videosinkComboBox->addItem("directdrawsink");
     ui->videosinkComboBox->addItem("d3dvideosink");
     ui->videosinkComboBox->addItem("dshowvideosink");

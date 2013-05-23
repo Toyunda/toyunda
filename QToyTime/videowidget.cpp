@@ -103,6 +103,7 @@ bool VideoWidget::init(QString videoSink)
 
     m_toyunda->setProperty("toyunda-logo", qApp->applicationDirPath() + "/toyunda.tga");
     m_videosink_set = false;
+    return true;
 }
 
 

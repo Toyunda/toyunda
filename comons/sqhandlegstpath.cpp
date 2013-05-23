@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <QDebug>
-#include <QApplication>
+#include <QCoreApplication>
 #include "sqhandlegstpath.h"
 
 void    sq_set_gstlib_env()
