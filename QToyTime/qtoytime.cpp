@@ -12,6 +12,7 @@
 #include "lyrsyntaxhighlighter.h"
 #include "frmsyntaxhighlighter.h"
 #include "../comons/sqhandlegstpath.h"
+#include "toyundagendialog.h"
 
 QToyTime::QToyTime(QWidget *parent) :
     QMainWindow(parent),
@@ -71,6 +72,16 @@ QToyTime::QToyTime(QWidget *parent) :
     {
         restoreGeometry(m_settings->value("windowGeometry").toByteArray());
         restoreState(m_settings->value("windowState").toByteArray());
+    }
+    if (m_settings->contains("rubyexec"))
+    {
+        m_rubyExec = m_settings->value("rubyexec").toString();
+        m_configDialog.setRubyExec(m_rubyExec);
+    }
+    if (m_settings->contains("toytooldir"))
+    {
+        m_toyToolDir = m_settings->value("toytooldir").toString();
+        m_configDialog.setToyToolDir(m_toyToolDir);
     }
 }
 
@@ -158,8 +169,8 @@ void QToyTime::newTime()
         m_videoFile = diag.videoFile;
         m_subFile = diag.subFile;
         m_settings->setValue("lastproject", m_iniFile);
-        iniSave();
         QDir::setCurrent(diag.baseDir);
+        iniSave();
         frmOpen();
         lyrOpen();
         loadVideo();
@@ -631,7 +642,7 @@ void QToyTime::createCentralWidget()
     gl->addWidget(m_videoWidget, 0, 0, 1, 2);
     gl->addWidget(m_posSlider, 1, 0, 1, 2);
     QPushButton *previewB = new QPushButton();
-    previewB->setText("Preview");
+    previewB->setText(tr("Preview"));
     gl->addWidget(previewB, 2, 0);
     wid->setLayout(gl);
 
@@ -699,5 +710,19 @@ void QToyTime::on_actionConfiguration_triggered()
     if (m_configDialog.exec())
     {
         m_settings->setValue("videosink", m_configDialog.videoSink);
+        m_rubyExec = m_configDialog.rubyExec;
+        m_settings->setValue("rubyexec", m_configDialog.rubyExec);
+        m_toyToolDir = m_configDialog.toyToolDir;
+        m_settings->setValue("toytooldir", m_toyToolDir);
     }
+}
+
+void QToyTime::on_actionGenerateSubtitle_triggered()
+{
+    ToyundaGenDialog    diag;
+    QStringList args;
+    args << "toyunda-gen.rb" << QDir::currentPath() + "/" + m_lyrFile
+         << QDir::currentPath() + "/" + m_frmFile;
+    qDebug() << m_toyToolDir;
+    diag.execute(m_rubyExec, args, m_subFile, m_toyToolDir);
 }

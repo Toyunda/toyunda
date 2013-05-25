@@ -1,5 +1,6 @@
 #include "configdialog.h"
 #include "ui_configdialog.h"
+#include <QFileDialog>
 
 configDialog::configDialog(QWidget *parent) :
     QDialog(parent),
@@ -37,7 +38,40 @@ void    configDialog::setVideoSink(QString vsink)
     }
 }
 
+void configDialog::setRubyExec(QString rbe)
+{
+    rubyExec = rbe;
+    ui->rubyLineEdit->setText(rbe);
+}
+
+void configDialog::setToyToolDir(QString Tdir)
+{
+    toyToolDir = Tdir;
+    ui->toyToolEdit->setText(Tdir);
+}
+
 void configDialog::on_buttonBox_accepted()
 {
     videoSink = ui->videosinkComboBox->currentText();
+    rubyExec = ui->rubyLineEdit->text();
+    toyToolDir = ui->toyToolEdit->text();
+}
+
+void configDialog::on_rubyChooseButton_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this,
+                                                    tr("Choose the ruby executable"), "", "");
+    if (!fileName.isEmpty())
+    {
+        ui->rubyLineEdit->setText(fileName);
+    }
+}
+
+void configDialog::on_toyToolButton_clicked()
+{
+    QString fileName = QFileDialog::getExistingDirectory(this, tr("Choose the directory for Toyunda Tools"), "", QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+    if (!fileName.isEmpty())
+    {
+        ui->toyToolEdit->setText(fileName);
+    }
 }

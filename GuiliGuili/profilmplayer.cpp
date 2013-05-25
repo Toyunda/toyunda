@@ -6,6 +6,7 @@ Profilmplayer::Profilmplayer() : Profil()
 {
     configDialog = new mplayerProfilDialog();
     m_fullscreen = true;
+    m_process = new QProcess();
 }
 
 void Profilmplayer::setErrorHandler(SQErrorHandler *)
@@ -66,6 +67,8 @@ void Profilmplayer::play(QString video, QString lyrics)
     if (m_fullscreen)
         arg << "-fs";
     arg << "-sub" << lyrics << video;
+    if (!m_mplayer_additional_arg.isEmpty())
+        arg << m_mplayer_additional_arg.split(";");
     qDebug() << m_mplayer_exec << arg;
     m_process->start(m_mplayer_exec, arg);
 }
@@ -84,7 +87,7 @@ void    Profilmplayer::on_finish(int po)
 
 bool Profilmplayer::init()
 {
-    m_process = new QProcess(this);
+    //m_process = new QProcess(this);
     m_process->setWorkingDirectory(m_mplayer_WD);
     QObject::connect(m_process, SIGNAL(started()), this, SIGNAL(played()));
     QObject::connect(m_process, SIGNAL(finished(int)), this, SIGNAL(finished()));

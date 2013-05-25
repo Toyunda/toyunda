@@ -11,5 +11,6 @@ SUBDIRS += \
 	plugins	\
 	GuiliGuili \
         QToyTime \
-    QToyTimeWinLauncher
+        QToyTimeWinLauncher
+        #QToyundaDownloader
 

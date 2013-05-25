@@ -15,10 +15,18 @@ public:
     explicit configDialog(QWidget *parent = 0);
     ~configDialog();
     QString videoSink;
+    QString rubyExec;
+    QString toyToolDir;
     void    setVideoSink(QString vsink);
+    void    setRubyExec(QString rbe);
+    void    setToyToolDir(QString Tdir);
     
 private slots:
     void on_buttonBox_accepted();
+
+    void on_rubyChooseButton_clicked();
+
+    void on_toyToolButton_clicked();
 
 private:
     Ui::configDialog *ui;

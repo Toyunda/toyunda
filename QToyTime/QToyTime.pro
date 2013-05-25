@@ -15,9 +15,15 @@ unix {
     PKGCONFIG += gstreamer-0.10 QtGStreamer-0.10 QtGStreamerUi-0.10
 }
 
+win32 {
+        RC_FILE = QToyTime.rc
+}
+
+
 TARGET = QToyTime
 TEMPLATE = app
 
+TRANSLATIONS = fr_QToyTime.ts
 
 SOURCES += main.cpp\
         qtoytime.cpp \
@@ -28,7 +34,8 @@ SOURCES += main.cpp\
     frmsyntaxhighlighter.cpp \
     ../comons/sqhandlegstpath.cpp \
     previewwindow.cpp \
-    configdialog.cpp
+    configdialog.cpp \
+    toyundagendialog.cpp
 
 HEADERS  += qtoytime.h \
     videowidget.h \
@@ -38,14 +45,16 @@ HEADERS  += qtoytime.h \
     frmsyntaxhighlighter.h  \
     ../comons/sqhandlegstpath.h \
     previewwindow.h \
-    configdialog.h
+    configdialog.h \
+    toyundagendialog.h
 
 
 DESTDIR = $$BASE_PATH
 
 FORMS    += qtoytime.ui \
     newtimedialog.ui \
-    configdialog.ui
+    configdialog.ui \
+    toyundagendialog.ui
 
 
 win32:LIBS += C:/qt-gstreamer/install/lib/QtGStreamer-0.10.lib \

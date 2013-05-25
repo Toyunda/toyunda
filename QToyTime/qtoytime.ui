@@ -41,6 +41,8 @@
     </property>
     <addaction name="actionPreview_Last_Frame_Input"/>
     <addaction name="actionInsert_last_frame_input"/>
+    <addaction name="separator"/>
+    <addaction name="actionGenerateSubtitle"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuAction"/>
@@ -58,11 +60,16 @@
    <addaction name="separator"/>
    <addaction name="actionPreview_Last_Frame_Input"/>
    <addaction name="actionInsert_last_frame_input"/>
+   <addaction name="separator"/>
+   <addaction name="actionGenerateSubtitle"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QDockWidget" name="lyrFileDock">
+   <property name="locale">
+    <locale language="English" country="UnitedStates"/>
+   </property>
    <property name="windowTitle">
-    <string>Lyr FIle</string>
+    <string>Lyr File</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>1</number>
@@ -86,6 +93,9 @@
    </widget>
   </widget>
   <widget class="QDockWidget" name="frmFileDock">
+   <property name="locale">
+    <locale language="English" country="UnitedStates"/>
+   </property>
    <property name="windowTitle">
     <string>FRM FIle</string>
    </property>
@@ -111,6 +121,9 @@
    </widget>
   </widget>
   <widget class="QDockWidget" name="frameOutputDock">
+   <property name="locale">
+    <locale language="English" country="UnitedStates"/>
+   </property>
    <property name="windowTitle">
     <string>Frame Output</string>
    </property>
@@ -197,6 +210,17 @@
    </property>
    <property name="toolTip">
     <string>Open the configuration dialog</string>
+   </property>
+  </action>
+  <action name="actionGenerateSubtitle">
+   <property name="text">
+    <string>&amp;Generate subtitle</string>
+   </property>
+   <property name="toolTip">
+    <string>Generate the Toyunda Subtitle</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+G</string>
    </property>
   </action>
  </widget>

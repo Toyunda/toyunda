@@ -1,11 +1,15 @@
 #include "newtimedialog.h"
 #include "ui_newtimedialog.h"
 #include <QFileDialog>
+#include <QDebug>
 
 NewTimeDialog::NewTimeDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::NewTimeDialog)
 {
+    m_frmChoosed = false;
+    m_lyrChoosed = false;
+    m_iniChoosed = false;
     ui->setupUi(this);
 }
 

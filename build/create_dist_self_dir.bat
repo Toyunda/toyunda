@@ -4,9 +4,14 @@ set baseBuildDir=C:\toyunda\build
 
 mkdir %distDir%
 mkdir %distDir%\gsttoyunda
+mkdir %distDir%\i18n
+
 echo Copying proj File
 
-FOR %%p IN (QToyTime.exe GuiliGuili.exe toyunda-player.exe toyunda.tga VeraMoBd.ttf) DO xcopy /y %baseBuildDir%\%%p %distDir%
+FOR %%p IN (GuiliGuili.exe toyunda-player.exe toyunda.tga VeraMoBd.ttf) DO xcopy /y %baseBuildDir%\%%p %distDir%
+
+xcopy /y QToyTime.exe %distDir%\_binQToyTime.exe
+xcopy /y QToyTimeWinLauncher.exe %distDir%\QToyTime.exe
 
 xcopy /y %baseBuildDir%\gsttoyunda\gsttoyunda.dll %distDir%\gsttoyunda
 
@@ -26,6 +31,8 @@ mkdir %distDir%\imageformats
 
 xcopy /y /e %baseBuildDir%\iconengines %distDir%\iconengines
 xcopy /y /e %baseBuildDir%\imageformats %distDir%\imageformats
+
+xcopy /y %baseBuildDir%\i18n\fr_QToyTime.qm %distDir%\i18n
 
 echo Copying MSV file
 

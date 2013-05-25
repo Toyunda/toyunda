@@ -6,20 +6,23 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>441</width>
-    <height>300</height>
+    <width>446</width>
+    <height>433</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>QToyTime configuration</string>
   </property>
-  <widget class="QWidget" name="">
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
+  </property>
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
      <width>441</width>
-     <height>301</height>
+     <height>431</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -31,12 +34,12 @@
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>10</x>
          <y>60</y>
-         <width>381</width>
+         <width>411</width>
          <height>25</height>
         </rect>
        </property>
@@ -89,13 +92,6 @@
         <string>Karaoke dir</string>
        </property>
       </widget>
-      <zorder>label_2</zorder>
-      <zorder>lineEdit</zorder>
-      <zorder>pushButton</zorder>
-      <zorder></zorder>
-      <zorder>label_2</zorder>
-      <zorder>lineEdit</zorder>
-      <zorder>label</zorder>
      </widget>
     </item>
     <item>
@@ -116,13 +112,13 @@
         </rect>
        </property>
        <property name="text">
-        <string>The gstreamer videosink is the plugin used by gstreamer to display the video, try to change it if you have trouble with the display of the video. QToyTime MUST be restarted for the change make effect</string>
+        <string>The gstreamer videosink is the plugin used by gstreamer to display the video, try to change it if you have trouble with the display of the video. QToyTime MUST BE RESTARTED for the change make effect</string>
        </property>
        <property name="wordWrap">
         <bool>true</bool>
        </property>
       </widget>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>30</x>
@@ -141,6 +137,105 @@
         </item>
         <item>
          <widget class="QComboBox" name="videosinkComboBox"/>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+    <item>
+     <widget class="QFrame" name="frame_3">
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <widget class="QLabel" name="label_5">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>0</y>
+         <width>421</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>QToyTime use the toyunda tool that create the final subtitle file. It's written in ruby so you have to specify the path to the ruby executable too</string>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_6">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>80</y>
+         <width>91</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Ruby executable :</string>
+       </property>
+      </widget>
+      <widget class="QWidget" name="layoutWidget">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>100</y>
+         <width>401</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <widget class="QLineEdit" name="rubyLineEdit"/>
+        </item>
+        <item>
+         <widget class="QPushButton" name="rubyChooseButton">
+          <property name="text">
+           <string>...</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QLabel" name="label_7">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>40</y>
+         <width>131</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Toyunda Tool directory :</string>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QWidget" name="">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>60</y>
+         <width>401</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QLineEdit" name="toyToolEdit"/>
+        </item>
+        <item>
+         <widget class="QPushButton" name="toyToolButton">
+          <property name="text">
+           <string>...</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>

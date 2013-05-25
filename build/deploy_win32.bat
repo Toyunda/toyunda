@@ -41,6 +41,13 @@ xcopy /y %basePath%\gstreamer-toyunda\Debug\gsttoyunda.dll %deployPath%\gsttoyun
 
 echo Copying Visual C library
 
+echo Generatin Translation
+
+mkdir %deployPath%\i18n
+
+%QtPath%\bin\lrelease.exe %basePath%\QToyTime\QToyTime.pro
+xcopy /y %basePath%\QToyTime\fr_QToyTime.qm %deployPath%\i18n
+
 xcopy /y %visualPath%\vc\redist\debug_nonredist\x86\Microsoft.VC100.DebugCRT\msvcp100d.dll %deployPath%
 xcopy /y %visualPath%\vc\redist\debug_nonredist\x86\Microsoft.VC100.DebugCRT\msvcr100d.dll %deployPath%
 

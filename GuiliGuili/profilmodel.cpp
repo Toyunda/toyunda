@@ -166,6 +166,17 @@ bool ProfilModel::createDefaultProfils(bool createFile)
     mpProfil->baseType = Profil::MPLAYER;
     mpProfil->name = "Default MplayerToyunda";
     mpProfil->description = "Default MPlayer toyunda profil";
+
+    if (QFile::exists(qApp->applicationDirPath() + "/MPlayer-Toyunda/"))
+    {
+        QString mpPath = qApp->applicationDirPath() + "/MPlayer-Toyunda/";
+        Profilmplayer *mptProfil = static_cast<Profilmplayer*>(mpProfil);
+        mptProfil->m_mplayer_exec = mpPath + "/mplayer-toyunda.exe";
+        mptProfil->m_mplayer_WD = mpPath;
+        mptProfil->m_mplayer_font_path = mpPath + "/font/font.desc";
+        mptProfil->m_mplayer_additional_arg = "-include;"+ mpPath + "/config.txt";
+    }
+
     osdProfil->name = "Default OSD";
     osdProfil->description = "The default OSD profil";
     Profil  *gstprofil = new ProfilGstToyundaPlayer();

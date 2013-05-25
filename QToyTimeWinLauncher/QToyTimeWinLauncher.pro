@@ -22,4 +22,7 @@ SOURCES += main.cpp \
 
 DESTDIR = $$BASE_PATH
 
+win32 {
+        RC_FILE = ../QToyTime/QToyTime.rc
+}
 

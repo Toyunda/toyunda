@@ -32,6 +32,8 @@ public slots:
     QString     m_mplayer_font_path;
     bool        m_fullscreen;
     QProcess*   m_process;
+
+    friend class ProfilModel;
 };
 
 #endif // PROFILMPLAYER_H

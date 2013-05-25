@@ -34,6 +34,7 @@ private slots:
 
 private:
 	Ui::mplayerProfilDialog *ui;
+    QString m_defDir;
 };
 
 #endif // MPLAYERPROFILDIALOG_H

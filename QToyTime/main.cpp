@@ -1,5 +1,6 @@
 #include "qtoytime.h"
 #include <QApplication>
+#include <QTranslator>
 #include "videowidget.h"
 #include "../comons/sqhandlegstpath.h"
 #include "generatetoyundasubtitle.h"
@@ -41,6 +42,13 @@ int main(int argc, char *argv[])
     sq_set_gstlib_env();
     sq_add_gsttoyunda_plugin_path(qApp->applicationDirPath());
     qDebug() << getenv("GST_PLUGIN_PATH");
+
+    QString locale = QLocale::system().name().split('_').first();
+    qDebug() << locale;
+
+    QTranslator translator;
+    translator.load(qApp->applicationDirPath() + "/i18n/" + locale + "_QToyTime.qm" );
+    a.installTranslator(&translator);
     VideoWidget::GstInit(argc, &argv);
     QToyTime w;
 

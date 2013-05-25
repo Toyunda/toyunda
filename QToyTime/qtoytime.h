@@ -53,6 +53,8 @@ private slots:
 
     void on_actionConfiguration_triggered();
 
+    void on_actionGenerateSubtitle_triggered();
+
 private:
     struct  SylDesc;
     struct  lineSylDesc
@@ -96,6 +98,9 @@ private:
     bool    m_modifiedLyr;
     QString m_cacheFrame;
     QTextEdit::ExtraSelection m_frameExtraSel;
+
+    QString m_rubyExec;
+    QString m_toyToolDir;
 
 
 
