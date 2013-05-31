@@ -21,6 +21,7 @@ public slots:
     void    play();
     void    pause();
 
+
 private:
     VideoWidget*    m_videoWidget;
 

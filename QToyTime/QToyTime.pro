@@ -35,7 +35,9 @@ SOURCES += main.cpp\
     ../comons/sqhandlegstpath.cpp \
     previewwindow.cpp \
     configdialog.cpp \
-    toyundagendialog.cpp
+    toyundagendialog.cpp \
+    qgplayer.cpp \
+    toyundatime.cpp
 
 HEADERS  += qtoytime.h \
     videowidget.h \
@@ -46,7 +48,9 @@ HEADERS  += qtoytime.h \
     ../comons/sqhandlegstpath.h \
     previewwindow.h \
     configdialog.h \
-    toyundagendialog.h
+    toyundagendialog.h \
+    qgplayer.h \
+    toyundatime.h
 
 
 DESTDIR = $$BASE_PATH
@@ -54,7 +58,8 @@ DESTDIR = $$BASE_PATH
 FORMS    += qtoytime.ui \
     newtimedialog.ui \
     configdialog.ui \
-    toyundagendialog.ui
+    toyundagendialog.ui \
+    qgplayer.ui
 
 
 win32:LIBS += C:/qt-gstreamer/install/lib/QtGStreamer-0.10.lib \
@@ -64,4 +69,8 @@ win32:LIBS += C:/qt-gstreamer/install/lib/QtGStreamer-0.10.lib \
 win32:INCLUDEPATH += C:/qt-gstreamer/install/include/QtGStreamer/
 win32:INCLUDEPATH += C:/boost_1_53_0/boost_1_53_0/
 win32:DEPENDPATH += C:/qt-gstreamer/install/include/QtGStreamer/
+
+RESOURCES += \
+    ../GuiliGuili/icone.qrc \
+    ../icons/icons.qrc
 

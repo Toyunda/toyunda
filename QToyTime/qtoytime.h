@@ -9,6 +9,8 @@
 #include <QSettings>
 #include "configdialog.h"
 #include <QTextEdit>
+#include "qgplayer.h"
+#include "toyundatime.h"
 
 namespace Ui {
 class QToyTime;
@@ -25,23 +27,15 @@ public:
 private slots:
     void    onVideoMousePress(int);
     void    onVideoMouseRelease(int);
-    void    onVideoWidgetKeyEvent(QKeyEvent ev);
-    void    onVideoWidgetPositionChanged();
+    void    onVideoPlaying();
     void    newTime();
-    void    frmOpen();
-    void    frmSave();
-    void    lyrOpen();
-    void    lyrSave();
-    void    loadVideo();
     void    projectOpen();
     void    projectSave();
     void    quit();
-    void    runPreview();
     void    onLyrTextChanged();
     void    onFrmTextChanged();
     void    onLyrCursorPositionChanged();
     void    onFrmCursorPositionChanged();
-    void    onSliderMoved(int);
     void    closeEvent(QCloseEvent *ev);
 
 
@@ -54,6 +48,8 @@ private slots:
     void on_actionConfiguration_triggered();
 
     void on_actionGenerateSubtitle_triggered();
+
+    void on_actionQuickPreview_triggered();
 
 private:
     struct  SylDesc;
@@ -75,23 +71,24 @@ private:
         int posEndInFrmEdit;
         int posStartInLyrEdit;
         int posEndInLyrEdit;
+        bool    hasFrm;
+        bool    hasLyr;
         lineSylDesc*    myLine;
     };
 
     Ui::QToyTime *ui;
-    VideoWidget *m_videoWidget;
-    QToolBar*   m_lyrToolBar;
-    QToolBar*   m_frmToolBar;
-    QSlider*    m_posSlider;
-    QProcess*    m_process;
 
-    QString m_iniFile;
-    QString m_frmFile;
-    QString m_lyrFile;
-    QString m_videoFile;
-    QString m_subFile;
-    PreviewWindow   *m_previewWindow;
-    QSettings   *m_settings;
+    QGPlayer*       m_qgplayer;
+    VideoWidget*    m_rawVideo;
+
+
+    QToolBar*       m_lyrToolBar;
+    QToolBar*       m_frmToolBar;
+    QProcess*       m_gsttoyPlayerProcess;
+
+    ToyundaTime*    m_time;
+    PreviewWindow*  m_previewWindow;
+    QSettings*      m_settings;
     configDialog    m_configDialog;
 
     bool    m_modifiedFrm;
@@ -103,6 +100,8 @@ private:
     QString m_toyToolDir;
 
 
+    void            loadProject();
+    QString         tryToFindRuby();
 
     lineSylDesc*    getLineSylDesc(bool fromLyr, bool fromFrm, int  posInEdit, bool posOnly);
     QString         getLineUnderCursor(int  pos, const QString& text, int* startpos = NULL, int* endpos = NULL);
@@ -113,10 +112,10 @@ private:
 
     void print_syldesc(const QToyTime::SylDesc& desc);
     void print_linedesc(const QToyTime::lineSylDesc& line);
+
     void    clearCacheFrame();
 
-    void    iniOpen();
-    void    iniSave();
+    void    loadVideo();
 
 };
 

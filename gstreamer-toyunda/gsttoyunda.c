@@ -870,7 +870,7 @@ gst_toyunda_src_event (GstBaseTransform * trans, GstEvent * event)
 				g_sequence_free(toyunda->current_subtitles);
 				toyunda->current_subtitles = NULL;
 			}
-			g_printf("Seek event\n");
+			//g_printf("Seek event\n");
 			GST_OBJECT_UNLOCK(toyunda);
 			break;
 		default:

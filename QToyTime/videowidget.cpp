@@ -21,7 +21,7 @@
 VideoWidget::VideoWidget(QWidget *parent) :
     QGst::Ui::VideoWidget(parent)
 {
-    setFocusPolicy(Qt::ClickFocus);
+    //setFocusPolicy(Qt::ClickFocus);
     m_posTimer = new QTimer();
     connect(m_posTimer, SIGNAL(timeout()), this, SIGNAL(positionChanged()));
 }
@@ -41,7 +41,7 @@ bool VideoWidget::init(QString videoSink)
 #ifdef  Q_WS_WIN
     asink = QGst::ElementFactory::make("directsoundsink", "Auto Audio Sink");
     if (videoSink.isEmpty())
-        m_vsink = QGst::ElementFactory::make("directdrawsink", "video sink");
+        m_vsink = QGst::ElementFactory::make("dshowvideosink", "video sink");
     else
         m_vsink = QGst::ElementFactory::make(videoSink, "video sink");
 #else
@@ -103,6 +103,8 @@ bool VideoWidget::init(QString videoSink)
 
     m_toyunda->setProperty("toyunda-logo", qApp->applicationDirPath() + "/toyunda.tga");
     m_videosink_set = false;
+    m_vsink->setProperty("force-aspect-ratio", true);
+    watchPipeline(m_pipeline);
     return true;
 }
 
@@ -146,6 +148,19 @@ QTime VideoWidget::getTimeFromFrame(int frameNb) const
     double  tmp = ((double) frameNb / m_framerate) * 1000;
     pos = pos.addMSecs((int) tmp);
     return pos;
+}
+
+int VideoWidget::positionFrame() const
+{
+    if (m_pipeline) {
+        //here we query the pipeline about its position
+        //and we request that the result is returned in time format
+        QGst::PositionQueryPtr query = QGst::PositionQuery::create(QGst::FormatTime);
+        m_pipeline->query(query);
+        return ((query->position() / 1000000) * m_framerate + 100) / 1000;
+    } else {
+        return -1;
+    }
 }
 
 QTime VideoWidget::position() const
@@ -203,7 +218,7 @@ bool	VideoWidget::autoplug_continue(const QGst::PadPtr &pad, const QGst::CapsPtr
 void VideoWidget::mousePressEvent(QMouseEvent *ev)
 {
     Q_UNUSED(ev);
-    if (m_pipeline && hasFocus())
+    if (m_pipeline)
     {
         QGst::PositionQueryPtr query = QGst::PositionQuery::create(QGst::FormatTime);
         m_pipeline->query(query);
@@ -315,12 +330,12 @@ void VideoWidget::setVideoFile(QString file)
        m_pipeline->setState(QGst::StateReady);
     if (!m_videosink_set)
     {
-        setVideoSink(m_vsink);
+        //setVideoSink(m_vsink);
         //watchPipeline(m_pipeline);
         m_videosink_set = true;
     }
     m_src->setProperty("location", file);
-    m_pipeline->setState(QGst::StatePaused);
+    m_pipeline->setState(QGst::StateReady);
 }
 
 void VideoWidget::setSubFile(QString file)
@@ -344,6 +359,16 @@ void VideoWidget::handlePipelineStateChange(const QGst::StateChangedMessagePtr &
 {
     m_currentState = scm->newState();
     switch (scm->newState()) {
+    case QGst::StateReady:
+        if (!m_videosink_set)
+        {
+            //setVideoSink(m_vsink);
+            //watchPipeline(m_pipeline);
+            m_videosink_set = true;
+        }
+        qDebug() << "ready";
+        emit ready();
+        break;
     case QGst::StatePlaying:
         //start the timer when the pipeline starts playing
         emit    playing();
@@ -354,6 +379,10 @@ void VideoWidget::handlePipelineStateChange(const QGst::StateChangedMessagePtr &
         emit    paused();
         if (scm->oldState() == QGst::StatePlaying)
             m_posTimer->stop();
+        emit positionChanged();
+        break;
+    case QGst::StateNull:
+        //m_videosink_set = false;
         break;
     default:
         break;

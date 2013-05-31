@@ -13,6 +13,7 @@
 #include "frmsyntaxhighlighter.h"
 #include "../comons/sqhandlegstpath.h"
 #include "toyundagendialog.h"
+#include <QMessageBox>
 
 QToyTime::QToyTime(QWidget *parent) :
     QMainWindow(parent),
@@ -20,13 +21,18 @@ QToyTime::QToyTime(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    /*QToyTime::lineSylDesc *d;
+    ui->lyrFileEdit->setPlainText("&il &fait &beau");
+    ui->frmFileEdit->setPlainText("20 30");
+    d = getLineSylDesc(false, true, 6, true);
+    print_linedesc(*d);*/
+
     m_settings = new QSettings("skarsnik.nyo.fr", "QToyTime");
-    createCentralWidget();
+
     ui->actionNew->setShortcut(QKeySequence::New);
     ui->actionOpen->setShortcut(QKeySequence::Open);
     ui->actionSave->setShortcut(QKeySequence::Save);
     ui->actionQuit->setShortcut(QKeySequence::Quit);
-    ui->actionNew->setIcon(style()->standardPixmap(QStyle::SP_FileIcon));
     ui->actionOpen->setIcon(style()->standardPixmap(QStyle::SP_DialogOpenButton));
     ui->actionSave->setIcon(style()->standardPixmap(QStyle::SP_DialogSaveButton));
 
@@ -37,21 +43,25 @@ QToyTime::QToyTime(QWidget *parent) :
     connect(ui->frmFileEdit, SIGNAL(textChanged()), this, SLOT(onFrmTextChanged()));
     connect(ui->lyrFileEdit, SIGNAL(cursorPositionChanged()), this, SLOT(onLyrCursorPositionChanged()));
     connect(ui->frmFileEdit, SIGNAL(cursorPositionChanged()), this, SLOT(onFrmCursorPositionChanged()));
+    connect(ui->qpreviewButton, SIGNAL(clicked()), this, SLOT(on_actionQuickPreview_triggered()));
+
 
     addDockWidget(Qt::LeftDockWidgetArea, ui->lyrFileDock);
     addDockWidget(Qt::RightDockWidgetArea, ui->frmFileDock);
     addDockWidget( Qt::RightDockWidgetArea, ui->frameOutputDock);
-    /*ui->lyrFileEdit->resize(400, ui->lyrFileEdit->height());
-    ui->frmFileEdit->resize(200, ui->frmFileEdit->height());*/
+
     createToolBarFrmLyr();
-    m_process = new QProcess();
-    m_process->setWorkingDirectory(qApp->applicationDirPath());
+
+    // settings gsttoy process
+    m_gsttoyPlayerProcess = new QProcess();
     QStringList env = QProcess::systemEnvironment();
     env << "GST_PLUGIN_PATH=" + sq_get_gsttoyunda_plugin_path(qApp->applicationDirPath());
-    m_process->setEnvironment(env);
-    m_process->setStandardOutputFile(qApp->applicationDirPath() + "/toyunda-player.log");
-    m_process->setStandardErrorFile(qApp->applicationDirPath() + "/toyunda-player.log");
-    m_process->setWorkingDirectory(qApp->applicationDirPath());
+    m_gsttoyPlayerProcess->setEnvironment(env);
+    m_gsttoyPlayerProcess->setStandardOutputFile(qApp->applicationDirPath() + "/toyunda-player.log");
+    m_gsttoyPlayerProcess->setStandardErrorFile(qApp->applicationDirPath() + "/toyunda-player.log");
+    m_gsttoyPlayerProcess->setWorkingDirectory(qApp->applicationDirPath());
+
+
     LyrSyntaxHighlighter    *lyrSyn = new LyrSyntaxHighlighter(ui->lyrFileEdit->document());
     frmSyntaxHighlighter    *frmSyn = new frmSyntaxHighlighter(ui->frmFileEdit->document());
 
@@ -63,26 +73,58 @@ QToyTime::QToyTime(QWidget *parent) :
         m_configDialog.setVideoSink(m_settings->value("videosink").toString());
         videosink = m_settings->value("videosink").toString();
     }
-    m_videoWidget->setFixedSize(480, 320);
-    m_videoWidget->init(videosink);
+
+    ui->player->videoWidget()->init(videosink);
     m_previewWindow->init(videosink);
+    m_rawVideo = ui->player->videoWidget();
+
+    connect(m_rawVideo, SIGNAL(videoMouseClickPress(int)), this, SLOT(onVideoMousePress(int)));
+    connect(m_rawVideo, SIGNAL(videoMouseClickRelease(int)), this, SLOT(onVideoMouseRelease(int)));
+    connect(ui->player, SIGNAL(playing()), SLOT(onVideoPlaying()));
+
+    ui->statusBar->showMessage(tr("No Toyunda Time project loaded"));
+
     m_frameExtraSel.format.setBackground(QBrush(Qt::lightGray));
 
+
+    // Settings
     if (m_settings->contains("windowGeometry"))
     {
         restoreGeometry(m_settings->value("windowGeometry").toByteArray());
         restoreState(m_settings->value("windowState").toByteArray());
     }
-    if (m_settings->contains("rubyexec"))
+    if (!m_settings->contains("rubyexec"))
     {
         m_rubyExec = m_settings->value("rubyexec").toString();
         m_configDialog.setRubyExec(m_rubyExec);
+    }
+    else
+    {
+        m_rubyExec = tryToFindRuby();
+        if (!m_rubyExec.isEmpty())
+        {
+            m_configDialog.setRubyExec(m_rubyExec);
+            m_settings->setValue("rubyexec", m_rubyExec);
+        }
+        else
+        {
+            //if (!m_settings->contains("windowsGeometry"))
+                QMessageBox::warning(this, tr("Ruby not found"), tr("no suitable ruby executable not found (ruby 1.8 or lower)\n"
+                                     "QToyTime will not be able to generate the final toyunda subtitle. You can set it in the configuration dialog later.\n"
+                                     "You can still use QToyTime to create the .lyr and .frm file.\n\n"
+                                     "This warning will only be display once."));
+            ui->fpreviewButton->setEnabled(false);
+            ui->actionGenerateSubtitle->setEnabled(false);
+            ui->actionFullPreview->setEnabled(false);
+        }
     }
     if (m_settings->contains("toytooldir"))
     {
         m_toyToolDir = m_settings->value("toytooldir").toString();
         m_configDialog.setToyToolDir(m_toyToolDir);
     }
+
+
 }
 
 QToyTime::~QToyTime()
@@ -92,12 +134,14 @@ QToyTime::~QToyTime()
 
 void QToyTime::onVideoMousePress(int frameNb)
 {
+    int size = ui->frameOutputEdit->toPlainText().size();
+    ui->frameOutputEdit->insertPlainText(QString().setNum(frameNb) + " ");
     if (m_cacheFrame.isEmpty())
     {
         m_frameExtraSel.cursor = ui->frameOutputEdit->textCursor();
-        m_frameExtraSel.cursor.setPosition(ui->frameOutputEdit->toPlainText().size() - 1);
+        m_frameExtraSel.cursor.setPosition(size);
     }
-    ui->frameOutputEdit->insertPlainText(QString().setNum(frameNb) + " ");
+
     m_cacheFrame.append(QString().setNum(frameNb) + " ");
 }
 
@@ -116,142 +160,40 @@ void QToyTime::onVideoMouseRelease(int frameNb)
 
 }
 
-void QToyTime::onVideoWidgetKeyEvent(QKeyEvent ev)
+void QToyTime::onVideoPlaying()
 {
-    if (ev.key() == Qt::Key_Space)
-    {
-        if (m_videoWidget->state() == QGst::StatePlaying)
-            m_videoWidget->pause();
-        else
-        {
-            m_videoWidget->play();
-            clearCacheFrame();
-        }
-    }
-    if (ev.key() ==  Qt::Key_K)
-    {
-        ui->frameOutputEdit->insertPlainText("---\n");
-        m_cacheFrame.clear();
-    }
-    if (ev.key() == Qt::Key_Right)
-        m_videoWidget->setPosition(m_videoWidget->position().addSecs(20));
-    if (ev.key() == Qt::Key_Left)
-        m_videoWidget->setPosition(m_videoWidget->position().addSecs(-20));
+    clearCacheFrame();
 }
 
-void QToyTime::onVideoWidgetPositionChanged()
-{
-    QTime length(0,0);
-    QTime curpos(0,0);
-
-    if (m_videoWidget->state() != QGst::StateReady &&
-            m_videoWidget->state() != QGst::StateNull)
-    {
-        length = m_videoWidget->duration();
-        curpos = m_videoWidget->position();
-    }
-    if (length != QTime(0,0)) {
-        m_posSlider->setValue(curpos.msecsTo(QTime()) * 1000 / length.msecsTo(QTime()));
-    } else {
-        m_posSlider->setValue(0);
-    }
-}
 
 void QToyTime::newTime()
 {
     NewTimeDialog   diag;
 
+//TODO : check if there is some change to save
+
     if (diag.exec())
     {
-        m_frmFile = diag.frmFile;
-        m_lyrFile = diag.lyrFile;
-        m_iniFile = diag.iniFile;
-        m_videoFile = diag.videoFile;
-        m_subFile = diag.subFile;
-        m_settings->setValue("lastproject", m_iniFile);
-        QDir::setCurrent(diag.baseDir);
-        iniSave();
-        frmOpen();
-        lyrOpen();
-        loadVideo();
-        setWindowTitle("QToytime - [*]" + m_iniFile);
+        m_time = new ToyundaTime();
+        m_time->setBaseDir(diag.baseDir);
+        m_time->setFrmFile(diag.frmFile);
+        m_time->setLyrFile(diag.lyrFile);
+        m_time->setIniFile(diag.iniFile);
+        m_time->setVideoFile(diag.videoFile);
+        m_time->setSubFile(diag.subFile);
+        m_time->save();
+
+        loadProject();
     }
 }
 
-void QToyTime::frmOpen()
-{
-    if (QFile::exists(m_frmFile))
-    {
-        ui->frmFileDock->setWindowTitle("[*]" + QFileInfo(m_frmFile).baseName());
-        ui->frmFileDock->setWindowModified(false);
-        QFile   fi(m_frmFile);
-        fi.open(QIODevice::ReadOnly | QIODevice::Text);
-        QString str(fi.readAll());
-        fi.close();
-        ui->frmFileEdit->setText(str);
-        setWindowTitle("QToytime - [*]" + m_iniFile);
-    }
-}
-
-void QToyTime::frmSave()
-{
-    QFile   fi(m_frmFile);
-
-    fi.open(QIODevice::WriteOnly | QIODevice::Text);
-    fi.write(ui->frmFileEdit->toPlainText().toLocal8Bit());
-    fi.close();
-    ui->frmFileDock->setWindowModified(false);
-}
-
-void QToyTime::lyrOpen()
-{
-    if (QFile::exists(m_lyrFile))
-    {
-        ui->lyrFileDock->setWindowTitle("[*]" + QFileInfo(m_lyrFile).fileName());
-        ui->lyrFileDock->setWindowModified(false);
-        QFile   fi(m_lyrFile);
-        fi.open(QIODevice::ReadOnly | QIODevice::Text);
-        QString str(fi.readAll());
-        fi.close();
-        ui->lyrFileEdit->setText(str);
-    }
-}
-
-void QToyTime::lyrSave()
-{
-    QFile   fi(m_lyrFile);
-
-    fi.open(QIODevice::WriteOnly | QIODevice::Text);
-    fi.write(ui->lyrFileEdit->toPlainText().toLocal8Bit());
-    fi.close();
-    ui->lyrFileDock->setWindowModified(false);
-}
 
 void QToyTime::loadVideo()
 {
-    m_videoWidget->setVideoFile(m_videoFile);
-    m_previewWindow->setVideoFile(m_videoFile);
-    m_videoWidget->play();
-    m_videoWidget->pause();
+    ui->player->setVideo(m_time->videoFile());
+    m_previewWindow->setVideoFile(m_time->videoFile());
 }
 
-void QToyTime::iniOpen()
-{
-    QSettings    ini(m_iniFile, QSettings::IniFormat);
-    m_videoFile = ini.value("movie/aviname").toString();
-    m_lyrFile = ini.value("qtoytime/lyrfile").toString();
-    m_frmFile = ini.value("qtoytime/frmfile").toString();
-    m_subFile = ini.value("subtitles/file").toString();
-}
-
-void QToyTime::iniSave()
-{
-    QSettings   ini(m_iniFile, QSettings::IniFormat);
-    ini.setValue("movie/aviname", QFileInfo(m_videoFile).fileName());
-    ini.setValue("subtitles/file", QFileInfo(m_subFile).fileName());
-    ini.setValue("qtoytime/lyrfile", QFileInfo(m_lyrFile).fileName());
-    ini.setValue("qtoytime/frmfile", QFileInfo(m_frmFile).fileName());
-}
 
 void QToyTime::projectOpen()
 {
@@ -259,23 +201,17 @@ void QToyTime::projectOpen()
                                                    "", "Ini file (*.ini)");
     if (!iniFile.isNull())
     {
-        m_iniFile = iniFile;
-        m_settings->setValue("lastproject", m_iniFile);
-        QDir::setCurrent(QFileInfo(m_iniFile).path());
-        iniOpen();
-        lyrOpen();
-        frmOpen();
-        setWindowModified(false);
-        loadVideo();
+        m_time = new ToyundaTime(iniFile);
+        loadProject();
     }
 }
 
 void QToyTime::projectSave()
 {
-    iniSave();
-    frmSave();
-    lyrSave();
+    m_time->save(ui->frmFileEdit->toPlainText(), ui->lyrFileEdit->toPlainText());
     setWindowModified(false);
+    ui->lyrFileDock->setWindowModified(false);
+    ui->frmFileDock->setWindowModified(false);
 }
 
 void QToyTime::quit()
@@ -283,20 +219,6 @@ void QToyTime::quit()
 
 }
 
-void QToyTime::runPreview()
-{
-    QString tmpFile = QDir::tempPath() + "/Piko" + QString().setNum(QApplication::applicationPid()) + ".txt";
-    if (generateToyundaSubtitle(ui->lyrFileEdit->toPlainText(), ui->frmFileEdit->toPlainText(), tmpFile))
-    {
-        m_process->kill();
-        QStringList arg;
-        arg << QDir::currentPath().toUtf8() + "/"  + m_videoFile << tmpFile;
-        QString tmp = qApp->applicationDirPath();
-        tmp.append("/toyunda-player");
-        qDebug() << tmp << arg;
-        m_process->start(tmp, arg);
-    }
-}
 
 void QToyTime::onLyrTextChanged()
 {
@@ -314,7 +236,7 @@ void QToyTime::onLyrCursorPositionChanged()
 
     lineDesc = getLineSylDesc(true, false, ui->lyrFileEdit->textCursor().position(), true);
     highlightLyrLine(lineDesc);
-    if (lineDesc != NULL && lineDesc->indexCurrentSyl != -1)
+    if (lineDesc != NULL && lineDesc->syls[lineDesc->indexCurrentSyl].hasFrm)
          highlightFrm(lineDesc);
     else
         ui->frmFileEdit->setExtraSelections(QList<QTextEdit::ExtraSelection>());
@@ -326,23 +248,12 @@ void QToyTime::onFrmCursorPositionChanged()
 
     lineDesc = getLineSylDesc(false, true, ui->frmFileEdit->textCursor().position(), true);
     highlightFrm(lineDesc);
-    if (lineDesc != NULL)
+    if (lineDesc != NULL && lineDesc->syls[lineDesc->indexCurrentSyl].hasLyr)
         highlightLyrLine(lineDesc);
     else
         ui->lyrFileEdit->setExtraSelections(QList<QTextEdit::ExtraSelection>());
 }
 
-void QToyTime::onSliderMoved(int pos)
-{
-    if (m_videoWidget->state() != QGst::StateNull && m_videoWidget->state() != QGst::StateReady)
-    {
-        QTime tpos;
-        qDebug() << pos;
-        tpos = tpos.addMSecs((double) pos / 1000 * m_videoWidget->duration().msecsTo(QTime()) * -1);
-        qDebug() << tpos;
-        m_videoWidget->setPosition(tpos);
-    }
-}
 
 void QToyTime::closeEvent(QCloseEvent *ev)
 {
@@ -362,6 +273,11 @@ void QToyTime::print_syldesc(const QToyTime::SylDesc& desc)
 
 void QToyTime::print_linedesc(const QToyTime::lineSylDesc& line)
 {
+    if (&line == NULL)
+    {
+        qDebug() << "NULL linedesc";
+        return;
+    }
     qDebug() << QString("LyrLine : %1,%2 : %3$").arg(line.posStartInLyrEdit).arg(line.posEndInLyrEdit)
                 .arg(ui->lyrFileEdit->toPlainText().mid(line.posStartInLyrEdit, line.posEndInLyrEdit - line.posStartInLyrEdit));
     foreach(const QToyTime::SylDesc& sylDesc, line.syls)
@@ -385,6 +301,7 @@ QToyTime::lineSylDesc *QToyTime::getLineSylDesc(bool fromLyr, bool fromFrm, int 
     QRegExp frmLineRegex("(\\d+) (\\d+)");
     QRegExp lyrLineRegex("([^\n#]+&[^\n]+)");
     QToyTime::lineSylDesc*  toret;
+    QToyTime::SylDesc   currentSyl;
 
     int startPosLyrLine = -1;
     int stopPosLyrLine = -1;
@@ -408,6 +325,7 @@ QToyTime::lineSylDesc *QToyTime::getLineSylDesc(bool fromLyr, bool fromFrm, int 
             cptSylBeforeLine += lyrText.mid(index, lyrLineRegex.matchedLength()).count('&');
             index += lyrLineRegex.matchedLength();
         }
+        currentSyl.hasLyr = true;
     }
     if (fromFrm)
     {
@@ -423,7 +341,7 @@ QToyTime::lineSylDesc *QToyTime::getLineSylDesc(bool fromLyr, bool fromFrm, int 
         }
         // On cherche la ligne associée
         index = 0;
-        while ((index = lyrText.indexOf(lyrLineRegex, index)) >= 0 && cptSylBeforeLine < nbSylFrmCur)
+        while (cptSylBeforeLine < nbSylFrmCur && (index = lyrText.indexOf(lyrLineRegex, index)) >= 0)
         {
             startPosLyrLine = index;
             cptSylBeforeLine += lyrText.mid(index, lyrLineRegex.matchedLength()).count('&');
@@ -432,94 +350,113 @@ QToyTime::lineSylDesc *QToyTime::getLineSylDesc(bool fromLyr, bool fromFrm, int 
         }
         cptSylBeforeLine -= lyrText.mid(startPosLyrLine, stopPosLyrLine - startPosLyrLine).count('&');
         if (index < 0)
-            qDebug() << "no lyr line";
+        {
+            currentSyl.hasLyr = false;
+            startPosLyrLine = -1;
+            stopPosLyrLine = -1;
+        }
         else
         {
             lyrLine = lyrText.mid(startPosLyrLine, stopPosLyrLine - startPosLyrLine);
-
+            currentSyl.hasLyr = true;
         }
     }
 
     int index = 0;
-    // On cherche la position de la syl courante dans le lyrEdit
-    nbSylLyrCur = cptSylBeforeLine;
-    while ((index = lyrLine.indexOf('&', index)) >= 0)
+    if (currentSyl.hasLyr)
     {
-        if (fromFrm && nbSylLyrCur >= nbSylFrmCur)
-            break;
-        if (fromLyr && startPosLyrLine + index > posInEdit)
-            break;
-        startPosCurLyr = startPosLyrLine + index;
-        index++;
-        nbSylLyrCur++;
+        // On cherche la position de la syl courante dans le lyrEdit
+        nbSylLyrCur = cptSylBeforeLine;
+        while ((index = lyrLine.indexOf('&', index)) >= 0)
+        {
+            if (fromFrm && nbSylLyrCur >= nbSylFrmCur)
+                break;
+            if (fromLyr && startPosLyrLine + index > posInEdit)
+                break;
+            startPosCurLyr = startPosLyrLine + index;
+            index++;
+            nbSylLyrCur++;
+        }
+        if (index >= 0)
+            stopPosCurLyr = startPosLyrLine + index;
+        else
+            stopPosCurLyr = stopPosLyrLine;
     }
-    if (index >= 0)
-        stopPosCurLyr = startPosLyrLine + index;
-    else
-        stopPosCurLyr = stopPosLyrLine;
     if (fromLyr)
     {
         index = 0;
-        while ((index = frmText.indexOf(frmLineRegex, index)) >= 0 && nbSylLyrCur > nbSylFrmCur)
+        while (nbSylLyrCur > nbSylFrmCur && (index = frmText.indexOf(frmLineRegex, index)) >= 0)
         {
             nbSylFrmCur++;
             startPosFrmLine = index;
             index += frmLineRegex.matchedLength();
             stopPosFrmLine = index;
         }
+        if (index < 0)
+        {
+            currentSyl.hasFrm = false;
+            startPosFrmLine = -1;
+            stopPosFrmLine = -1;
+        }
     }
     toret = new QToyTime::lineSylDesc;
     toret->posStartInLyrEdit = startPosLyrLine;
     toret->posEndInLyrEdit = stopPosLyrLine;
     toret->indexCurrentSyl = -1;
-    QToyTime::SylDesc   currentSyl;
+
     currentSyl.posStartInFrmEdit = startPosFrmLine;
     currentSyl.posEndInFrmEdit = stopPosFrmLine;
     currentSyl.posStartInLyrEdit = startPosCurLyr;
     currentSyl.posEndInLyrEdit = stopPosCurLyr;
     currentSyl.myLine = toret;
     // Searching for all frame before cur
-    index = startPosFrmLine - 1;
-    int cptSyl = nbSylFrmCur;
-    int posLyrEnd = startPosCurLyr - 1;
-    QRegExp altFrmRegex("\\b(\\d+) (\\d+)");
-    while ((index = frmText.lastIndexOf(altFrmRegex, index)) >= 0 && (cptSylBeforeLine  + 1) < cptSyl)
+    if (currentSyl.hasFrm)
     {
-        cptSyl--;
-        QToyTime::SylDesc   newSyl;
-        newSyl.frameStart = altFrmRegex.cap(1).toInt();
-        newSyl.frameStop = altFrmRegex.cap(2).toInt();
-        newSyl.posStartInFrmEdit = index;
-        newSyl.posEndInFrmEdit = index + altFrmRegex.matchedLength();
-        index -= altFrmRegex.matchedLength();
-        newSyl.posStartInLyrEdit = lyrText.lastIndexOf('&', posLyrEnd - 1);
-        newSyl.posEndInLyrEdit = posLyrEnd;
-        posLyrEnd = newSyl.posStartInLyrEdit;
-        toret->syls.prepend(newSyl);
+        index = startPosFrmLine - 1;
+        int cptSyl = nbSylFrmCur;
+        int posLyrEnd = startPosCurLyr - 1;
+        QRegExp altFrmRegex("\\b(\\d+) (\\d+)");
+        while ((index = frmText.lastIndexOf(altFrmRegex, index)) >= 0 && (cptSylBeforeLine  + 1) < cptSyl)
+        {
+            cptSyl--;
+            QToyTime::SylDesc   newSyl;
+            newSyl.frameStart = altFrmRegex.cap(1).toInt();
+            newSyl.frameStop = altFrmRegex.cap(2).toInt();
+            newSyl.posStartInFrmEdit = index;
+            newSyl.posEndInFrmEdit = index + altFrmRegex.matchedLength();
+            index -= altFrmRegex.matchedLength();
+            newSyl.posStartInLyrEdit = lyrText.lastIndexOf('&', posLyrEnd - 1);
+            newSyl.posEndInLyrEdit = posLyrEnd;
+            posLyrEnd = newSyl.posStartInLyrEdit;
+            toret->syls.prepend(newSyl);
+        }
+        currentSyl.frameStart = frmLineRegex.cap(1).toInt();
+        currentSyl.frameStop = frmLineRegex.cap(2).toInt();
     }
-    currentSyl.frameStart = frmLineRegex.cap(1).toInt();
-    currentSyl.frameStop = frmLineRegex.cap(2).toInt();
     toret->indexCurrentSyl = toret->syls.size();
     toret->syls.append(currentSyl);
-    //Searching for all frame after current
-    cptSyl = nbSylFrmCur;
-    int nbTotalSylAtEnd = lyrLine.count('&') + cptSylBeforeLine;
-    posLyrEnd = currentSyl.posEndInLyrEdit;
-    QRegExp sylRegex("&[^&\n]+");
-    index = currentSyl.posEndInFrmEdit;
-    while ((index = frmText.indexOf(frmLineRegex, index)) >= 0 && cptSyl < nbTotalSylAtEnd)
+    if (currentSyl.hasFrm)
     {
-        QToyTime::SylDesc   newSyl;
-        newSyl.frameStart = frmLineRegex.cap(1).toInt();
-        newSyl.frameStop = frmLineRegex.cap(2).toInt();
-        newSyl.posStartInFrmEdit = index;
-        newSyl.posEndInFrmEdit = index + frmLineRegex.matchedLength();
-        newSyl.posStartInLyrEdit = lyrText.indexOf(sylRegex, posLyrEnd);
-        newSyl.posEndInLyrEdit = newSyl.posStartInLyrEdit + sylRegex.matchedLength();
-        posLyrEnd = newSyl.posEndInLyrEdit;
-        index += frmLineRegex.matchedLength();
-        toret->syls.append(newSyl);
-        cptSyl++;
+        //Searching for all frame after current
+        int cptSyl = nbSylFrmCur;
+        int nbTotalSylAtEnd = lyrLine.count('&') + cptSylBeforeLine;
+        int posLyrEnd = currentSyl.posEndInLyrEdit;
+        QRegExp sylRegex("&[^&\n]+");
+        index = currentSyl.posEndInFrmEdit;
+        while ((index = frmText.indexOf(frmLineRegex, index)) >= 0 && cptSyl < nbTotalSylAtEnd)
+        {
+            QToyTime::SylDesc   newSyl;
+            newSyl.frameStart = frmLineRegex.cap(1).toInt();
+            newSyl.frameStop = frmLineRegex.cap(2).toInt();
+            newSyl.posStartInFrmEdit = index;
+            newSyl.posEndInFrmEdit = index + frmLineRegex.matchedLength();
+            newSyl.posStartInLyrEdit = lyrText.indexOf(sylRegex, posLyrEnd);
+            newSyl.posEndInLyrEdit = newSyl.posStartInLyrEdit + sylRegex.matchedLength();
+            posLyrEnd = newSyl.posEndInLyrEdit;
+            index += frmLineRegex.matchedLength();
+            toret->syls.append(newSyl);
+            cptSyl++;
+        }
     }
     toret->posStartInFrmEdit = toret->syls.first().posStartInFrmEdit;
     toret->posEndInFrmEdit = toret->syls.last().posEndInFrmEdit;
@@ -527,20 +464,23 @@ QToyTime::lineSylDesc *QToyTime::getLineSylDesc(bool fromLyr, bool fromFrm, int 
     return toret;
 }
 
+
 QString QToyTime::getLineUnderCursor(int pos, const QString &text, int *startpos, int *endpos)
 {
-    if (pos >= text.size() || (pos == 0 && text[pos] == '\n') || (text[pos] == '\n' && text[pos-1] == '\n'))
+    if (pos > text.size() ||
+            (pos == 0 && text[pos] == '\n') ||
+            (pos < text.size() && text[pos] == '\n' && text[pos-1] == '\n'))
         return QString("");
     else
     {
         int istartpos;
         if (pos > 0)
             pos--;
-        while (text[pos] != '\n' && pos > 0)
+        while (pos > 0 && text[pos] != '\n')
             pos--;
         istartpos = pos + (pos == 0 ? 0 : 1);
         pos++;
-        while (text[pos] != '\n' && pos < text.size())
+        while (pos < text.size() && text[pos] != '\n')
             pos++;
         if (startpos != NULL)
             *startpos = istartpos;
@@ -550,6 +490,7 @@ QString QToyTime::getLineUnderCursor(int pos, const QString &text, int *startpos
         return text.mid(istartpos, pos - istartpos);
     }
 }
+
 
 void QToyTime::highlightLyrLine(QToyTime::lineSylDesc *lineDesc)
 {
@@ -561,7 +502,7 @@ void QToyTime::highlightLyrLine(QToyTime::lineSylDesc *lineDesc)
     lineSelection.cursor = ui->lyrFileEdit->textCursor();
     lyrExtraSelections.append(lineSelection);
 
-    if (lineDesc != NULL && lineDesc->indexCurrentSyl != -1)
+    if (lineDesc != NULL)
     {
         QTextEdit::ExtraSelection   sylSel;
         sylSel.cursor = ui->lyrFileEdit->textCursor();
@@ -577,7 +518,7 @@ void QToyTime::highlightLyrLine(QToyTime::lineSylDesc *lineDesc)
 void QToyTime::highlightFrm(QToyTime::lineSylDesc *lineDesc)
 {
     QList<QTextEdit::ExtraSelection>    extraSels;
-    if (lineDesc != NULL)
+    if (lineDesc != NULL && lineDesc->indexCurrentSyl != -1)
     {
         QTextCursor cur(ui->frmFileEdit->document());
         QTextEdit::ExtraSelection   frmCurSel;
@@ -615,6 +556,8 @@ void QToyTime::createToolBarFrmLyr()
 {
     m_frmToolBar = new QToolBar();
     m_lyrToolBar = new QToolBar();
+    return ;
+    ui->dockWidgetContents->layout()->removeWidget(ui->lyrFileEdit);
 
     m_frmToolBar->addAction(style()->standardPixmap(QStyle::SP_DialogOpenButton), tr("&Open"), this, SLOT(frmOpen()));
     m_frmToolBar->addAction(style()->standardPixmap(QStyle::SP_DialogSaveButton), tr("&Save"), this, SLOT(frmSave()));
@@ -623,40 +566,10 @@ void QToyTime::createToolBarFrmLyr()
     m_lyrToolBar->addAction(style()->standardPixmap(QStyle::SP_DialogSaveButton), tr("&Save"), this, SLOT(lyrSave()));
 
     ui->dockWidgetContents->layout()->addWidget(m_lyrToolBar);
+    ui->dockWidgetContents->layout()->addWidget(ui->lyrFileEdit);
     ui->dockWidgetContents_2->layout()->addWidget(m_frmToolBar);
 
 }
-
-void QToyTime::createCentralWidget()
-{
-    QGridLayout*    gl = new QGridLayout();
-
-    m_posSlider = new QSlider(Qt::Horizontal);
-    m_posSlider->setTickPosition(QSlider::TicksBelow);
-    m_posSlider->setTickInterval(10);
-    m_posSlider->setMaximum(1000);
-
-    QWidget*    wid = new QWidget();
-    m_videoWidget = new VideoWidget();
-
-    gl->addWidget(m_videoWidget, 0, 0, 1, 2);
-    gl->addWidget(m_posSlider, 1, 0, 1, 2);
-    QPushButton *previewB = new QPushButton();
-    previewB->setText(tr("Preview"));
-    gl->addWidget(previewB, 2, 0);
-    wid->setLayout(gl);
-
-    connect(previewB, SIGNAL(clicked()), this, SLOT(runPreview()));
-    connect(m_videoWidget, SIGNAL(videoMouseClickPress(int)), this, SLOT(onVideoMousePress(int)));
-    connect(m_videoWidget, SIGNAL(videoMouseClickRelease(int)), this, SLOT(onVideoMouseRelease(int)));
-    connect(m_videoWidget, SIGNAL(keyEvent(QKeyEvent)), this, SLOT(onVideoWidgetKeyEvent(QKeyEvent)));
-    connect(m_videoWidget, SIGNAL(positionChanged()), this, SLOT(onVideoWidgetPositionChanged()));
-    connect(m_posSlider, SIGNAL(sliderMoved(int)), this, SLOT(onSliderMoved(int)));
-
-    wid->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    setCentralWidget(wid);
-}
-
 
 
 
@@ -670,7 +583,7 @@ void QToyTime::on_actionPreview_Last_Frame_Input_triggered()
 
         int firstFrame = m_cacheFrame.split('\n').first().split(' ').first().toInt();
         qDebug() << "Firstframe : " << firstFrame;
-        QTime pos = m_videoWidget->getTimeFromFrame(firstFrame);
+        QTime pos = m_rawVideo->getTimeFromFrame(firstFrame);
         pos = pos.addSecs(-3);
         qDebug() << "seek to : " << pos;
         qDebug() << tmpFile;
@@ -695,13 +608,8 @@ void QToyTime::on_actionOpen_last_Project_triggered()
 {
     if (m_settings->contains("lastproject"))
     {
-        m_iniFile = m_settings->value("lastproject").toString();
-        qDebug() << m_iniFile;
-        QDir::setCurrent(QFileInfo(m_iniFile).path());
-        iniOpen();
-        frmOpen();
-        lyrOpen();
-        loadVideo();
+        m_time = new ToyundaTime(m_settings->value("lastproject").toString());
+        loadProject();
     }
 }
 
@@ -721,8 +629,84 @@ void QToyTime::on_actionGenerateSubtitle_triggered()
 {
     ToyundaGenDialog    diag;
     QStringList args;
-    args << "toyunda-gen.rb" << QDir::currentPath() + "/" + m_lyrFile
-         << QDir::currentPath() + "/" + m_frmFile;
+    args << "toyunda-gen.rb" << QDir::currentPath() + "/" + m_time->lyrFile()
+         << QDir::currentPath() + "/" + m_time->frmFile();
     qDebug() << m_toyToolDir;
-    diag.execute(m_rubyExec, args, m_subFile, m_toyToolDir);
+    diag.execute(m_rubyExec, args, m_time->subFile(), m_toyToolDir);
+}
+
+void QToyTime::loadProject()
+{
+    m_settings->setValue("lastproject", m_time->baseDir() + "/" + m_time->iniFile());
+    QDir::setCurrent(m_time->baseDir());
+    m_time->loadLyrFrm();
+    if (m_time->lyrFine())
+        ui->lyrFileEdit->setText(m_time->getLyrText());
+    if (m_time->frmFine())
+        ui->frmFileEdit->setText(m_time->getFrmText());
+    ui->lyrFileDock->setWindowTitle("[*]" + m_time->lyrFile());
+    ui->frmFileDock->setWindowTitle("[*]" + m_time->frmFile());
+    loadVideo();
+    setWindowTitle("QToytime - [*]" + m_time->iniFile());
+    ui->statusBar->showMessage(QString(tr("Project : %1 loaded")).arg(m_time->iniFile()), 10000);
+    ui->lyrFileDock->setWindowModified(false);
+    ui->frmFileDock->setWindowModified(false);
+}
+
+QString QToyTime::tryToFindRuby()
+{
+#ifdef Q_WS_X11
+    QString path = qgetenv("PATH");
+    QStringList pathList = path.split(':');
+    foreach(const QString& mpath, pathList)
+    {
+        QString spath = mpath + "/ruby";
+        if (QFile::permissions(spath) | QFile::ExeUser)
+        {
+            qDebug() << "testing ruby : " << spath;
+            QProcess p;
+            p.start(spath, QStringList() << "--version");
+            p.waitForFinished(500);
+            QString result = p.readAllStandardOutput();
+            qDebug() << result;
+            if (result.indexOf(QRegExp("ruby\\s+1.8")) != -1)
+            {
+                qDebug() << "Ruby 1.8.x found, nice";
+                return spath;
+            }
+            else
+                qDebug() << "Other version of ruby found, trying ruby1.8 executable";
+        }
+        spath = mpath + "/ruby1.8";
+        if (QFile::permissions(spath) | QFile::ExeUser)
+        {
+            qDebug() << "find ruby1.8 executable, fine!";
+            return spath;
+        }
+    }
+#endif
+
+#ifdef Q_WS_WIN32
+    if (QFile::exists(qApp->applicationDirPath() + "/ruby"))
+        return qApp->applicationDirPath() + "/ruby/bin/ruby.exe";
+    if (QFile::exists(qApp->applicationDirPath() + "/ruby-1.8.7-p371-i386-mingw32"))
+        return qApp->applicationDirPath() + "/ruby-1.8.7-p371-i386-mingw32/bin/ruby.exe";
+#endif
+    return QString();
+}
+
+
+void QToyTime::on_actionQuickPreview_triggered()
+{
+    QString tmpFile = QDir::tempPath() + "/Piko" + QString().setNum(QApplication::applicationPid()) + ".txt";
+    if (generateToyundaSubtitle(ui->lyrFileEdit->toPlainText(), ui->frmFileEdit->toPlainText(), tmpFile))
+    {
+        m_gsttoyPlayerProcess->kill();
+        QStringList arg;
+        arg << QDir::currentPath().toUtf8() + "/"  + m_time->videoFile() << tmpFile;
+        QString tmp = qApp->applicationDirPath();
+        tmp.append("/toyunda-player");
+        qDebug() << tmp << arg;
+        m_gsttoyPlayerProcess->start(tmp, arg);
+    }
 }

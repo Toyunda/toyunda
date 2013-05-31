@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>time-new.png</file>
+        <file>Gear-icon.png</file>
+        <file>document-preview.png</file>
+        <file>debug-execute-to-cursor.png</file>
+        <file>time-preview-full.png</file>
+        <file>time-preview-quick.png</file>
+        <file>time-preview-lastframe.png</file>
+    </qresource>
+</RCC>

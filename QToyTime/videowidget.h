@@ -23,6 +23,7 @@ public:
     void    setPosition(const QTime &pos);
     void    setPosition(int frame);
     QTime   getTimeFromFrame(int) const;
+    int     positionFrame() const;
     QTime   position() const;
     QTime   duration() const;
     QGst::State state() const;
@@ -38,10 +39,11 @@ signals:
     void    paused();
     void    playing();
     void    stopped();
+    void    ready();
     void    videoMouseClickPress(int);
     void    videoMouseClickRelease(int);
-    void    keyEvent(QKeyEvent ev);
     void    positionChanged();
+    void    keyEvent(QKeyEvent &);
 
 public slots:
     void    pause();

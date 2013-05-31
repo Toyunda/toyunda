@@ -35,7 +35,8 @@ bool    generateToyundaSubtitle(QString lyr, QString frm, QString outFile)
         QString lyrLine = lyrStream.readLine();
         if (lyrLineRegex.exactMatch(lyrLine))
         {
-            int start, end;
+            int start = -1;
+            int end = -1;
             bool    first = true;
             int lyrFound = 0;
             int lyrPos = -1;
@@ -77,10 +78,13 @@ bool    generateToyundaSubtitle(QString lyr, QString frm, QString outFile)
                 out << QChar(0xFF) << QString().fill(' ', nbSpaceAfter) << "\n";
                 lyrFound++;
             }
-            dispoLine[linePos] = end + marging_end;
-            out << QString("{%1}{%2}%3%4\n").arg((start - marging_start >= 0 ) ? start - marging_start : 0)
+            if (start != -1)
+            {
+                dispoLine[linePos] = end + marging_end;
+                out << QString("{%1}{%2}%3%4\n").arg((start - marging_start >= 0 ) ? start - marging_start : 0)
                    .arg(end + marging_end).arg(QString().fill('|', linePos * 3))
                    .arg(rawLyrLine);
+            }
         }
     }
     return true;
