@@ -1,5 +1,5 @@
 /* GStreamer
- * Copyright (C) 2013 FIXME <fixme@example.com>
+ * Copyright (C) 2013 Sylvain Colinet <scolinet@gmail.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -16,6 +16,7 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Suite 500,
  * Boston, MA 02110-1335, USA.
  */
+
 /**
  * SECTION:element-gsttoyunda
  *

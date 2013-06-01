@@ -114,11 +114,9 @@ target_link_libraries(gsttoyunda ${GSTREAMER_PKG_LIBRARIES} ${GSTREAMER_BASE_PKG
 				${PANGOCAIRO_PKG_LIBRARIES})
 
 
-#target_link_libraries(gstreamer-toyunda ${GLIB_PKG_LIBRARIES})
 target_link_libraries(toyunda-player ${GSTREAMER_PKG_LIBRARIES} ${GTK2_PKG_LIBRARIES} ${GSTREAMER_INTERFACE_PKG_LIBRARIES}
 					${GIO2_PKG_LIBRARIES})
 
-#install(TARGETS gstreamer-toyunda RUNTIME DESTINATION bin)
 
 
 GET_TARGET_PROPERTY(TOYUNDA_PLAYER_BIN_NAME toyunda-player LOCATION)
