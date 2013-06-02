@@ -69,6 +69,8 @@ private slots:
 
     void on_actionQuickPreview_triggered();
 
+    void on_fpreviewButton_clicked();
+
 private:
     struct  SylDesc;
     struct  lineSylDesc

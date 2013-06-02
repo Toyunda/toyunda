@@ -111,7 +111,9 @@ QToyTime::QToyTime(QWidget *parent) :
         restoreGeometry(m_settings->value("windowGeometry").toByteArray());
         restoreState(m_settings->value("windowState").toByteArray());
     }
-    if (!m_settings->contains("rubyexec"))
+
+    QString warningMsg;
+    if (m_settings->contains("rubyexec")  && !m_settings->value("rubyexec").toString().isEmpty())
     {
         m_rubyExec = m_settings->value("rubyexec").toString();
         m_configDialog.setRubyExec(m_rubyExec);
@@ -126,23 +128,43 @@ QToyTime::QToyTime(QWidget *parent) :
         }
         else
         {
-            //if (!m_settings->contains("windowsGeometry"))
-                QMessageBox::warning(this, tr("Ruby not found"), tr("no suitable ruby executable not found (ruby 1.8 or lower)\n"
-                                     "QToyTime will not be able to generate the final toyunda subtitle. You can set it in the configuration dialog later.\n"
-                                     "You can still use QToyTime to create the .lyr and .frm file.\n\n"
-                                     "This warning will only be display once."));
+            if (!m_settings->contains("windowGeometry"))
+                warningMsg = tr("no suitable ruby executable not found (ruby 1.8 or lower)\n");
             ui->fpreviewButton->setEnabled(false);
             ui->actionGenerateSubtitle->setEnabled(false);
             ui->actionFullPreview->setEnabled(false);
         }
     }
-    if (m_settings->contains("toytooldir"))
+    if (m_settings->contains("toytooldir") && !m_settings->value("toytooldir").toString().isEmpty())
     {
         m_toyToolDir = m_settings->value("toytooldir").toString();
         m_configDialog.setToyToolDir(m_toyToolDir);
     }
-
-
+    else
+    {
+#ifdef Q_WS_WIN32
+        if (QFile::exists(qApp->applicationDirPath() + "/" + "toyunda-tools"))
+        {
+            m_toyToolDir = qApp->applicationDirPath() + "/" + "toyunda-tools";
+            m_settings->setValue("toytooldir", m_toyToolDir);
+        }
+        else
+#endif
+        {
+            if (!m_settings->contains("windowGeometry"))
+                warningMsg += tr("Toyunda tools dir not found (searching for toyunda-tools directory in the application path).\n");
+            ui->fpreviewButton->setEnabled(false);
+            ui->actionGenerateSubtitle->setEnabled(false);
+            ui->actionFullPreview->setEnabled(false);
+        }
+    }
+    if(!warningMsg.isEmpty())
+    {
+        QMessageBox::warning(this, tr("ruby or Toyunda tools not found"), warningMsg +
+        tr("QToyTime will not be able to generate the final toyunda subtitle. You can set this in the configuration dialog later.\n"
+           "You can still use QToyTime to create the .lyr and .frm file.\n\n"
+           "This warning will only be display once."));
+    }
 }
 
 QToyTime::~QToyTime()
@@ -637,9 +659,11 @@ void QToyTime::on_actionConfiguration_triggered()
     {
         m_settings->setValue("videosink", m_configDialog.videoSink);
         m_rubyExec = m_configDialog.rubyExec;
-        m_settings->setValue("rubyexec", m_configDialog.rubyExec);
+        if (!m_rubyExec.isEmpty())
+            m_settings->setValue("rubyexec", m_configDialog.rubyExec);
         m_toyToolDir = m_configDialog.toyToolDir;
-        m_settings->setValue("toytooldir", m_toyToolDir);
+        if (!m_toyToolDir.isEmpty())
+            m_settings->setValue("toytooldir", m_toyToolDir);
     }
 }
 
@@ -726,5 +750,33 @@ void QToyTime::on_actionQuickPreview_triggered()
         tmp.append("/toyunda-player");
         qDebug() << tmp << arg;
         m_gsttoyPlayerProcess->start(tmp, arg);
+    }
+}
+
+void QToyTime::on_fpreviewButton_clicked()
+{
+    QString tmpLyr = QDir::tempPath() + "/Piko-lyr" + QString().setNum(QApplication::applicationPid()) + ".lyr";
+    QString tmpFrm = QDir::tempPath() + "/Piko-FRM" + QString().setNum(QApplication::applicationPid()) + ".frm";
+    QString tmpSub = QDir::tempPath() + "/Piko-gen" + QString().setNum(QApplication::applicationPid()) + ".txt";
+
+    QFile fi(tmpLyr);
+    fi.open(QIODevice::WriteOnly);
+    fi.write(ui->lyrFileEdit->toPlainText().toLocal8Bit());
+    fi.close();
+    fi.setFileName(tmpFrm);
+    fi.open(QIODevice::WriteOnly);
+    fi.write(ui->frmFileEdit->toPlainText().toLocal8Bit());
+    fi.close();
+    QProcess    m_process;
+    m_process.setWorkingDirectory(m_toyToolDir);
+    m_process.setStandardOutputFile(tmpSub);
+    m_process.start(m_rubyExec, QStringList() << m_toyToolDir + "/toyunda-gen.rb" << tmpLyr << tmpFrm);
+    m_process.waitForFinished(2000);
+    if (m_process.exitCode() != 0)
+        QMessageBox::warning(this, tr("Can't generate full preview"), tr("Can't generate full preview, toyunda-gen.rb didn't work\n") + m_process.readAllStandardError());
+    else
+    {
+        m_gsttoyPlayerProcess->kill();
+        m_gsttoyPlayerProcess->start(qApp->applicationDirPath() + "/toyunda-player", QStringList() << m_time->videoFile() << tmpSub);
     }
 }
