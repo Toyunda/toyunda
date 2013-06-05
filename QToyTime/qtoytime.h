@@ -111,8 +111,9 @@ private:
     QSettings*      m_settings;
     configDialog    m_configDialog;
 
-    bool    m_modifiedFrm;
-    bool    m_modifiedLyr;
+    bool            m_replaceMode;
+    int             m_marginInChangeMode;
+
     QString m_cacheFrame;
     QTextEdit::ExtraSelection m_frameExtraSel;
 

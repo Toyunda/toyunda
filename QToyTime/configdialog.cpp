@@ -18,6 +18,7 @@
 
 #include "configdialog.h"
 #include "ui_configdialog.h"
+#include <QDebug>
 #include <QFileDialog>
 
 configDialog::configDialog(QWidget *parent) :
@@ -44,6 +45,14 @@ configDialog::~configDialog()
     delete ui;
 }
 
+void configDialog::setReplaceMode(bool r)
+{
+    replaceMode = r;
+    ui->frameMarginSpinBox->setEnabled(r);
+    ui->replaceCheckBox->setChecked(r);
+    ui->classicCheckBox->setChecked(!r);
+}
+
 void    configDialog::setVideoSink(QString vsink)
 {
     for (int i = 0; i < ui->videosinkComboBox->count(); i++)
@@ -68,11 +77,19 @@ void configDialog::setToyToolDir(QString Tdir)
     ui->toyToolEdit->setText(Tdir);
 }
 
+void configDialog::setFrameMargin(int m)
+{
+    frameMargin = m;
+    ui->frameMarginSpinBox->setValue(m);
+}
+
 void configDialog::on_buttonBox_accepted()
 {
     videoSink = ui->videosinkComboBox->currentText();
     rubyExec = ui->rubyLineEdit->text();
     toyToolDir = ui->toyToolEdit->text();
+    frameMargin = ui->frameMarginSpinBox->value();
+    replaceMode = (ui->replaceCheckBox->checkState() == Qt::Checked);
 }
 
 void configDialog::on_rubyChooseButton_clicked()
@@ -91,5 +108,25 @@ void configDialog::on_toyToolButton_clicked()
     if (!fileName.isEmpty())
     {
         ui->toyToolEdit->setText(fileName);
+    }
+}
+
+
+
+void configDialog::on_classicCheckBox_stateChanged(int arg1)
+{
+    if (arg1 == Qt::Checked)
+    {
+        ui->replaceCheckBox->setChecked(false);
+        ui->frameMarginSpinBox->setEnabled(false);
+    }
+}
+
+void configDialog::on_replaceCheckBox_stateChanged(int arg1)
+{
+    if (arg1 == Qt::Checked)
+    {
+        ui->classicCheckBox->setChecked(false);
+        ui->frameMarginSpinBox->setEnabled(true);
     }
 }

@@ -35,9 +35,14 @@ public:
     QString videoSink;
     QString rubyExec;
     QString toyToolDir;
+    int     frameMargin;
+    bool    replaceMode;
+
+    void    setReplaceMode(bool r);
     void    setVideoSink(QString vsink);
     void    setRubyExec(QString rbe);
     void    setToyToolDir(QString Tdir);
+    void    setFrameMargin(int m);
     
 private slots:
     void on_buttonBox_accepted();
@@ -45,6 +50,10 @@ private slots:
     void on_rubyChooseButton_clicked();
 
     void on_toyToolButton_clicked();
+
+    void on_classicCheckBox_stateChanged(int arg1);
+
+    void on_replaceCheckBox_stateChanged(int arg1);
 
 private:
     Ui::configDialog *ui;

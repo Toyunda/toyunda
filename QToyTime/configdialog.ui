@@ -31,36 +31,70 @@
         <item>
          <widget class="QLabel" name="label_2">
           <property name="text">
-           <string>The karaoke dir is used if you want to install your time in in</string>
+           <string>You can change the way QToyTime time the end of syllable.</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="label">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
+         <widget class="QCheckBox" name="classicCheckBox">
           <property name="text">
-           <string>Karaoke dir</string>
+           <string>Classic : the end of syllable is timed when you release the mouse button</string>
           </property>
          </widget>
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout">
           <item>
-           <widget class="QLineEdit" name="lineEdit">
-            <property name="enabled">
-             <bool>false</bool>
+           <widget class="QCheckBox" name="replaceCheckBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Replace : </string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
+           <widget class="QLabel" name="label">
             <property name="text">
-             <string>...</string>
+             <string>When a new syllable is timed, QToyTime replace the end of the previous syllable with the start of this new syllable minus a margin</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_7">
+          <item>
+           <spacer name="horizontalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_8">
+            <property name="text">
+             <string>Frame margin :</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="frameMarginSpinBox">
+            <property name="prefix">
+             <string/>
             </property>
            </widget>
           </item>

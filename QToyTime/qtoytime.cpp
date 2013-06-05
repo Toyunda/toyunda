@@ -45,6 +45,9 @@ QToyTime::QToyTime(QWidget *parent) :
     d = getLineSylDesc(false, true, 6, true);
     print_linedesc(*d);*/
 
+    m_replaceMode = true;
+    m_marginInChangeMode = 2;
+
     m_settings = new QSettings("skarsnik.nyo.fr", "QToyTime");
 
     ui->actionNew->setShortcut(QKeySequence::New);
@@ -165,6 +168,12 @@ QToyTime::QToyTime(QWidget *parent) :
            "You can still use QToyTime to create the .lyr and .frm file.\n\n"
            "This warning will only be display once."));
     }
+    if (m_settings->contains("replacemode"))
+        m_replaceMode = m_settings->value("replacemode").toBool();
+    if (m_settings->contains("marginframe"))
+        m_marginInChangeMode = m_settings->value("marginframe").toInt();
+    m_configDialog.setReplaceMode(m_replaceMode);
+    m_configDialog.setFrameMargin(m_marginInChangeMode);
 }
 
 QToyTime::~QToyTime()
@@ -180,6 +189,30 @@ void QToyTime::onVideoMousePress(int frameNb)
     {
         m_frameExtraSel.cursor = ui->frameOutputEdit->textCursor();
         m_frameExtraSel.cursor.setPosition(size);
+    }
+    if (m_replaceMode)
+    {
+        QTextCursor cur = ui->frameOutputEdit->textCursor();
+        QRegExp frmRe("\\b(\\d+ )(\\d+)\\b");
+        QString s;
+
+        int index = ui->frameOutputEdit->toPlainText().lastIndexOf(frmRe, size);
+        if (index >= 0)
+        {
+            s.setNum(frameNb - m_marginInChangeMode);
+            cur.setPosition(index + frmRe.cap(1).size());
+            cur.insertText(s);
+            cur.setPosition(index + frmRe.cap(1).size() + s.size());
+            cur.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, frmRe.cap(2).size());
+            cur.removeSelectedText();
+            cur.movePosition(QTextCursor::End);
+            ui->frameOutputEdit->setTextCursor(cur);
+        }
+        if (!m_cacheFrame.isEmpty())
+        {
+            index = m_cacheFrame.lastIndexOf(frmRe);
+            m_cacheFrame.replace(index + frmRe.cap(1).size(), frmRe.cap(2).size(), s);
+        }
     }
 
     m_cacheFrame.append(QString().setNum(frameNb) + " ");
@@ -664,6 +697,10 @@ void QToyTime::on_actionConfiguration_triggered()
         m_toyToolDir = m_configDialog.toyToolDir;
         if (!m_toyToolDir.isEmpty())
             m_settings->setValue("toytooldir", m_toyToolDir);
+        m_replaceMode = m_configDialog.replaceMode;
+        m_settings->setValue("replacemode", m_replaceMode);
+        m_marginInChangeMode = m_configDialog.frameMargin;
+        m_settings->setValue("marginframe", m_marginInChangeMode);
     }
 }
 
