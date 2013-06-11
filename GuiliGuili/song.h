@@ -37,9 +37,11 @@ public:
 	QString	prefix;
 	QString	subtitlePath;
 	QString	videoPath;
+    quint64 _id;
 	static bool lessThan(Song*, Song*);
     static QByteArray   listSerialize(QList<Song>);
     static QList<Song>  listDeserialize(QByteArray);
+    static quint64 maxid;
 };
 
 const   QString SongMimeType = "application/x-guiliguili-song";

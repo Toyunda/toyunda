@@ -13,7 +13,7 @@ SUBDIRS += \
         QToyTime
 
 win32 {
-        SUBDIRS+ = QToyTimeWinLauncher
+        SUBDIRS += QToyTimeWinLauncher
 }
-        #QToyundaDownloader
+
 

@@ -78,8 +78,9 @@ QToyTime::QToyTime(QWidget *parent) :
     QStringList env = QProcess::systemEnvironment();
     env << "GST_PLUGIN_PATH=" + sq_get_gsttoyunda_plugin_path(qApp->applicationDirPath());
     m_gsttoyPlayerProcess->setEnvironment(env);
-    m_gsttoyPlayerProcess->setStandardOutputFile(qApp->applicationDirPath() + "/toyunda-player.log");
-    m_gsttoyPlayerProcess->setStandardErrorFile(qApp->applicationDirPath() + "/toyunda-player.log");
+
+    m_gsttoyPlayerProcess->setStandardOutputFile(qApp->applicationDirPath() + "/toyunda-player-out.log");
+    m_gsttoyPlayerProcess->setStandardErrorFile(qApp->applicationDirPath() + "/toyunda-player-err.log");
     m_gsttoyPlayerProcess->setWorkingDirectory(qApp->applicationDirPath());
 
 
@@ -540,9 +541,14 @@ QToyTime::lineSylDesc *QToyTime::getLineSylDesc(bool fromLyr, bool fromFrm, int 
 
 QString QToyTime::getLineUnderCursor(int pos, const QString &text, int *startpos, int *endpos)
 {
-    if (pos > text.size() ||
-            (pos == 0 && text[pos] == '\n') ||
-            (pos < text.size() && text[pos] == '\n' && text[pos-1] == '\n'))
+    if (pos > text.size() || text.isEmpty())
+        return QString("");
+    if (pos == 0 && text[pos] == '\n')
+        return QString("");
+    if (text.size() == 0)
+        return QString("");
+    if (pos > 0 && text.size() > 1 && pos < text.size() &&
+             text[pos] == '\n' && text[pos-1] == '\n')
         return QString("");
     else
     {
@@ -718,6 +724,9 @@ void QToyTime::loadProject()
 {
     m_settings->setValue("lastproject", m_time->baseDir() + "/" + m_time->iniFile());
     QDir::setCurrent(m_time->baseDir());
+    ui->frmFileEdit->clear();
+    ui->lyrFileEdit->clear();
+    ui->frameOutputEdit->clear();
     m_time->loadLyrFrm();
     if (m_time->lyrFine())
         ui->lyrFileEdit->setText(m_time->getLyrText());

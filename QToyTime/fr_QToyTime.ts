@@ -62,17 +62,17 @@
         <translation>Les fichiers vont être crées dans le répertoire de la vidéo</translation>
     </message>
     <message>
-        <location filename="newtimedialog.cpp" line="40"/>
+        <location filename="newtimedialog.cpp" line="58"/>
         <source>Choose video</source>
         <translation>Sélectionnez une video</translation>
     </message>
     <message>
-        <location filename="newtimedialog.cpp" line="52"/>
+        <location filename="newtimedialog.cpp" line="70"/>
         <source>Choose lyr file</source>
         <translation>Sélectionnez le fichier .lyr</translation>
     </message>
     <message>
-        <location filename="newtimedialog.cpp" line="63"/>
+        <location filename="newtimedialog.cpp" line="81"/>
         <source>Choose FRM file</source>
         <translation>Sélectionnez le fichier .frm</translation>
     </message>
@@ -80,13 +80,13 @@
 <context>
     <name>QGPlayer</name>
     <message>
-        <location filename="qgplayer.cpp" line="109"/>
-        <location filename="qgplayer.cpp" line="125"/>
+        <location filename="qgplayer.cpp" line="127"/>
+        <location filename="qgplayer.cpp" line="143"/>
         <source>Position : </source>
         <translation>Position : </translation>
     </message>
     <message>
-        <location filename="qgplayer.cpp" line="129"/>
+        <location filename="qgplayer.cpp" line="147"/>
         <source>Position : %1/%2 -- Frame : %3</source>
         <translation>Position : %1/%2 - Frame : %3</translation>
     </message>
@@ -148,15 +148,15 @@
     </message>
     <message>
         <location filename="qtoytime.ui" line="258"/>
-        <location filename="qtoytime.cpp" line="562"/>
-        <location filename="qtoytime.cpp" line="565"/>
+        <location filename="qtoytime.cpp" line="635"/>
+        <location filename="qtoytime.cpp" line="638"/>
         <source>&amp;Open</source>
         <translation>&amp;Ouvrir</translation>
     </message>
     <message>
         <location filename="qtoytime.ui" line="263"/>
-        <location filename="qtoytime.cpp" line="563"/>
-        <location filename="qtoytime.cpp" line="566"/>
+        <location filename="qtoytime.cpp" line="636"/>
+        <location filename="qtoytime.cpp" line="639"/>
         <source>&amp;Save</source>
         <translation>&amp;Enregistrer</translation>
     </message>
@@ -179,7 +179,7 @@
         <location filename="qtoytime.ui" line="291"/>
         <source>Preview the last frames timed between two pause</source>
         <oldsource>Preview the last frame timed between two pause</oldsource>
-        <translation type="unfinished">Affiche un apperçu des dernière frame timé entre deux pauses</translation>
+        <translation>Affiche un apperçu des dernière frame timé entre deux pauses</translation>
     </message>
     <message>
         <location filename="qtoytime.ui" line="294"/>
@@ -195,7 +195,7 @@
         <location filename="qtoytime.ui" line="307"/>
         <source>Insert the last frames timed between two pause</source>
         <oldsource>Insert the last frame timed between two pause</oldsource>
-        <translation type="unfinished">Insert les dernière frame timé entre deux pause</translation>
+        <translation>Insert les dernière frame timé entre deux pause</translation>
     </message>
     <message>
         <location filename="qtoytime.ui" line="310"/>
@@ -252,37 +252,76 @@
         <translation>Ouvre le dialogue de configuration</translation>
     </message>
     <message>
-        <location filename="qtoytime.cpp" line="85"/>
+        <location filename="qtoytime.cpp" line="106"/>
         <source>No Toyunda Time project loaded</source>
         <translation>Aucun projet de time toyunda chargé</translation>
     </message>
     <message>
-        <location filename="qtoytime.cpp" line="112"/>
         <source>Ruby not found</source>
-        <translation type="unfinished">Ruby non trouvé</translation>
+        <translation type="obsolete">Ruby non trouvé</translation>
     </message>
     <message>
-        <location filename="qtoytime.cpp" line="112"/>
         <source>no suitable ruby executable not found (ruby 1.8 or lower)
 QToyTime will not be able to generate the final toyunda subtitle. You can set it in the configuration dialog later.
 You can still use QToyTime to create the .lyr and .frm file.
 
 This warning will only be display once.</source>
-        <translation type="unfinished">Aucun executable ruby adapté trouvé (ruby 1.8 ou moins)
+        <translation type="obsolete">Aucun executable ruby adapté trouvé (ruby 1.8 ou moins)
 QToyTime ne pourra générer le sous titre toyunda final. Vous pouvez le spécifier dans le dialogue de configuration plus tard.
 Vous pouvez toujours utiliser QToyTime pour créer les fichiers .lyr et .frm
 
 Cet avertissement ne sera affiché qu&apos;une fois.</translation>
     </message>
     <message>
-        <location filename="qtoytime.cpp" line="200"/>
+        <location filename="qtoytime.cpp" line="135"/>
+        <source>no suitable ruby executable not found (ruby 1.8 or lower)
+</source>
+        <translation>Aucun executable ruby adapté trouvé (ruby 1.8 ou moins)
+</translation>
+    </message>
+    <message>
+        <location filename="qtoytime.cpp" line="158"/>
+        <source>Toyunda tools dir not found (searching for toyunda-tools directory in the application path).
+</source>
+        <translation>Le répertoire des Toyunda tools n&apos;a pas pus être trouvé (repertoire recherché : toyunda-tools dans le réperoire de l&apos;application).
+</translation>
+    </message>
+    <message>
+        <location filename="qtoytime.cpp" line="166"/>
+        <source>ruby or Toyunda tools not found</source>
+        <translation>ruby ou Toyunda tools non trouvé</translation>
+    </message>
+    <message>
+        <location filename="qtoytime.cpp" line="167"/>
+        <source>QToyTime will not be able to generate the final toyunda subtitle. You can set this in the configuration dialog later.
+You can still use QToyTime to create the .lyr and .frm file.
+
+This warning will only be display once.</source>
+        <translation>QToyTime ne pourra générer le sous titre toyunda final. Vous pouvez le spécifier dans le dialogue de configuration plus tard.
+Vous pouvez toujours utiliser QToyTime pour créer les fichiers .lyr et .frm
+
+Cet avertissement ne sera affiché qu&apos;une fois.</translation>
+    </message>
+    <message>
+        <location filename="qtoytime.cpp" line="273"/>
         <source>Choose Project File (ini)</source>
         <translation>Choisir le fichier de projet (.ini)</translation>
     </message>
     <message>
-        <location filename="qtoytime.cpp" line="651"/>
+        <location filename="qtoytime.cpp" line="730"/>
         <source>Project : %1 loaded</source>
         <translation>Projet %1 chargé</translation>
+    </message>
+    <message>
+        <location filename="qtoytime.cpp" line="813"/>
+        <source>Can&apos;t generate full preview</source>
+        <translation>Ne peut générer un apperçu complet</translation>
+    </message>
+    <message>
+        <location filename="qtoytime.cpp" line="813"/>
+        <source>Can&apos;t generate full preview, toyunda-gen.rb didn&apos;t work
+</source>
+        <translation>Ne peut générer un apercçus complet, toyunda-gen.rb n&apos;a pas marché</translation>
     </message>
     <message>
         <source>Preview</source>
@@ -315,39 +354,58 @@ Cet avertissement ne sera affiché qu&apos;une fois.</translation>
         <translation>Configuration de QToyTime</translation>
     </message>
     <message>
+        <location filename="configdialog.ui" line="41"/>
+        <source>Classic : the end of syllable is timed when you release the mouse button</source>
+        <translation>Classsique : La fin de la syllable est timé quand vous relacher le bouton de la souris.</translation>
+    </message>
+    <message>
+        <location filename="configdialog.ui" line="56"/>
+        <source>Replace : </source>
+        <translation>Remplacement : </translation>
+    </message>
+    <message>
         <location filename="configdialog.ui" line="63"/>
-        <location filename="configdialog.ui" line="179"/>
-        <location filename="configdialog.ui" line="200"/>
+        <source>When a new syllable is timed, QToyTime replace the end of the previous syllable with the start of this new syllable minus a margin</source>
+        <translation>Quand une nouvelle syllable est timé, QToyTime remplace la fin de la syllables précédentes avec le début de cette nouvelle frame moins une marge.</translation>
+    </message>
+    <message>
+        <location filename="configdialog.ui" line="90"/>
+        <source>Frame margin :</source>
+        <translation>frame de marge : </translation>
+    </message>
+    <message>
+        <location filename="configdialog.ui" line="227"/>
+        <location filename="configdialog.ui" line="248"/>
         <source>...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="configdialog.ui" line="34"/>
-        <source>The karaoke dir is used if you want to install your time in in</source>
-        <translation>Le dossier de Karaké est utilisé si vous voulez installer votre time dedans</translation>
+        <source>You can change the way QToyTime time the end of syllable.</source>
+        <oldsource>The karaoke dir is used if you want to install your time in in</oldsource>
+        <translation>Vous pouvez changer la façon dont QToyTime time la fin des syllables.</translation>
     </message>
     <message>
-        <location filename="configdialog.ui" line="44"/>
         <source>Karaoke dir</source>
-        <translation>Dossier de Karaoke</translation>
+        <translation type="obsolete">Dossier de Karaoke</translation>
     </message>
     <message>
-        <location filename="configdialog.ui" line="90"/>
+        <location filename="configdialog.ui" line="131"/>
         <source>The gstreamer videosink is the plugin used by gstreamer to display the video, try to change it if you have trouble with the display of the video. QToyTime MUST BE RESTARTED for the change make effect</source>
         <translation>Le &quot;gstreamer videosink&quot; est le plugin utilisé par gstreamer pour afficher la video, essayez de le changer si vous avez de problème avec la vidéo. QToyTime DOIT ETRE REDEMARRER pour que le changement prenne effet</translation>
     </message>
     <message>
-        <location filename="configdialog.ui" line="115"/>
+        <location filename="configdialog.ui" line="156"/>
         <source>Gstreamer videosink :</source>
         <translation>Gstreamer videosink :</translation>
     </message>
     <message>
-        <location filename="configdialog.ui" line="154"/>
+        <location filename="configdialog.ui" line="202"/>
         <source>QToyTime use the toyunda tool that create the final subtitle file. It&apos;s written in ruby so you have to specify the path to the ruby executable too</source>
         <translation>QToyTime utilise les &quot;toyunda tools&quot; qui crée le sous titre final. C&apos;est écrit en ruby donc vous devez spécifez aussi le chemin vers l&apos;executable ruby</translation>
     </message>
     <message>
-        <location filename="configdialog.ui" line="164"/>
+        <location filename="configdialog.ui" line="212"/>
         <source>Toyunda Tool directory :</source>
         <translation>Répertoire des Toyunda Tool :</translation>
     </message>
@@ -356,17 +414,17 @@ Cet avertissement ne sera affiché qu&apos;une fois.</translation>
         <translation type="obsolete">QToyTime utilise l&apos;outil toyunda pour créer le fichier de sous titre final. Il est écrit en ruby donc il vous faut spécifier le chemin de l&apos;executable ruby</translation>
     </message>
     <message>
-        <location filename="configdialog.ui" line="188"/>
+        <location filename="configdialog.ui" line="236"/>
         <source>Ruby executable :</source>
         <translation>Executable ruby :</translation>
     </message>
     <message>
-        <location filename="configdialog.cpp" line="63"/>
+        <location filename="configdialog.cpp" line="98"/>
         <source>Choose the ruby executable</source>
         <translation>Choisissez l&apos;executable ruby</translation>
     </message>
     <message>
-        <location filename="configdialog.cpp" line="72"/>
+        <location filename="configdialog.cpp" line="107"/>
         <source>Choose the directory for Toyunda Tools</source>
         <translation>Choisissez le répertoir des Toyunda Tools</translation>
     </message>

@@ -120,6 +120,9 @@ void ProfilGstToyundaPlayer::updateValueFromDialog()
 bool ProfilGstToyundaPlayer::save()
 {
     QSettings   conf(fileName, QSettings::IniFormat);
+    conf.sync();
+    if (conf.status() != QSettings::NoError)
+        return false;
     baseSave(&conf);
     conf.setValue("fullscreen", m_fullscreen);
     conf.setValue("scaled_fullscreen", m_scaled_fullscreen);

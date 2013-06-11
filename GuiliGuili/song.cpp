@@ -23,9 +23,11 @@
 #include <QFile>
 #include <QFileInfo>
 
+quint64 Song::maxid = 0;
+
 Song::Song()
 {
-
+    _id = maxid++;
 }
 
 Song::Song(const QString filePath, bool realFile)
@@ -35,6 +37,7 @@ Song::Song(const QString filePath, bool realFile)
     QFileInfo   fi(filePath);
     QString     baseFileName = fi.fileName();
 	iniFile = filePath;
+    _id = maxid++;
     if (pathfmt.exactMatch(baseFileName))
 	{	
 		prefix = pathfmt.cap(1);
@@ -72,6 +75,7 @@ Song::Song(const Song& other)
 	this->videoPath = other.videoPath;
 	this->prefix = other.prefix;
     this->iniFile = other.iniFile;
+    this->_id = other._id;
 }
 
 Song::~Song()
@@ -109,6 +113,7 @@ QByteArray Song::listSerialize(QList<Song> ls)
     while(it.hasNext())
     {
         const Song& sg = it.next();
+        stream << sg._id;
         stream << sg.iniFile;
         stream << sg.prefix;
         stream << sg.title;
@@ -127,6 +132,7 @@ QList<Song> Song::listDeserialize(QByteArray toParse)
     for (i = 0; i < nbSong; i++)
     {
         Song    sg;
+        stream >> sg._id;
         stream >> sg.iniFile;
         stream >> sg.prefix;
         stream >> sg.title;

@@ -90,6 +90,9 @@ bool ProfilOSD::load(QString sfileName)
 bool ProfilOSD::save()
 {
     QSettings conf(fileName, QSettings::IniFormat);
+    conf.sync();
+    if (conf.status() != QSettings::NoError)
+        return false;
     baseSave(&conf);
     return true;
 }

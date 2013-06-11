@@ -70,6 +70,7 @@ bool ToyundaTime::save(const QString &frmText, const QString &lyrText)
         fi.write(lyrText.toLocal8Bit());
         fi.close();
     }
+    return true;
 }
 
 bool ToyundaTime::loadLyrFrm()
@@ -96,6 +97,7 @@ bool ToyundaTime::loadLyrFrm()
         m_lyrFine = false;
         qDebug() << fi.errorString();
     }
+    return true;
 }
 
 QString ToyundaTime::getLyrText() const

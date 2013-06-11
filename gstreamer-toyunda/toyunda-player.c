@@ -87,7 +87,8 @@ static void	calc_scaled_size(gint wanted_width, gint wanted_height, gint* m_scal
 {
 	float	aspect_ratio = (float) original_width / original_height;
 	float 	wanted_ratio = (float) wanted_width / wanted_height;
-	
+
+	g_printf("  calc_scaled_size : Original : %dx%d", original_width, original_height);
 	if (wanted_ratio < aspect_ratio)
 	{
 		*m_scaled_widht = wanted_width;
@@ -157,7 +158,7 @@ key_press_event_cb(GtkWidget *widget, GdkEventKey *event, gpointer data)
 			{
 				new_caps = gst_caps_new_simple	("video/x-raw-yuv",
 						"width", G_TYPE_INT, scaled_width,
-						"height", G_TYPE_INT, scaled_width,
+						"height", G_TYPE_INT, scaled_height,
 						NULL);
 				g_object_set(G_OBJECT(capsfilter), "caps", new_caps, NULL);
 				gst_caps_unref(new_caps);
@@ -215,13 +216,13 @@ static gboolean	event_config_cb(GtkWidget* wid, GdkEventConfigure* event, gpoint
 
 	wid = wid;
 	data = data;
-	//g_printf("____________________Size changed : %dx%d\n", event->width, event->height);
+	g_printf("____________________Size changed : %dx%d\n", event->width, event->height);
 	if (event->height != old_height || event->width != old_width)
 	{
 		if (fakefullscreen == FALSE)
 		{
 			calc_scaled_size(event->width, event->height, &new_width, &new_height);
-			//g_printf("=================Scaled new size : %dx%d\n", new_width, new_height);
+			g_printf("=================Scaled new size : %dx%d\n", new_width, new_height);
 				new_caps = gst_caps_new_simple	("video/x-raw-yuv",
 				"width", G_TYPE_INT, new_width,
 				"height", G_TYPE_INT, new_height,
@@ -356,9 +357,9 @@ void	on_autoplug_continue(GstElement* object,
 		g_print ("No width/height available\n");
 	else
 	{
-		g_printf("Width : %d, Height : %d\n", original_width, original_height);
+		g_printf("-- Width : %d, Height : %d\n", original_width, original_height);
 		calc_scaled_size(800, 600, &scaled_width, &scaled_height);
-		//g_printf("Width : %d, Height : %d\n",scaled_width, scaled_height);
+		g_printf("-- Width : %d, Height : %d\n",scaled_width, scaled_height);
 		new_caps = gst_caps_new_simple	("video/x-raw-yuv",
 					"width", G_TYPE_INT, scaled_width,
 					"height", G_TYPE_INT, scaled_height,
@@ -385,17 +386,17 @@ void	on_new_decoded_pad(GstElement *elem, GstPad	*pad, gboolean b, gpointer *dat
 	str = gst_caps_get_structure(caps, 0);
 	audiopad = gst_element_get_static_pad(GST_ELEMENT(audiobin), "sink");
 	videopad = gst_element_get_static_pad(GST_ELEMENT(videobin), "sink");
-	g_print("======================Name %s\n", gst_structure_get_name(str));
+	//g_print("======================Name %s\n", gst_structure_get_name(str));
 	if ((name = gst_structure_get_name(str)) != NULL)
 	{
 		if (g_strrstr(name, "audio") != NULL)
 		{
-			g_print("====================Audio Linked=================\n");
+			//g_print("====================Audio Linked=================\n");
 			gst_pad_link(pad, audiopad);
 		}
 		if (g_strrstr(name, "video") != NULL)
 		{
-			g_print("====================Video Linked=================\n");
+			//g_print("====================Video Linked=================\n");
 			gst_pad_link(pad, videopad);
 		}
 	}
@@ -526,7 +527,7 @@ int	main(int ac, char *ag[])
 	gtk_init(&ac, &ag);
 	gst_init(&ac, &ag);
 	
-	
+	g_printf("=======================%s===================", ag[1]);
 	create_ui();
 	gstreamer_create_pipeline();
 	gst_start(ag[1], ag[2]);

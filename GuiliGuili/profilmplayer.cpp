@@ -68,6 +68,9 @@ bool Profilmplayer::load(QString fileName)
 bool Profilmplayer::save()
 {
     QSettings   conf(fileName, QSettings::IniFormat);
+    conf.sync();
+    if (conf.status() != QSettings::NoError)
+        return false;
     baseSave(&conf);
     conf.setValue("mplayer_exec", m_mplayer_exec);
     conf.setValue("mplayer_add_args", m_mplayer_additional_arg);

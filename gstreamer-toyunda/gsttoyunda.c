@@ -261,6 +261,7 @@ gst_toyunda_set_property (GObject * object, guint property_id,
 {
 	GstToyunda *toyunda = GST_TOYUNDA (object);
 
+	g_printf("Some property\n");
 	switch (property_id) {
 		case PROP_SUBFILE:
 			if (toyunda->subfile != NULL)
@@ -272,6 +273,7 @@ gst_toyunda_set_property (GObject * object, guint property_id,
 			if (toyunda->toyunda_logo != NULL)
 				g_free(toyunda->toyunda_logo);
 			toyunda->toyunda_logo = g_value_dup_string(value);
+			g_printf("Set Toyunda Logo : %s\n", toyunda->toyunda_logo);
 			break;
 		case PROP_IMAGE_DIR:
 			if (toyunda->images_base_path != NULL)

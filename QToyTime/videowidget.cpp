@@ -119,7 +119,7 @@ bool VideoWidget::init(QString videoSink)
     m_currentState = QGst::StateNull;
 
 
-    m_toyunda->setProperty("toyunda-logo", qApp->applicationDirPath() + "/toyunda.tga");
+    m_toyunda->setProperty("toyunda-logo", qApp->applicationDirPath().toUtf8() + "/toyunda.tga");
     m_videosink_set = false;
     m_vsink->setProperty("force-aspect-ratio", true);
     watchPipeline(m_pipeline);

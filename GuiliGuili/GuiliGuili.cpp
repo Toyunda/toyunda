@@ -54,6 +54,8 @@ GuiliGuili::GuiliGuili()
         m_songState = SongState::Playing;
         ui.openPlaylistButton->setIcon(style()->standardPixmap(QStyle::SP_DialogOpenButton));
         ui.savePlaylistButton->setIcon(style()->standardPixmap(QStyle::SP_DialogSaveButton));
+
+        m_errorHandler = new GraphicErrorHandler();
         // Ensure event loop is started
         QTimer::singleShot(0, this, SLOT(init()));
 }
@@ -64,7 +66,11 @@ void GuiliGuili::init()
         // handle profil
 
         m_profilmodel = new ProfilModel();
-        m_profilmodel->loadProfils();
+        if (!m_profilmodel->loadProfils())
+        {
+            m_errorHandler->addError(SQError(SQError::Fatal, "Ne peut charger les profils"));
+            emit error_and_quit();
+        }
         if (!m_settings->value("CurrentProfil").toString().isEmpty())
             m_profilmodel->setDefaultProfil(m_settings->value("CurrentProfil").toString());
         m_configDialog.setProfilModel(m_profilmodel);
@@ -94,7 +100,7 @@ void GuiliGuili::init()
         //m_qtoyunda->setRendererQWidgetParent(this);
         m_currentProfil = m_profilmodel->getDefaultProfil();
         ui.ProfilComboBox->setCurrentIndex(m_profilmodel->getProfilIndex(m_currentProfil));
-        m_errorHandler = new GraphicErrorHandler();
+
         PlaylistModel *plmodel = new PlaylistModel(&m_currentPlaylist);
         ui.playlistView->setModel(plmodel);
         ui.playlistView->setAcceptDrops(true);
@@ -110,7 +116,7 @@ void GuiliGuili::init()
 void    GuiliGuili::on_error_and_quit()
 {
     m_errorHandler->showError();
-    //qApp->exit(1);
+    qApp->exit(1);
 }
 
 
@@ -205,6 +211,8 @@ void GuiliGuili::readKaraokeDir()
 	if (!kdir.exists())
 	{
 	    qCritical() << "Can't open karaoke dir : " << m_karaoke_dir;
+        m_errorHandler->addError(SQError(SQError::Critical, "Can't open karoke dir : " + m_karaoke_dir));
+        emit error_only();
 	    return ;
 	}
 	QStringList dirFilter;

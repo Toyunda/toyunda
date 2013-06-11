@@ -207,7 +207,7 @@ static GstBuffer*	gst_toyunda_get_image_data(GstToyunda *toyunda, gchar *image_f
 		g_printf("Can't open file %s : %s\n", image_file, stbi_failure_reason());
 		return NULL;
 	}
-	g_printf("Adding new image buffer for image : %s - widht : %d, height :%d\n", image_file, x, y);
+	g_printf("Adding NNEW image buffer for image : %s - widht : %d, height :%d\n", image_file, x, y);
 	img = g_new(toyunda_image_t, 1);
 	img->path = g_new(gchar, strlen(image_file) + 1);
 	strcpy(img->path, image_file);

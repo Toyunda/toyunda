@@ -121,6 +121,9 @@ bool ProfilModel::loadProfils()
         Profil* newProfil;
         QString fileName = qApp->applicationDirPath().toLocal8Bit() + "/" + Profil::ProfilDirectory + "/" + it.next();
         QSettings* fileIni = new QSettings(fileName, QSettings::IniFormat);
+        fileIni->sync();
+        if (fileIni->status() != QSettings::NoError)
+            return false;
         if (fileIni->value(PROFIL_TYPE_STRING).toString() == PROFIL_TYPE_GSTOYUNDA)
                 newProfil = new ProfilGstToyundaPlayer;
         if (fileIni->value(PROFIL_TYPE_STRING).toString() == PROFIL_TYPE_MPLAYER)
@@ -152,7 +155,8 @@ bool ProfilModel::saveProfils()
         if (myProf->baseType == Profil::GSTPLAYER)
             mConf->setValue(PROFIL_TYPE_STRING, PROFIL_TYPE_GSTOYUNDA);
         delete mConf;
-        myProf->save();
+        if (!myProf->save())
+            return false;
     }
     return true;
 }
@@ -192,7 +196,7 @@ bool ProfilModel::createDefaultProfils(bool createFile)
         mpProfil->fileName = qApp->applicationDirPath().toLocal8Bit() + "/" + Profil::ProfilDirectory + "/" + "DefaultMplayer.ini";
         osdProfil->fileName = qApp->applicationDirPath().toLocal8Bit() + "/" + Profil::ProfilDirectory + "/" +  "DefaultOSD.ini";
         gstprofil->fileName = qApp->applicationDirPath().toLocal8Bit() + "/" + Profil::ProfilDirectory + "/" + "DefaultGST.ini";
-        saveProfils();
+        return saveProfils();
     }
     return true;
 }

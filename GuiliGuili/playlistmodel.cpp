@@ -73,8 +73,8 @@ bool PlaylistModel::removeRows(int row, int count, const QModelIndex& parent)
 {
     if (row < 0 && count < 1)
         return false;
-    for (int i = 0; i < count; i++)
-        m_playlist->removeAt(row + i);
+    //for (int i = 0; i < count; i++)
+   //     m_playlist->removeAt(row + i);
     return true;
     //return QAbstractItemModel::removeRows(row, count, parent);
 }
@@ -83,8 +83,6 @@ bool PlaylistModel::removeRows(int row, int count, const QModelIndex& parent)
 
 bool PlaylistModel::dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent)
 {
-	Q_UNUSED(action);
-	Q_UNUSED(row);
 	Q_UNUSED(column);
     //qDebug() << "drop";
     if (data->hasFormat(SongListMimeType))
@@ -96,12 +94,37 @@ bool PlaylistModel::dropMimeData(const QMimeData* data, Qt::DropAction action, i
                 row = m_playlist->count();
         int cpt = 0;
         QList<Song> sgl = Song::listDeserialize(data->data(SongListMimeType));
-        beginInsertRows(parent, row, row + sgl.count());
+
         QListIterator<Song> it(sgl);
+        int beforeRow = 0;
+
+        if (action == Qt::MoveAction)
+        {
+            //beginRemoveRows();
+            it = sgl;
+            while (it.hasNext())
+            {
+                Song sg = it.next();
+                for (int i = 0; i < m_playlist->count(); i++)
+                {
+                    if (sg._id == m_playlist->at(i)._id)
+                    {
+                        if (i < row)
+                            beforeRow++;
+                        beginRemoveRows(QModelIndex(), i, i);
+                        m_playlist->removeAt(i);
+                        endRemoveRows();
+                        break;
+                    }
+                }
+            }
+        }
+        beginInsertRows(parent, row - beforeRow, row + sgl.count() - beforeRow);
+        it = sgl;
         while (it.hasNext())
         {
             Song sg = it.next();
-            m_playlist->addAt(sg, row + cpt);
+            m_playlist->addAt(sg, row + cpt - beforeRow);
             cpt++;
         }
         endInsertRows();
