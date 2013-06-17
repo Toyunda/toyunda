@@ -13,9 +13,14 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = qttoyunda-player
 TEMPLATE = app
 
+unix {
+    CONFIG += link_pkgconfig
+    PKGCONFIG += gstreamer-0.10 QtGStreamer-0.10 QtGStreamerUi-0.10
+}
 
 SOURCES += main.cpp\
-        videoplayer.cpp
+        videoplayer.cpp \
+        ../comons/sqhandlegstpath.cpp
 
 HEADERS  += videoplayer.h
 

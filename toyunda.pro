@@ -10,7 +10,8 @@ SUBDIRS += \
 	qtoyunda-cmd  \
 	plugins	\
 	GuiliGuili \
-        QToyTime
+        QToyTime \
+        qttoyunda-player
 
 win32 {
         SUBDIRS += QToyTimeWinLauncher

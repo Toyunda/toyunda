@@ -231,7 +231,53 @@ void QToyTime::onVideoMouseRelease(int frameNb)
     ui->frameOutputEdit->setExtraSelections(sel);
     m_cacheFrame.append(QString().setNum(frameNb) + "\n");
 
+    if (ui->lyrFileEdit->getMarkedBlock().isValid())
+    {
+        QTextBlock block = ui->lyrFileEdit->getMarkedBlock();
+        int bPos = block.position();
+        int posStPrev = -1;
+        int posEndPrev = -1;
+        int posStCur = -1;
+        int posEndCur = -1;
+        int cpt = 0;
+        int index = bPos;
+        while (cpt < m_cacheFrame.count("\n") && index >= 0)
+        {
+            index = ui->lyrFileEdit->toPlainText().indexOf("&", index + (cpt == 0 ? 0 : 1));
+            cpt++;
+        }
+        if (index >= 0)
+        {
+            posStPrev = index;
+            int i1 = ui->lyrFileEdit->toPlainText().indexOf("&", index + 1);
+            int i2 = ui->lyrFileEdit->toPlainText().indexOf("\n", index + 1);
+            if (i1 != -1 && i1 < i2)
+                posEndPrev = i1;
+            else
+            {
+                posEndPrev = ui->lyrFileEdit->toPlainText().indexOf("\n", index + 1);
+                if (posEndPrev == -1)
+                    posEndPrev = ui->lyrFileEdit->toPlainText().size() - 1;
+            }
+            if (i1 >= 0)
+            {
+                posStCur = i1;
+                i1 = ui->lyrFileEdit->toPlainText().indexOf("&", posStCur + 1);
+                i2 = ui->lyrFileEdit->toPlainText().indexOf("\n", posStCur + 1);
+                if (i1 != -1 && i1 < i2)
+                    posEndCur = i1;
+                else
+                {
+                    posEndCur = ui->lyrFileEdit->toPlainText().indexOf("\n", index);
+                    if (posEndCur == -1)
+                        posEndCur = ui->lyrFileEdit->toPlainText().size() - 1;
+                }
+            }
+            qDebug() << posStPrev << posEndPrev << posStCur << posEndCur;
+            ui->lyrFileEdit->setTimedSelection(bPos, posStPrev, posEndPrev, posStCur, posEndCur);
+        }
 
+    }
 }
 
 void QToyTime::onVideoPlaying()
@@ -250,11 +296,11 @@ void QToyTime::newTime()
     {
         m_time = new ToyundaTime();
         m_time->setBaseDir(diag.baseDir);
-        m_time->setFrmFile(diag.frmFile);
-        m_time->setLyrFile(diag.lyrFile);
-        m_time->setIniFile(diag.iniFile);
-        m_time->setVideoFile(diag.videoFile);
-        m_time->setSubFile(diag.subFile);
+        m_time->setFrmFile(QFileInfo(diag.frmFile).fileName());
+        m_time->setLyrFile(QFileInfo(diag.lyrFile).fileName());
+        m_time->setIniFile(QFileInfo(diag.iniFile).fileName());
+        m_time->setVideoFile(QFileInfo(diag.videoFile).fileName());
+        m_time->setSubFile(QFileInfo(diag.subFile).fileName());
         m_time->save();
 
         loadProject();
@@ -325,7 +371,7 @@ void QToyTime::onFrmCursorPositionChanged()
     if (lineDesc != NULL && lineDesc->syls[lineDesc->indexCurrentSyl].hasLyr)
         highlightLyrLine(lineDesc);
     else
-        ui->lyrFileEdit->setExtraSelections(QList<QTextEdit::ExtraSelection>());
+        ui->lyrFileEdit->unsetCurrentSelection();
 }
 
 
@@ -573,25 +619,30 @@ QString QToyTime::getLineUnderCursor(int pos, const QString &text, int *startpos
 
 void QToyTime::highlightLyrLine(QToyTime::lineSylDesc *lineDesc)
 {
-    QList<QTextEdit::ExtraSelection> lyrExtraSelections;
+    /*QList<QTextEdit::ExtraSelection> lyrExtraSelections;
     QTextEdit::ExtraSelection   lineSelection;
     QBrush  lyrLineHighlightColor = ui->lyrFileEdit->palette().alternateBase();
     lineSelection.format.setBackground(lyrLineHighlightColor);
     lineSelection.format.setProperty(QTextFormat::FullWidthSelection, true);
     lineSelection.cursor = ui->lyrFileEdit->textCursor();
-    lyrExtraSelections.append(lineSelection);
+    lyrExtraSelections.append(lineSelection);*/
 
     if (lineDesc != NULL)
     {
-        QTextEdit::ExtraSelection   sylSel;
+        ui->lyrFileEdit->setCurrentSelection(lineDesc->posEndInLyrEdit,
+                                             lineDesc->syls[lineDesc->indexCurrentSyl].posStartInLyrEdit,
+                                             lineDesc->syls[lineDesc->indexCurrentSyl].posEndInLyrEdit);
+        /*QTextEdit::ExtraSelection   sylSel;
         sylSel.cursor = ui->lyrFileEdit->textCursor();
         sylSel.cursor.setPosition(lineDesc->syls[lineDesc->indexCurrentSyl].posStartInLyrEdit);
         sylSel.cursor.setPosition(lineDesc->syls[lineDesc->indexCurrentSyl].posEndInLyrEdit, QTextCursor::KeepAnchor);
         //sylSel.cursor.clearSelection();
         sylSel.format.setBackground(QBrush(Qt::yellow));
-        lyrExtraSelections.append(sylSel);
+        lyrExtraSelections.append(sylSel);*/
     }
-    ui->lyrFileEdit->setExtraSelections(lyrExtraSelections);
+    else
+        ui->lyrFileEdit->setCurrentSelection(ui->lyrFileEdit->textCursor().position());
+    //ui->lyrFileEdit->setExtraSelections(lyrExtraSelections);
 }
 
 void QToyTime::highlightFrm(QToyTime::lineSylDesc *lineDesc)
@@ -729,7 +780,7 @@ void QToyTime::loadProject()
     ui->frameOutputEdit->clear();
     m_time->loadLyrFrm();
     if (m_time->lyrFine())
-        ui->lyrFileEdit->setText(m_time->getLyrText());
+        ui->lyrFileEdit->setPlainText(m_time->getLyrText());
     if (m_time->frmFine())
         ui->frmFileEdit->setText(m_time->getFrmText());
     ui->lyrFileDock->setWindowTitle("[*]" + m_time->lyrFile());

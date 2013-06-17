@@ -69,6 +69,7 @@ bool VideoWidget::init(QString videoSink)
     else
         m_vsink = QGst::ElementFactory::make(videoSink, "video sink");
 #endif
+    m_volume = QGst::ElementFactory::make("volume", "volume");
     m_toyunda = QGst::ElementFactory::make("toyunda", "Toyunda");
     vscale = QGst::ElementFactory::make("videoscale", "videoscale");
     recolor = QGst::ElementFactory::make("ffmpegcolorspace", "ffmegcolorspace");
@@ -84,9 +85,11 @@ bool VideoWidget::init(QString videoSink)
     CHECK_GST_IS_NULL(asink);
     CHECK_GST_IS_NULL(m_vsink);
     CHECK_GST_IS_NULL(m_toyunda);
+    CHECK_GST_IS_NULL(m_volume);
     CHECK_GST_IS_NULL(vscale);
     CHECK_GST_IS_NULL(recolor);
     CHECK_GST_IS_NULL(queuev);
+
     bus = m_pipeline->bus();
     bus->addSignalWatch();
     m_dec->setProperty<int>("connection-speed", 56);
@@ -97,11 +100,12 @@ bool VideoWidget::init(QString videoSink)
     m_src->link(m_dec);
 
     m_audiobin = QGst::Bin::create("-Audio bin");
-    m_audiobin->add(queuea, conv, resample, asink);
+    m_audiobin->add(queuea, conv, resample, asink, m_volume);
     QGst::PadPtr audiopad = queuea->getStaticPad("sink");
     queuea->link(conv);
     conv->link(resample);
-    resample->link(asink);
+    resample->link(m_volume);
+    m_volume->link(asink);
     QGst::GhostPadPtr gpad = QGst::GhostPad::create(audiopad, "sink");
     m_audiobin->addPad(gpad);
     m_videobin = QGst::Bin::create("-Video bin");
@@ -405,4 +409,25 @@ void VideoWidget::handlePipelineStateChange(const QGst::StateChangedMessagePtr &
     default:
         break;
     }
+}
+
+int VideoWidget::volume() const
+{
+    return m_volume->property("volume").get<float>() * 100;
+}
+
+void VideoWidget::setVolume(int vol)
+{
+    m_volume->setProperty("volume", (float)((float)vol / 100.0));
+}
+
+void VideoWidget::setSpeed(int sp)
+{
+    double rate = (float) sp / 100;
+    QGst::SeekEventPtr evt = QGst::SeekEvent::create(
+        rate, QGst::FormatTime, QGst::SeekFlagFlush,
+        QGst::SeekTypeSet, QGst::ClockTime::fromTime(position()),
+        QGst::SeekTypeNone, QGst::ClockTime::None
+    );
+    m_pipeline->sendEvent(evt);
 }

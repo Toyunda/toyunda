@@ -31,7 +31,34 @@ QGPlayer::QGPlayer(QWidget *parent) :
     connect(m_videoWidget, SIGNAL(ready()), this, SLOT(videoReady()));
     connect(m_videoWidget, SIGNAL(positionChanged()), this, SLOT(videoPositionChanged()));
     connect(ui->positionSlider, SIGNAL(sliderMoved(int)), this, SLOT(sliderMoved(int)));
+
+
+    ui->volumeButton->setIcon(style()->standardPixmap(QStyle::SP_MediaVolume));
+
     setFocusPolicy(Qt::StrongFocus);
+    m_volumeSlider = new MSlider(Qt::Vertical, this);
+    m_speedSlider = new MSlider(Qt::Vertical, this);
+    m_volumeSlider->slider->setMinimum(0);
+    m_volumeSlider->slider->setMaximum(200);
+    m_volumeSlider->slider->setTickInterval(50);
+    m_volumeSlider->slider->setTickPosition(QSlider::TicksRight);
+    m_volumeSlider->hide();
+    m_volumeSlider->raise();
+    m_volumeSlider->setFixedSize(50, 100);
+    m_volumeSlider->slider->setValue(100);
+
+    m_speedSlider->slider->setMinimum(0);
+    m_speedSlider->slider->setMaximum(200);
+    m_speedSlider->slider->setTickInterval(50);
+    m_speedSlider->slider->setTickPosition(QSlider::TicksRight);
+    m_speedSlider->slider->setTracking(false);
+    m_speedSlider->hide();
+    m_speedSlider->raise();
+    m_speedSlider->setFixedSize(50, 100);
+    m_speedSlider->slider->setValue(100);
+
+    connect(m_volumeSlider->slider, SIGNAL(valueChanged(int)), this, SLOT(on_volumeSliderValueChanged(int)));
+    connect(m_speedSlider->slider, SIGNAL(valueChanged(int)), this, SLOT(on_speedSliderValueChanged(int)));
 }
 
 QGPlayer::~QGPlayer()
@@ -152,4 +179,40 @@ void QGPlayer::sliderMoved(int pos)
     QTime tpos;
     tpos = tpos.addMSecs((double) pos / 1000 * m_videoWidget->duration().msecsTo(QTime()) * -1);
     m_videoWidget->setPosition(tpos);
+}
+
+void QGPlayer::on_volumeSliderValueChanged(int val)
+{
+    if (m_videoWidget->state() != QGst::StateNull)
+        m_videoWidget->setVolume(val);
+}
+
+void QGPlayer::on_speedSliderValueChanged(int val)
+{
+    if (m_videoWidget->state() != QGst::StateNull)
+        m_videoWidget->setSpeed(val);
+}
+
+void QGPlayer::on_volumeButton_clicked()
+{
+    m_volumeSlider->move(ui->volumeButton->pos().x(), ui->volumeButton->pos().y() - m_volumeSlider->size().height());
+    if (m_volumeSlider->isVisible())
+        m_volumeSlider->hide();
+    else
+    {
+        m_volumeSlider->show();
+        m_volumeSlider->raise();
+    }
+}
+
+void QGPlayer::on_speedButton_clicked()
+{
+    m_speedSlider->move(ui->speedButton->pos().x(), ui->speedButton->pos().y() - m_speedSlider->size().height());
+    if (m_speedSlider->isVisible())
+        m_speedSlider->hide();
+    else
+    {
+        m_speedSlider->show();
+        m_speedSlider->raise();
+    }
 }

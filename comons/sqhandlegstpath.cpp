@@ -33,7 +33,7 @@ void    sq_set_gstlib_env()
             mGstRoot = (char *)malloc(strlen(tmpL.toLocal8Bit().data()) + 1);
             strcpy(mGstRoot, tmpL.toLocal8Bit().data());
         }
-        QString mTmp = QString("PATH=%1;%2\\bin\\;%2\\lib").arg(mPath).arg(mGstRoot);
+        QString mTmp = QString("PATH=%%2\\bin\\;%2\\lib;%1").arg(mPath).arg(mGstRoot);
         qDebug() << mTmp;
         _putenv(mTmp.toLocal8Bit().data());
         //free(mGstRoot);

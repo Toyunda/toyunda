@@ -21,6 +21,10 @@
 
 #include <QWidget>
 #include "videowidget.h"
+#include <QSlider>
+#include <QDial>
+#include <QFrame>
+#include "mslider.h"
 
 namespace Ui {
 class qgplayer;
@@ -49,6 +53,9 @@ private slots:
     void    videoPositionChanged();
     void    sliderMoved(int pos);
 
+    void    on_volumeSliderValueChanged(int);
+    void    on_speedSliderValueChanged(int);
+
 
     void on_playPauseButton_clicked();
 
@@ -59,9 +66,17 @@ private slots:
     void on_seekForwardButton_clicked();
 
 
+    void on_volumeButton_clicked();
+
+    void on_speedButton_clicked();
+
 private:
     Ui::qgplayer *ui;
     VideoWidget*    m_videoWidget;
+    MSlider*        m_volumeSlider;
+    MSlider*        m_speedSlider;
+    QFrame*         fm_volume;
+    QFrame*         fm_speed;
 
     void    keyPressEvent(QKeyEvent *ev);
 

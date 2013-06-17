@@ -75,6 +75,8 @@ bool ToyundaTime::save(const QString &frmText, const QString &lyrText)
 
 bool ToyundaTime::loadLyrFrm()
 {
+    m_frmFine = true;
+    m_lyrFine = true;
     QFile   fi(m_baseDir + "/" + m_frmFile);
     if (fi.open(QIODevice::ReadOnly | QIODevice::Text))
     {

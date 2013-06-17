@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>595</width>
+    <width>653</width>
     <height>687</height>
    </rect>
   </property>
@@ -115,7 +115,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>595</width>
+     <width>653</width>
      <height>20</height>
     </rect>
    </property>
@@ -182,15 +182,12 @@
       <number>0</number>
      </property>
      <item>
-      <widget class="QTextEdit" name="lyrFileEdit">
+      <widget class="lyrEdit" name="lyrFileEdit">
        <property name="minimumSize">
         <size>
          <width>350</width>
          <height>200</height>
         </size>
-       </property>
-       <property name="acceptRichText">
-        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -385,6 +382,11 @@
    <extends>QWidget</extends>
    <header>qgplayer.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>lyrEdit</class>
+   <extends>QPlainTextEdit</extends>
+   <header>lyredit.h</header>
   </customwidget>
  </customwidgets>
  <resources>

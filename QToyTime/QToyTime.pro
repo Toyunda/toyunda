@@ -37,7 +37,10 @@ SOURCES += main.cpp\
     configdialog.cpp \
     toyundagendialog.cpp \
     qgplayer.cpp \
-    toyundatime.cpp
+    toyundatime.cpp \
+    lyredit.cpp \
+    lyrsidebar.cpp \
+    mslider.cpp
 
 HEADERS  += qtoytime.h \
     videowidget.h \
@@ -50,7 +53,10 @@ HEADERS  += qtoytime.h \
     configdialog.h \
     toyundagendialog.h \
     qgplayer.h \
-    toyundatime.h
+    toyundatime.h \
+    lyredit.h \
+    lyrsidebar.h \
+    mslider.h
 
 
 DESTDIR = $$BASE_PATH

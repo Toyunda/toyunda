@@ -183,6 +183,36 @@
        </property>
       </spacer>
      </item>
+     <item>
+      <widget class="QPushButton" name="speedButton">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../icons/icons.qrc">
+         <normaloff>:/icons/preferences-system-time.png</normaloff>:/icons/preferences-system-time.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>22</width>
+         <height>22</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="volumeButton">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>22</width>
+         <height>22</height>
+        </size>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
   </layout>
@@ -198,6 +228,7 @@
  <resources>
   <include location="../GuiliGuili/icone.qrc"/>
   <include location="../GuiliGuili/icone.qrc"/>
+  <include location="../icons/icons.qrc"/>
  </resources>
  <connections/>
 </ui>

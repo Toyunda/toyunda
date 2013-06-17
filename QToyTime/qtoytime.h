@@ -116,6 +116,8 @@ private:
 
     QString m_cacheFrame;
     QTextEdit::ExtraSelection m_frameExtraSel;
+    //QList<QTextEdit::ExtraSelection> m_lyrEditMarkedSel;
+
 
     QString m_rubyExec;
     QString m_toyToolDir;

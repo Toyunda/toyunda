@@ -7,5 +7,6 @@
         <file>time-preview-full.png</file>
         <file>time-preview-quick.png</file>
         <file>time-preview-lastframe.png</file>
+        <file>preferences-system-time.png</file>
     </qresource>
 </RCC>

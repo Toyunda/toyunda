@@ -51,6 +51,9 @@ public:
     void    activateSubtitle(bool act);
     double  framerate() const;
     static  bool    GstInit(int& ac, char **ag[]);
+    int     volume() const;
+    void    setVolume(int);
+    void    setSpeed(int);
 
     
 signals:
@@ -85,6 +88,7 @@ private:
     QGst::BinPtr        m_audiobin;
     QGst::ElementPtr    m_vsink;
     QGst::ElementPtr    m_toyunda;
+    QGst::ElementPtr    m_volume;
     double              m_framerate;
     QString             m_subFile;
     QGst::State         m_currentState;
