@@ -90,6 +90,7 @@ private:
     QGst::ElementPtr    m_toyunda;
     QGst::ElementPtr    m_volume;
     double              m_framerate;
+    double              m_speedrate;
     QString             m_subFile;
     QGst::State         m_currentState;
     QTimer*             m_posTimer;

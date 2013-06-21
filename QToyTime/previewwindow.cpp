@@ -31,6 +31,7 @@ PreviewWindow::PreviewWindow(QWidget *parent) :
 void PreviewWindow::setVideoFile(QString filePath)
 {
     m_videoWidget->setVideoFile(filePath);
+    m_videoWidget->pause();
 }
 
 void PreviewWindow::setSubFile(QString filePath)
@@ -91,5 +92,5 @@ void PreviewWindow::keyPressEvent(QKeyEvent *ev)
 
 void PreviewWindow::closeEvent(QCloseEvent *)
 {
-    m_videoWidget->stop();
+    m_videoWidget->pause();
 }

@@ -51,6 +51,7 @@ private slots:
     void    videoStopped();
     void    videoReady();
     void    videoPositionChanged();
+    void    videoKeyEvent(QKeyEvent &ev);
     void    sliderMoved(int pos);
 
     void    on_volumeSliderValueChanged(int);

@@ -192,8 +192,6 @@ void lyrEdit::setSelections()
     if (currentSel)
     {
         lsel.append(currentLineSel);
-        if (currentSyl)
-            lsel.append(currentSylSel);
     }
     if (timedSel)
     {
@@ -201,5 +199,7 @@ void lyrEdit::setSelections()
         lsel.append(timedCurrentSylSel);
         lsel.append(timedPrevSylSel);
     }
+    if (currentSel && currentSyl)
+        lsel.append(currentSylSel);
     setExtraSelections(lsel);
 }

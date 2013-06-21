@@ -42,6 +42,7 @@ VideoWidget::VideoWidget(QWidget *parent) :
     //setFocusPolicy(Qt::ClickFocus);
     m_posTimer = new QTimer();
     connect(m_posTimer, SIGNAL(timeout()), this, SIGNAL(positionChanged()));
+    m_speedrate = 1.0;
 }
 
 bool VideoWidget::init(QString videoSink)
@@ -144,12 +145,15 @@ void VideoWidget::setPosition(const QTime &pos)
     if (pos <= duration())
         npos = pos;
     QGst::SeekEventPtr evt = QGst::SeekEvent::create(
-        1.0, QGst::FormatTime, QGst::SeekFlagFlush,
+        m_speedrate, QGst::FormatTime, QGst::SeekFlagFlush,
         QGst::SeekTypeSet, QGst::ClockTime::fromTime(npos),
         QGst::SeekTypeNone, QGst::ClockTime::None
     );
 
     m_pipeline->sendEvent(evt);
+    m_posTimer->stop();
+    m_posTimer->start(100);
+
 }
 
 void VideoWidget::setPosition(int frame)
@@ -157,11 +161,13 @@ void VideoWidget::setPosition(int frame)
     QTime pos;
     pos = pos.addMSecs(((double) frame / m_framerate) * 1000);
     QGst::SeekEventPtr evt = QGst::SeekEvent::create(
-        1.0, QGst::FormatTime, QGst::SeekFlagFlush,
+        m_speedrate, QGst::FormatTime, QGst::SeekFlagFlush,
         QGst::SeekTypeSet, QGst::ClockTime::fromTime(pos),
         QGst::SeekTypeNone, QGst::ClockTime::None
     );
     m_pipeline->sendEvent(evt);
+    m_posTimer->stop();
+    m_posTimer->start(100);
 }
 
 QTime VideoWidget::getTimeFromFrame(int frameNb) const
@@ -192,7 +198,11 @@ QTime VideoWidget::position() const
         //and we request that the result is returned in time format
         QGst::PositionQueryPtr query = QGst::PositionQuery::create(QGst::FormatTime);
         m_pipeline->query(query);
-        return QGst::ClockTime(query->position()).toTime();
+        QGst::ClockTime ct(query->position());
+        if (ct.isValid())
+            return ct.toTime();
+        else
+            return QTime(25, 70);
     } else {
         return QTime();
     }
@@ -404,7 +414,7 @@ void VideoWidget::handlePipelineStateChange(const QGst::StateChangedMessagePtr &
         emit positionChanged();
         break;
     case QGst::StateNull:
-        //m_videosink_set = false;
+        m_posTimer->stop();
         break;
     default:
         break;
@@ -423,9 +433,9 @@ void VideoWidget::setVolume(int vol)
 
 void VideoWidget::setSpeed(int sp)
 {
-    double rate = (float) sp / 100;
+    m_speedrate = (float) sp / 100;
     QGst::SeekEventPtr evt = QGst::SeekEvent::create(
-        rate, QGst::FormatTime, QGst::SeekFlagFlush,
+        m_speedrate, QGst::FormatTime, QGst::SeekFlagFlush,
         QGst::SeekTypeSet, QGst::ClockTime::fromTime(position()),
         QGst::SeekTypeNone, QGst::ClockTime::None
     );

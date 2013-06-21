@@ -712,15 +712,14 @@ void QToyTime::on_actionPreview_Last_Frame_Input_triggered()
         generateToyundaSubtitle(ui->lyrFileEdit->toPlainText(), ui->frmFileEdit->toPlainText() + "\n" + m_cacheFrame, tmpFile);
 
         int firstFrame = m_cacheFrame.split('\n').first().split(' ').first().toInt();
-        qDebug() << "Firstframe : " << firstFrame;
         QTime pos = m_rawVideo->getTimeFromFrame(firstFrame);
         pos = pos.addSecs(-3);
         qDebug() << "seek to : " << pos;
         qDebug() << tmpFile;
         m_previewWindow->setSubFile(tmpFile);
         m_previewWindow->show();
-        m_previewWindow->setPosition(pos);
         m_previewWindow->play();
+        m_previewWindow->setPosition(pos);
     }
 }
 
@@ -869,11 +868,12 @@ void QToyTime::on_fpreviewButton_clicked()
     m_process.setStandardOutputFile(tmpSub);
     m_process.start(m_rubyExec, QStringList() << m_toyToolDir + "/toyunda-gen.rb" << tmpLyr << tmpFrm);
     m_process.waitForFinished(2000);
+    qDebug() << m_process.exitCode();
     if (m_process.exitCode() != 0)
         QMessageBox::warning(this, tr("Can't generate full preview"), tr("Can't generate full preview, toyunda-gen.rb didn't work\n") + m_process.readAllStandardError());
     else
     {
         m_gsttoyPlayerProcess->kill();
-        m_gsttoyPlayerProcess->start(qApp->applicationDirPath() + "/toyunda-player", QStringList() << m_time->videoFile() << tmpSub);
+        m_gsttoyPlayerProcess->start(qApp->applicationDirPath() + "/toyunda-player", QStringList() << m_time->baseDir() + "/" + m_time->videoFile() << tmpSub);
     }
 }

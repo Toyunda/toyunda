@@ -28,7 +28,7 @@ LyrSyntaxHighlighter::LyrSyntaxHighlighter(QTextDocument *parent) : QSyntaxHighl
 
     commentFormat.setForeground(Qt::lightGray);
     commentFormat.setFontWeight(QFont::Bold);
-    commentRegex.setPattern("#[^\n]+");
+    commentRegex.setPattern("#[^\n]*");
 
     declareFormat.setForeground(Qt::darkRed);
     declareRegex.setPattern("%[^\n]+");
