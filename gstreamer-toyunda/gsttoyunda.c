@@ -653,8 +653,8 @@ void gst_toyunda_create_subtitle_buffers(GstToyunda* toyunda)
 				{
 					color.alpha = 0xFF;
 					color.blue = 0xFF;
-					color.green = 0x00;
-					color.red = 0x00;
+					color.green = 0xFF;
+					color.red = 0xFF;
 				}
 				buffer = gst_buffer_new_and_alloc(logical_rect.height * logical_rect.width * 4);
 				surface = cairo_image_surface_create_for_data(GST_BUFFER_DATA(buffer), CAIRO_FORMAT_ARGB32,

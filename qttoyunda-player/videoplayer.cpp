@@ -121,7 +121,8 @@ VideoPlayer::VideoPlayer(QString videoSink, QWidget *parent)
     m_toyunda->setProperty("toyunda-logo", qApp->applicationDirPath().toUtf8() + "/toyunda.tga");
     m_videosink_set = false;
     m_vsink->setProperty("force-aspect-ratio", true);
-    watchPipeline(m_pipeline);
+    setVideoSink(m_vsink);
+    //watchPipeline(m_pipeline);
     setFixedSize(800, 600);
 }
 
@@ -177,6 +178,15 @@ void VideoPlayer::keyPressEvent(QKeyEvent *ev)
     {
         setWindowState(windowState() ^ Qt::WindowFullScreen);
     }
+    if (ev->key() == Qt::Key_Q)
+	    close();
+    if (ev->key() == Qt::Key_Escape)
+	    close();
+    if (ev->key() == Qt::Key_Left)
+	    setPosition(position().addSecs(-10));
+    if (ev->key() == Qt::Key_Right)
+	    setPosition(position().addSecs(10));
+
 }
 
 void VideoPlayer::closeEvent(QCloseEvent *)
@@ -187,7 +197,7 @@ void VideoPlayer::closeEvent(QCloseEvent *)
 
 void VideoPlayer::resizeEvent(QResizeEvent *ev)
 {
-    resizeVideo(ev->size().width(), ev->size().height());
+    //resizeVideo(ev->size().width(), ev->size().height());
 }
 
 void VideoPlayer::onBusMessage(const QGst::MessagePtr &message)
@@ -244,5 +254,48 @@ void VideoPlayer::play()
 
 VideoPlayer::~VideoPlayer()
 {
-    
+
+}
+
+void VideoPlayer::setPosition(const QTime &pos)
+{
+	QTime npos;
+	if (pos <= duration())
+		npos = pos;
+	QGst::SeekEventPtr evt = QGst::SeekEvent::create(
+				1.0, QGst::FormatTime, QGst::SeekFlagFlush,
+				QGst::SeekTypeSet, QGst::ClockTime::fromTime(npos),
+				QGst::SeekTypeNone, QGst::ClockTime::None
+				);
+	m_pipeline->sendEvent(evt);
+}
+
+QTime VideoPlayer::position() const
+{
+	if (m_pipeline) {
+		//here we query the pipeline about its position
+		//and we request that the result is returned in time format
+		QGst::PositionQueryPtr query = QGst::PositionQuery::create(QGst::FormatTime);
+		m_pipeline->query(query);
+		QGst::ClockTime ct(query->position());
+		if (ct.isValid())
+			return ct.toTime();
+		else
+			return QTime(25, 70);
+	} else {
+		return QTime();
+	}
+}
+
+QTime VideoPlayer::duration() const
+{
+	if (m_pipeline) {
+	    //here we query the pipeline about the content's duration
+	    //and we request that the result is returned in time format
+	    QGst::DurationQueryPtr query = QGst::DurationQuery::create(QGst::FormatTime);
+	    m_pipeline->query(query);
+	    return QGst::ClockTime(query->duration()).toTime();
+	} else {
+	    return QTime();
+	}
 }

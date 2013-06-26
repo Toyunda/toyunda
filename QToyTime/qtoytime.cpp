@@ -843,7 +843,7 @@ void QToyTime::on_actionQuickPreview_triggered()
         QStringList arg;
         arg << QDir::currentPath().toUtf8() + "/"  + m_time->videoFile() << tmpFile;
         QString tmp = qApp->applicationDirPath();
-        tmp.append("/toyunda-player");
+	tmp.append("/qttoyunda-player");
         qDebug() << tmp << arg;
         m_gsttoyPlayerProcess->start(tmp, arg);
     }
@@ -874,6 +874,6 @@ void QToyTime::on_fpreviewButton_clicked()
     else
     {
         m_gsttoyPlayerProcess->kill();
-        m_gsttoyPlayerProcess->start(qApp->applicationDirPath() + "/toyunda-player", QStringList() << m_time->baseDir() + "/" + m_time->videoFile() << tmpSub);
+	m_gsttoyPlayerProcess->start(qApp->applicationDirPath() + "/qttoyunda-player", QStringList() << m_time->baseDir() + "/" + m_time->videoFile() << tmpSub);
     }
 }

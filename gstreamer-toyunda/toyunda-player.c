@@ -85,8 +85,17 @@ static void	realize_cb(GtkWidget*, void*);
  */
 static void	calc_scaled_size(gint wanted_width, gint wanted_height, gint* m_scaled_widht, gint* m_scaled_height)
 {
-	float	aspect_ratio = (float) original_width / original_height;
-	float 	wanted_ratio = (float) wanted_width / wanted_height;
+	float	aspect_ratio;
+	float	wanted_ratio;
+
+	if (original_width == 0 || original_height == 0)
+	{
+		*m_scaled_widht = 0;
+		*m_scaled_height = 0;
+		return ;
+	}
+	aspect_ratio = (float) original_width / original_height;
+	wanted_ratio = (float) wanted_width / wanted_height;
 
 	g_printf("  calc_scaled_size : Original : %dx%d", original_width, original_height);
 	if (wanted_ratio < aspect_ratio)
@@ -222,13 +231,16 @@ static gboolean	event_config_cb(GtkWidget* wid, GdkEventConfigure* event, gpoint
 		if (fakefullscreen == FALSE)
 		{
 			calc_scaled_size(event->width, event->height, &new_width, &new_height);
-			g_printf("=================Scaled new size : %dx%d\n", new_width, new_height);
+			if (new_width != 0)
+			{	
+				g_printf("=================Scaled new size : %dx%d\n", new_width, new_height);
 				new_caps = gst_caps_new_simple	("video/x-raw-yuv",
 				"width", G_TYPE_INT, new_width,
 				"height", G_TYPE_INT, new_height,
 				NULL);
-			g_object_set(G_OBJECT(capsfilter), "caps", new_caps, NULL);
-			gst_caps_unref(new_caps);
+				g_object_set(G_OBJECT(capsfilter), "caps", new_caps, NULL);
+				gst_caps_unref(new_caps);
+			}
 		}
 		old_height = event->height;
 		old_width = event->width;
@@ -376,6 +388,7 @@ void	on_new_decoded_pad(GstElement *elem, GstPad	*pad, gboolean b, gpointer *dat
 {
 	GstCaps*	caps;
 	GstStructure*	str;
+	GstStructure*	str2;
 	gchar*		name;
 	GstPad		*audiopad, *videopad;
 
@@ -386,17 +399,17 @@ void	on_new_decoded_pad(GstElement *elem, GstPad	*pad, gboolean b, gpointer *dat
 	str = gst_caps_get_structure(caps, 0);
 	audiopad = gst_element_get_static_pad(GST_ELEMENT(audiobin), "sink");
 	videopad = gst_element_get_static_pad(GST_ELEMENT(videobin), "sink");
-	//g_print("======================Name %s\n", gst_structure_get_name(str));
+	g_print("======================Name %s\n", gst_structure_get_name(str));
 	if ((name = gst_structure_get_name(str)) != NULL)
 	{
 		if (g_strrstr(name, "audio") != NULL)
 		{
-			//g_print("====================Audio Linked=================\n");
+			g_print("====================Audio Linked=================\n");
 			gst_pad_link(pad, audiopad);
 		}
 		if (g_strrstr(name, "video") != NULL)
 		{
-			//g_print("====================Video Linked=================\n");
+			g_print("====================Video Linked=================\n");
 			gst_pad_link(pad, videopad);
 		}
 	}
@@ -457,6 +470,7 @@ void	gstreamer_create_pipeline()
 	gpad2 = gst_ghost_pad_new("sink", gst_element_get_static_pad(queuev, "sink"));
 	gst_element_add_pad(GST_ELEMENT(videobin), gpad2);
 	
+	g_object_set(G_OBJECT(decoder), "connection-speed", 54, NULL);
 	
 	gst_bin_add_many(GST_BIN(pipeline), GST_ELEMENT(videobin), GST_ELEMENT(audiobin), NULL);
 }

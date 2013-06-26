@@ -20,10 +20,10 @@ public:
     ~VideoPlayer();
 
     bool    init(QString videoSink = QString());
-    /*void    setPosition(const QTime &pos);
+    void    setPosition(const QTime &pos);
     QTime   position() const;
     QTime   duration() const;
-    QGst::State state() const;*/
+    //QGst::State state() const;*/
     void    setVideoFile(QString file);
     void    setSubFile(QString file);
     void    resizeVideo(int, int);
