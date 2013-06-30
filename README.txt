@@ -3,23 +3,24 @@ and requierement to build it.
 
 
 
-
 1 - Structure
 
-	The projet have 4 components, a Gui, a pseudo library, plugins for the library
-	and a toyunda player implementation
+	The projet have many components, a Gui for playing the karaoke, a pseudo library, plugins for the library
+	and, toyunda player implementation, a tools to create toyunda time and some tools.
 
-	-GuiliGui is the Gui part of the project
+	-GuiliGui is gui to launch karaoke players.
 
-	-QToyunda lib is a pseudo library that containt the logic of the project
+	-QToyunda lib is a pseudo library that containt the logic for the osd player
 
-	-QToyunda Plugins are the fonctional part of the project
+	-QToyunda Plugins are the fonctional part of the qtoyunda-lib
 
-	-qtoyunda-cmd a command line tool to have more advanced acces to option, see ./qtoyunda-cmd --help
+	-qtoyunda-cmd a command line tool to have more advanced acces to option of qtoyunda-plugin, see ./qtoyunda-cmd --help
 	
 	-Gstreamer-toyunda is a toyunda implementation using gstreamer
+
+	-QToyTime is a software to create toyunda time
 	
-	Don't be confused, I use QToyunda for QToyunda lib + plugins, GuiliGuili for the Gui, and Gst-Toyunda
+	Don't be confused, I use QToyunda-lib for QToyunda lib + plugins and Gst-Toyunda
 	for Gstreamer-toyunda
 
 2 - QToyunda lib
@@ -64,8 +65,13 @@ There are many goals of having them in plugin and not directly in the QToyunda c
 5 - GStreamer Toyunda
  
 	The Gstreamer Toyunda is a reimplementation of the toyunda using the gstreamer SDK (0.10.36)
-There is a gstreamer plugin and a small gstreamer/gtk application that use the plugin in a common
+There is a gstreamer plugin and a small gstreamer/gtk application that use the plugin with a common
 gstreamer pipeline.
+
+6 - QToyTime
+
+	QToyTime is an application to create or edit toyunda time, it include many feature, like
+syntax coloration for lyr format, chaning speed of video and more.
 
 HOW TO COMPILE ALL OF THIS
 
@@ -86,7 +92,7 @@ Plateform notes :
 	           (usualy gstreamer-plugin-bad)
 
 	           Building :
-	           for QToyunda and the Gui
+	           for all Qt related project
 		    -run 'qmake-qt4' in the project directory (toyunda)
 		    -then 'make'
 		   for Gstreamer-toyunda :
@@ -96,30 +102,33 @@ Plateform notes :
 		    
 		    For now you can't install (like make install), all binaries/.so go in the "build" directory
 		    -run what you want from the build directory
+	            You probably need to set GST_PLUGIN_PATH to gsttoyunda to launch the players based on the
+		    toyunda gstreamer plugin.
 		    
 
 	On Windows :
 		If you just want a "out of box" working QToyunda, go to the qtoyunda website and download the installer
 		
-		If You want to compile QToyunda and co on windows : ok you are crazy. 
+		If You want to compile QToyunda and co on Windows : ok you are crazy. 
 		DON'T MAKE RELEASE BUILD, QtGStreamer seems having a prob with QTimer (need futher investigation) 
 
 		I use Qtcreator + MSVC 10 (Visual Studio 2010) as compiler
 		
 		1/Download and install Qtcreator and Qt SDK compiled with Visual Studio 20010 (search on qt-project website)
 		
-		2/Install the gstreamer sdk from gstreamer.com (not .net), runtime and header
+		2/Install the gstreamer sdk from gstreamer.com (not .net), runtime and developpement files
 		
-		3/Go to Qt-gstreamer wikipage to know how compile QtGStreamer
+		3/Go to Qt-gstreamer wikipage to know how compile QtGStreamer (search an archive of this file, it's currently
+		not available)
 		http://gstreamer.freedesktop.org/wiki/QtGStreamer/BuildingOnWindows
 
 		4/ Ok you got gstreamer and qt-gstreamer. Open toyunda.pro with QtCreator (check if he use the good Qt version (msvc) if
-		you have the MinGW version also installed), edit plugins/qgstaudio.pro include/lib variable if you install qt-gstreamer
+		you have the MinGW version also installed), edit plugins/qgstaudio.pro and qtoytime.pro include/lib variable if you install qt-gstreamer
 		in different location from the documentation.
 		
 		5/ Compile the project.
 		
-		6/ For gstreamer-toyunda open the gstreamer-toyunda Visual Studio solution, maybe you will have to fix the property file
+		6/ For gstreamer-toyunda open the gstreamer-toyunda Visual Studio solution, maybe you will have to fix the property files
 		path (see gstreamer sdk documentation)
 		
 		7/ Edit the deploy_win32.bat in the build directory to change the path of the variable
@@ -129,6 +138,4 @@ Plateform notes :
 		9/ You should have a working toyunda project
 		
 		You have to run deploy_win32.bat each time you change something in gstreamer-toyunda
-		
-		If you want to create the installer, open the qtoyunda-installer VS solution
 

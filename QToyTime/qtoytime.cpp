@@ -29,7 +29,7 @@
 #include <QFileDialog>
 #include "lyrsyntaxhighlighter.h"
 #include "frmsyntaxhighlighter.h"
-#include "../comons/sqhandlegstpath.h"
+#include "sqhandlegstpath.h"
 #include "toyundagendialog.h"
 #include <QMessageBox>
 
@@ -49,6 +49,7 @@ QToyTime::QToyTime(QWidget *parent) :
     m_marginInChangeMode = 2;
 
     m_settings = new QSettings("skarsnik.nyo.fr", "QToyTime");
+    m_gen_settings = new QSettings("skarsnik.nyo.fr", "QToyunda");
 
     ui->actionNew->setShortcut(QKeySequence::New);
     ui->actionOpen->setShortcut(QKeySequence::Open);
@@ -117,9 +118,9 @@ QToyTime::QToyTime(QWidget *parent) :
     }
 
     QString warningMsg;
-    if (m_settings->contains("rubyexec")  && !m_settings->value("rubyexec").toString().isEmpty())
+    if (m_gen_settings->contains("rubyexec")  && !m_gen_settings->value("rubyexec").toString().isEmpty())
     {
-        m_rubyExec = m_settings->value("rubyexec").toString();
+        m_rubyExec = m_gen_settings->value("rubyexec").toString();
         m_configDialog.setRubyExec(m_rubyExec);
     }
     else
@@ -128,7 +129,7 @@ QToyTime::QToyTime(QWidget *parent) :
         if (!m_rubyExec.isEmpty())
         {
             m_configDialog.setRubyExec(m_rubyExec);
-            m_settings->setValue("rubyexec", m_rubyExec);
+            m_gen_settings->setValue("rubyexec", m_rubyExec);
         }
         else
         {
@@ -139,9 +140,9 @@ QToyTime::QToyTime(QWidget *parent) :
             ui->actionFullPreview->setEnabled(false);
         }
     }
-    if (m_settings->contains("toytooldir") && !m_settings->value("toytooldir").toString().isEmpty())
+    if (m_gen_settings->contains("toytooldir") && !m_gen_settings->value("toytooldir").toString().isEmpty())
     {
-        m_toyToolDir = m_settings->value("toytooldir").toString();
+        m_toyToolDir = m_gen_settings->value("toytooldir").toString();
         m_configDialog.setToyToolDir(m_toyToolDir);
     }
     else
@@ -150,7 +151,7 @@ QToyTime::QToyTime(QWidget *parent) :
         if (QFile::exists(qApp->applicationDirPath() + "/" + "toyunda-tools"))
         {
             m_toyToolDir = qApp->applicationDirPath() + "/" + "toyunda-tools";
-            m_settings->setValue("toytooldir", m_toyToolDir);
+            m_gen_settings->setValue("toytooldir", m_toyToolDir);
         }
         else
 #endif
@@ -749,10 +750,10 @@ void QToyTime::on_actionConfiguration_triggered()
         m_settings->setValue("videosink", m_configDialog.videoSink);
         m_rubyExec = m_configDialog.rubyExec;
         if (!m_rubyExec.isEmpty())
-            m_settings->setValue("rubyexec", m_configDialog.rubyExec);
+            m_gen_settings->setValue("rubyexec", m_configDialog.rubyExec);
         m_toyToolDir = m_configDialog.toyToolDir;
         if (!m_toyToolDir.isEmpty())
-            m_settings->setValue("toytooldir", m_toyToolDir);
+            m_gen_settings->setValue("toytooldir", m_toyToolDir);
         m_replaceMode = m_configDialog.replaceMode;
         m_settings->setValue("replacemode", m_replaceMode);
         m_marginInChangeMode = m_configDialog.frameMargin;

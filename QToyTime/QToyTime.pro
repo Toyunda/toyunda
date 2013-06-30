@@ -32,7 +32,7 @@ SOURCES += main.cpp\
     generatetoyundasubtite.cpp \
     lyrsyntaxhighlighter.cpp \
     frmsyntaxhighlighter.cpp \
-    ../comons/sqhandlegstpath.cpp \
+    ../commons/sqhandlegstpath.cpp \
     previewwindow.cpp \
     configdialog.cpp \
     toyundagendialog.cpp \
@@ -48,7 +48,7 @@ HEADERS  += qtoytime.h \
     generatetoyundasubtitle.h \
     lyrsyntaxhighlighter.h \
     frmsyntaxhighlighter.h  \
-    ../comons/sqhandlegstpath.h \
+    ../commons/sqhandlegstpath.h \
     previewwindow.h \
     configdialog.h \
     toyundagendialog.h \
@@ -67,6 +67,8 @@ FORMS    += qtoytime.ui \
     toyundagendialog.ui \
     qgplayer.ui
 
+
+INCLUDEPATH += ../commons/
 
 win32:LIBS += C:/qt-gstreamer/install/lib/QtGStreamer-0.10.lib \
               C:/qt-gstreamer/install/lib/QtGLib-2.0.lib \

@@ -9,19 +9,19 @@ unix {
     PKGCONFIG += xfixes
 }
 
-INCLUDEPATH += ../qtoyunda-lib ../comons/
+INCLUDEPATH += ../qtoyunda-lib ../commons/
 
 HEADERS = qosd.h \
           ../qtoyunda-lib/toyundasubstream.h
 
 SOURCES = qosd.cpp \
            ../qtoyunda-lib/toyundarenderer.cpp \
-           ../comons/scomponent.cpp \
-           ../comons/sqarg.cpp \
-           ../comons/sqerror.cpp \
+           ../commons/scomponent.cpp \
+           ../commons/sqarg.cpp \
+           ../commons/sqerror.cpp \
            ../qtoyunda-lib/toyundasub.cpp \
            ../qtoyunda-lib/toyundasubstream.cpp \
-           ../comons/toyundadrawer.cpp
+           ../commons/toyundadrawer.cpp
 
 TARGET = $$qtLibraryTarget(qtoyunda_qosdrenderer)
 DESTDIR = $$PLUGIN_PATH

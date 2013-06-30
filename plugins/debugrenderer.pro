@@ -8,13 +8,13 @@ HEADERS = debugrenderer.h \
 
 SOURCES = debugrenderer.cpp \
            ../qtoyunda-lib/toyundarenderer.cpp \
-           ../comons/scomponent.cpp \
-        ../comons/sqarg.cpp \
+           ../commons/scomponent.cpp \
+        ../commons/sqarg.cpp \
            ../qtoyunda-lib/toyundasub.cpp \
            ../qtoyunda-lib/toyundasubstream.cpp
 
 
-INCLUDEPATH += ../qtoyunda-lib/ ../comons/
+INCLUDEPATH += ../qtoyunda-lib/ ../commons/
 
 TARGET = $$qtLibraryTarget(qtoyunda_debugrenderer)
 

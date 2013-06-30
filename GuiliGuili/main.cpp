@@ -19,7 +19,7 @@
 #include <QtGui/QApplication>
 #include "GuiliGuili.h"
 #include <QTextStream>
-#include "../comons/sqhandlegstpath.h"
+#include "sqhandlegstpath.h"
 
 static QTextStream logfile;
 static QTextStream cout(stdout);

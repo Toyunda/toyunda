@@ -235,6 +235,12 @@ void VideoPlayer::setSubFile(QString file)
     m_toyunda->setProperty("subfile", file);
 }
 
+void VideoPlayer::setToyundaImagePath(QString imgPath)
+{
+    qDebug() << "IMGPATH" << imgPath;
+    m_toyunda->setProperty("image-base-dir", imgPath);
+}
+
 void VideoPlayer::resizeVideo(int ww, int wh)
 {
     QGst::CapsPtr cp = QGst::Caps::createSimple("video/x-raw-yuv");

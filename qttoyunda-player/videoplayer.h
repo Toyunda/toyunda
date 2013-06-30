@@ -26,6 +26,7 @@ public:
     //QGst::State state() const;*/
     void    setVideoFile(QString file);
     void    setSubFile(QString file);
+    void    setToyundaImagePath(QString);
     void    resizeVideo(int, int);
     //static  bool    GstInit(int& ac, char **ag[]);
     void    play();

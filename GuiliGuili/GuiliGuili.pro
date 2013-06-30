@@ -9,7 +9,7 @@ HEADERS += \
     configdialog.h \
     playlistmodel.h \
     graphicerrorhandler.h \
-    ../comons/sqerrorhandler.h \
+    ../commons/sqerrorhandler.h \
     profil.h \
     profilosd.h \
     profilmplayer.h \
@@ -20,7 +20,7 @@ HEADERS += \
     songtreemodel.h \
     songtreeitem.h \
     gstplayerprofildialog.h \
-    ../comons/sqhandlegstpath.h
+    ../commons/sqhandlegstpath.h
 
 
 SOURCES += \
@@ -41,7 +41,7 @@ SOURCES += \
     songtreemodel.cpp \
     songtreeitem.cpp \
     gstplayerprofildialog.cpp \
-    ../comons/sqhandlegstpath.cpp
+    ../commons/sqhandlegstpath.cpp
 
 FORMS += \
     GuiliGuili.ui \
@@ -66,7 +66,7 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../qtoyunda-lib/deb
 else:symbian: LIBS += -lqtoyunda_static
 else:unix: LIBS += -L$$OUT_PWD/../qtoyunda-lib/ -lqtoyunda_static
 
-INCLUDEPATH += ../comons/
+INCLUDEPATH += ../commons/
 INCLUDEPATH += $$PWD/../qtoyunda-lib/
 DEPENDPATH += $$PWD/../qtoyunda-lib/
 

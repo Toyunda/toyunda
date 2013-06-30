@@ -71,9 +71,9 @@ void	SQArg::generateLongHelp(SQArgDescMap desc)
   }
 }
 
-bool	SQArg::fillWithDesc(QMap<QString, QVariant> &toFill, QStringList listOpt, SQArgDescMap desc)
+bool	SQArg::fillWithDesc(QMap<QString, QVariant> &toFill, QStringList &listOpt, SQArgDescMap desc)
 {
-  QListIterator<QString> i(listOpt);
+  QMutableListIterator<QString> i(listOpt);
   QRegExp  isLong("^--(.*)");
   QRegExp  isShort("^-([^-].*)");
   QRegExp  isLValue("(.*)=(.*)");
@@ -102,9 +102,11 @@ bool	SQArg::fillWithDesc(QMap<QString, QVariant> &toFill, QStringList listOpt, S
        shortOpt = true;
     }
     else {
-      qCritical() << "invalid usage of option : " << item;
+      //qCritical() << "invalid usage of option : " << item;
+      continue;
       return false;
     }
+    i.remove();
     // check for opt=value form
     if (isLValue.exactMatch(optName)) {
       optName = isLValue.cap(1);
@@ -148,6 +150,7 @@ bool	SQArg::fillWithDesc(QMap<QString, QVariant> &toFill, QStringList listOpt, S
           return false;
         }
         toFill[optName] = item;
+        i.remove();
         continue;
       } else {
         toFill[optName] = optValue;

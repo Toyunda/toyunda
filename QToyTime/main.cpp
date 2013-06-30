@@ -20,7 +20,7 @@
 #include <QApplication>
 #include <QTranslator>
 #include "videowidget.h"
-#include "../comons/sqhandlegstpath.h"
+#include "../commons/sqhandlegstpath.h"
 #include "generatetoyundasubtitle.h"
 
 static QTextStream logfile;

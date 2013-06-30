@@ -109,6 +109,7 @@ private:
     ToyundaTime*    m_time;
     PreviewWindow*  m_previewWindow;
     QSettings*      m_settings;
+    QSettings*      m_gen_settings;
     configDialog    m_configDialog;
 
     bool            m_replaceMode;

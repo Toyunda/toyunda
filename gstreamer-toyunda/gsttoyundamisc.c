@@ -255,11 +255,18 @@ static	gchar*	gst_toyunda_get_image_path(GstToyunda* toyunda, gchar* image)
 		return toyunda->toyunda_logo;
 	else
 	{
-		sizeM = strlen(toyunda->images_base_path) + 1 + strlen(image) + 1;
+		if (toyunda->images_base_path == NULL)
+		{
+			g_printf("No image base path set, trying to fallback to .");
+			sizeM = strlen("./") + 1 + strlen(image) + 1;
+		} else
+			sizeM = strlen(toyunda->images_base_path) + 1 + strlen(image) + 1;
 		toret = g_new(char, sizeM);
 		toret[0] = '\0';
 		if (toyunda->images_base_path != NULL)
 			strcpy(toret, toyunda->images_base_path);
+		else
+			strcpy(toret, "./");
 		strcat(toret, "/");
 		strcat(toret, image);
 		return toret;

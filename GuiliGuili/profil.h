@@ -22,7 +22,7 @@
 #include <QObject>
 #include <QDialog>
 #include <QSettings>
-#include "../comons/sqerrorhandler.h"
+#include "sqerrorhandler.h"
 
 class Profil : public QObject
 {

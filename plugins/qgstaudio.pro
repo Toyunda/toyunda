@@ -5,7 +5,7 @@ TEMPLATE = lib
 
 CONFIG += plugin
 
-INCLUDEPATH += ../qtoyunda-lib ../comons/
+INCLUDEPATH += ../qtoyunda-lib ../commons/
 
 unix {
     CONFIG += link_pkgconfig
@@ -16,9 +16,9 @@ HEADERS = qgstaudioplayer.h \
           ../qtoyunda-lib/fileplayer.h
 
 SOURCES = qgstaudioplayer.cpp \
-          ../comons/scomponent.cpp \
-          ../comons/sqarg.cpp \
-          ../comons/sqerror.cpp
+          ../commons/scomponent.cpp \
+          ../commons/sqarg.cpp \
+          ../commons/sqerror.cpp
 
 TARGET = $$qtLibraryTarget(qtoyunda_qgstaudioplayer)
 DESTDIR = $$PLUGIN_PATH

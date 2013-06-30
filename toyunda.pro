@@ -11,7 +11,8 @@ SUBDIRS += \
 	plugins	\
 	GuiliGuili \
         QToyTime \
-        qttoyunda-player
+        qttoyunda-player \
+    qtoy2lyr
 
 win32 {
         SUBDIRS += QToyTimeWinLauncher

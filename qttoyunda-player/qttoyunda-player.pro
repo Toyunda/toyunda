@@ -20,7 +20,8 @@ unix {
 
 SOURCES += main.cpp\
         videoplayer.cpp \
-        ../comons/sqhandlegstpath.cpp
+        ../commons/sqhandlegstpath.cpp \
+        ../commons/sqarg.cpp
 
 HEADERS  += videoplayer.h
 
@@ -29,6 +30,8 @@ DESTDIR = $$BASE_PATH
 win32:LIBS += C:/qt-gstreamer/install/lib/QtGStreamer-0.10.lib \
               C:/qt-gstreamer/install/lib/QtGLib-2.0.lib \
               C:/qt-gstreamer/install/lib/QtGStreamerUi-0.10.lib
+
+INCLUDEPATH += ../commons/
 
 win32:INCLUDEPATH += C:/qt-gstreamer/install/include/QtGStreamer/
 win32:INCLUDEPATH += C:/boost_1_53_0/boost_1_53_0/

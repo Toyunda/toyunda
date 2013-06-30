@@ -1,25 +1,51 @@
 #include "videoplayer.h"
-#include "../comons/sqhandlegstpath.h"
+#include "sqhandlegstpath.h"
 #include <QGst/Init>
 #include <QApplication>
 #include <QDebug>
+#include "sqarg.h"
+
+void    defineOption(SQArgDescMap &optionDesc);
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+    SQArgDescMap		optionDesc;
+    QMap<QString, QVariant> option;
 
     sq_add_gsttoyunda_plugin_path(qApp->applicationDirPath());
     //try {
         QGst::init(&argc, &argv);
-    //} catch (QGlib::Error qgerr)
-    //{
-    //    qCritical() << "Can't init gstreamer";
-    //    return 1;
-    //}
-    VideoPlayer w("xvimagesink");
-    w.setVideoFile(argv[1]);
-    w.setSubFile(argv[2]);
+    /*} catch (QGlib::Error qgerr)
+    {
+        qCritical() << "Can't init gstreamer";
+        return 1;
+    }*/
+    defineOption(optionDesc);
+    QStringList arg = a.arguments();
+    arg.removeFirst();
+    bool vopt = SQArg::fillWithDesc(option, arg, optionDesc);
+    if (vopt == false)
+        return 1;
+
+    VideoPlayer w("ximagesink");
+    qDebug() << option["base_image_path"].toString();
+    if (!option["base_image_path"].toString().isEmpty())
+        w.setToyundaImagePath(option["base_image_path"].toString());
+    w.setVideoFile(arg[0]);
+    w.setSubFile(option["subtitle"].toString());
     w.play();
     w.show();
     return a.exec();
+}
+
+void	defineOption(SQArgDescMap &optionDesc)
+{
+    optionDesc["help"] = SQOpt("help", "h", false, "Show this help", "Show this help", false, true);
+    optionDesc["videooutput"] = SQOpt("videooutput", "vo", "autovideosink", "The gstreamer videosink to use", "The gstreamer videosink to use", false, true);
+    optionDesc["audiooutput"] = SQOpt("audiooutput", "ao", "autoaudiosink", "The Gstreamer audiosink", "The Gstreamer audiosink", false, true);
+    optionDesc["fullscreen"] = SQOpt("fullscreen", "fs", false, "Set to fullscreen", "Set to fullscreen", false, true);
+    optionDesc["base_image_path"] = SQOpt("base_image_path", "bip", QString(), "Set to image base path, usualy the karaoke dir", "Set to image base path, usualy the karaoke dir", false, true);
+    optionDesc["logo"] = SQOpt("logo", "l", QString(), "Set the default image logo", "Set the default image logo", false, true);
+    optionDesc["subtitle"] = SQOpt("subtitle", "sub", QString(), "The subtitle file", "The subtitle file", true);
 }
