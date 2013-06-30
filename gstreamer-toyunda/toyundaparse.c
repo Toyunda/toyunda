@@ -142,7 +142,7 @@ void	parse_toyunda_line(char *line)
 	char	*strtmp;
 	int	strtmppos = 0;
 	int	pipecpt = 0;
-	
+
 	toyunda_sub_t*	tmp_sub = NULL; /* In case of multiline */
 
 	toyunda_sub_t*	new_sub = g_new(toyunda_sub_t, 1);
@@ -265,7 +265,7 @@ pipehandle :
 		new_sub = tmp_sub;
 		goto pipehandle;
 	}
-	
+
 	g_free(strtmp);
 }
 

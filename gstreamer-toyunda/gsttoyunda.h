@@ -67,28 +67,28 @@ struct _GstToyunda
 	GstPad *srcpad;
 	gfloat	fps_d;
 	gfloat	fps_n;
-	
+
 	guint		video_width;
 	guint		video_height;
 	guint		window_width;
 	guint		window_height;
 	GstVideoFormat	format;
-	
+
 	PangoContext*		pango_context;
 	PangoLayout*		pango_layout;
 	PangoFontDescription*	pango_fontdesc;
-	
+
 	GSequence*	subtitles;
 	GSequence*	current_subtitles;
 	GSequence*	images;
-	
+
 	GSequenceIter* current_sub_it;
-	
+
 	gchar*	subfile;
 	gchar*	font_desc;
 	gchar*	toyunda_logo;
 	gchar*	images_base_path;
-	
+
 	gboolean	subfile_parsed;
 	gboolean	subtitle_changed;
 	gboolean	hardware_surface;

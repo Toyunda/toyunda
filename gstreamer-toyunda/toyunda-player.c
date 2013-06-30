@@ -63,7 +63,7 @@ static	gchar*		audio_output = AUDIO_SINK_DEF_OTHER;
 static	gchar*		base_image_path = NULL;
 static	gchar*		logo = NULL;
 
-static	GOptionEntry	opt_entry[] = 
+static	GOptionEntry	opt_entry[] =
 {
 	{"fakefullscreen", 'e', 0, G_OPTION_ARG_NONE, &fakefullscreen, "enable fake fullscreen mode (The video output scale himself the video)" , NULL},
 	{"fullscreen", 'f', 0, G_OPTION_ARG_NONE, &fullscreen, "Start the video fullscreen" , NULL},
@@ -121,7 +121,7 @@ xoverlay_cb (GstBus * bus, GstMessage * message, GstPipeline * pipeline)
 
 	if (!gst_structure_has_name (message->structure, "prepare-xwindow-id"))
 		return GST_BUS_PASS;
-	
+
 	if (video_window_xid != 0) {
 		GstXOverlay *xoverlay;
 
@@ -149,17 +149,17 @@ static void	close_win_cb(GtkWidget *wid, void *data)
 }
 
 static gboolean
-key_press_event_cb(GtkWidget *widget, GdkEventKey *event, gpointer data)	
-{	
+key_press_event_cb(GtkWidget *widget, GdkEventKey *event, gpointer data)
+{
 	GstCaps*	new_caps;
 	gboolean is_fullscreen;
 
 	data = data;
 	widget = widget;
 	if (event->keyval == 'f')
-	{	    
-		g_print("Toggling fullscreen\n");		
-		is_fullscreen = (gdk_window_get_state(GDK_WINDOW(widget->window)) == GDK_WINDOW_STATE_FULLSCREEN);		
+	{
+		g_print("Toggling fullscreen\n");
+		is_fullscreen = (gdk_window_get_state(GDK_WINDOW(widget->window)) == GDK_WINDOW_STATE_FULLSCREEN);
 		if (is_fullscreen)
 		{
 			gtk_window_unfullscreen(GTK_WINDOW(widget));
@@ -196,7 +196,7 @@ key_press_event_cb(GtkWidget *widget, GdkEventKey *event, gpointer data)
 		gint64 duration;
 		GstFormat format = GST_FORMAT_TIME;
 		GstEvent *seek_event;
-   
+
 		/* Obtain the current position, needed for the seek event */
 		gst_element_query_duration(pipeline, &format, &duration);
   		gst_element_query_position (pipeline, &format, &position);
@@ -215,7 +215,7 @@ key_press_event_cb(GtkWidget *widget, GdkEventKey *event, gpointer data)
 	}
 	return TRUE;
 }
-	
+
 static gboolean	event_config_cb(GtkWidget* wid, GdkEventConfigure* event, gpointer data)
 {
 	static gint old_width, old_height = 0;
@@ -232,7 +232,7 @@ static gboolean	event_config_cb(GtkWidget* wid, GdkEventConfigure* event, gpoint
 		{
 			calc_scaled_size(event->width, event->height, &new_width, &new_height);
 			if (new_width != 0)
-			{	
+			{
 				g_printf("=================Scaled new size : %dx%d\n", new_width, new_height);
 				new_caps = gst_caps_new_simple	("video/x-raw-yuv",
 				"width", G_TYPE_INT, new_width,
@@ -285,17 +285,17 @@ static void	create_ui()
 	g_signal_connect(G_OBJECT(main_window), "key-press-event", G_CALLBACK(key_press_event_cb), NULL);
 	gtk_window_set_title(GTK_WINDOW(main_window), "GSToyunda Player");
 
-	gtk_widget_show_all(main_window);	
+	gtk_widget_show_all(main_window);
 }
 
 static void realize_cb (GtkWidget *widget, void *data) {
 	GdkWindow *window = gtk_widget_get_window (widget);
 	guintptr window_handle;
-	
+
 	data = data;
 	if (!gdk_window_ensure_native (window))
 		g_error ("Couldn't create native window needed for GstXOverlay!");
-	
+
 	/* Retrieve window handler from GDK */
 	#if defined (GDK_WINDOWING_WIN32)
 	window_handle = (guintptr)GDK_WINDOW_HWND (window);
@@ -363,7 +363,7 @@ void	on_autoplug_continue(GstElement* object,
 	user_data = user_data;
 
 	str = gst_caps_get_structure(caps, 0);
-	
+
 	if (!gst_structure_get_int (str, "width", &original_width) ||
 		!gst_structure_get_int (str, "height", &original_height))
 		g_print ("No width/height available\n");
@@ -378,7 +378,7 @@ void	on_autoplug_continue(GstElement* object,
 					NULL);
 		g_object_set(G_OBJECT(capsfilter), "caps", new_caps, NULL);
 		gst_caps_unref(new_caps);
-		
+
 	}
 }
 
@@ -435,7 +435,7 @@ void	gstreamer_create_pipeline()
 	gst_element_link(filesrc, decoder);
 	gst_bus_set_sync_handler (bus, (GstBusSyncHandler) xoverlay_cb, pipeline);
 	gst_object_unref (bus);
-	
+
 	audiobin = gst_bin_new("audiobin");
 	convert = gst_element_factory_make("audioconvert", "audioconvert");
 	resample = gst_element_factory_make("audioresample", "audioresample");
@@ -445,8 +445,8 @@ void	gstreamer_create_pipeline()
 	gst_element_link_many(queuea, convert, resample, audiosink, NULL);
 	gpad = gst_ghost_pad_new("sink", gst_element_get_static_pad(queuea, "sink"));
 	gst_element_add_pad(GST_ELEMENT(audiobin), gpad);
-	
-	
+
+
 	videobin = gst_bin_new("videobin");
 	videosink = gst_element_factory_make(video_output, "videosink");
 	queuev = gst_element_factory_make("queue", "queue v");
@@ -469,9 +469,9 @@ void	gstreamer_create_pipeline()
 	gst_element_link(ffmpegrecolor, videosink);
 	gpad2 = gst_ghost_pad_new("sink", gst_element_get_static_pad(queuev, "sink"));
 	gst_element_add_pad(GST_ELEMENT(videobin), gpad2);
-	
+
 	g_object_set(G_OBJECT(decoder), "connection-speed", 54, NULL);
-	
+
 	gst_bin_add_many(GST_BIN(pipeline), GST_ELEMENT(videobin), GST_ELEMENT(audiobin), NULL);
 }
 
@@ -487,7 +487,7 @@ void	gst_start(char *video, char * sub)
 		g_object_set(G_OBJECT(toyunda), "toyunda-logo", logo, NULL);
 	if (base_image_path != NULL)
 		g_object_set(G_OBJECT(toyunda), "image-base-dir", base_image_path, NULL);
-	
+
 	ret = gst_element_set_state (pipeline, GST_STATE_PLAYING);
 	if (ret == GST_STATE_CHANGE_FAILURE) {
 		GstMessage *msg;
@@ -503,7 +503,7 @@ void	gst_start(char *video, char * sub)
 			g_print ("ERROR: %s\n", err->message);
 			g_error_free (err);
 			gst_message_unref (msg);
-			
+
 		}
 		dispose_and_exit();
 	}
@@ -521,7 +521,7 @@ int	main(int ac, char *ag[])
 	GError* error = NULL;
 	GOptionContext*	opt_context;
 	//putenv("GST_PLUGIN_PATH=C:\\toyunda\\build\\");
-	
+
 
 #ifdef G_OS_WIN32
 	video_output = g_new(gchar, strlen(VIDEO_SINK_DEF_WIN32) + 1);
@@ -540,7 +540,7 @@ int	main(int ac, char *ag[])
 	}
 	gtk_init(&ac, &ag);
 	gst_init(&ac, &ag);
-	
+
 	g_printf("=======================%s===================", ag[1]);
 	create_ui();
 	gstreamer_create_pipeline();

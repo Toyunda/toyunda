@@ -4,7 +4,7 @@
 
 #include <glib.h>
 
-struct s_rgba_color 
+struct s_rgba_color
 {
 	gint red;
 	gint blue;
@@ -21,21 +21,19 @@ struct s_toyunda_sub {
 	rgba_color_t	color1;
 	rgba_color_t	color2;
 	rgba_color_t	tmpcolor;
-	
+
 	gfloat	positionx;
 	gfloat	positiony;
 	gfloat	position2x;
 	gfloat	position2y;
 	gfloat	fadingpositionx;
 	gfloat	fadingpositiony;
-	
+
 	gint	size;
 	gint	size2;
 	gint fadingsize;
-	
-	gchar*	image;
-	
 
+	gchar*	image;
 };
 
 typedef struct s_toyunda_sub toyunda_sub_t;

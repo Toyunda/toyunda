@@ -214,12 +214,12 @@ gst_toyunda_class_init (GstToyundaClass * klass)
 	//base_transform_class->prepare_output_buffer = GST_DEBUG_FUNCPTR (gst_toyunda_prepare_output_buffer);
 	base_transform_class->src_event = GST_DEBUG_FUNCPTR (gst_toyunda_src_event);
 	//base_transform_class->before_transform = GST_DEBUG_FUNCPTR (gst_toyunda_before_transform);
-  
+
 	g_object_class_install_property (G_OBJECT_CLASS (klass), PROP_SUBFILE,
 		         g_param_spec_string ("subfile", "Subfile",
 			  "The subtitle file to parse",
 			  "none", G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-  
+
 	g_object_class_install_property (G_OBJECT_CLASS (klass), PROP_TOYUNDA_LOGO,
 		         g_param_spec_string ("toyunda-logo", "Toyunda logo",
 			  "The default toyunda logo image",
@@ -241,11 +241,11 @@ gst_toyunda_init (GstToyunda * toyunda, GstToyundaClass * toyunda_class)
 {
 
 	toyunda->sinkpad = gst_pad_new_from_static_template (&gst_toyunda_sink_template
-	,     
+	,
 		"sink");
 
 	toyunda->srcpad = gst_pad_new_from_static_template (&gst_toyunda_src_template
-	,     
+	,
 		"src");
 	gst_toyunda_field_init(toyunda);
 	toyunda->pango_context = pango_font_map_create_context(pango_cairo_font_map_get_default());
@@ -415,19 +415,19 @@ gst_toyunda_set_caps (GstBaseTransform * trans, GstCaps * incaps,
 		else
 			toyunda->hardware_surface = FALSE;
 	}
-	
+
 	toyunda->fps_n = gst_value_get_fraction_numerator (fps);
 	toyunda->fps_d = gst_value_get_fraction_denominator (fps);
 	g_printf("video format : %s\n", gst_structure_to_string(structure));
 	g_printf("fps d,n : %f , %f\n", toyunda->fps_d, toyunda->fps_n);
 	g_printf("height : %d, width : %d\n", toyunda->video_height, toyunda->video_width);
-	
+
 	gst_toyunda_adjust_default_font_size(toyunda);
 	toyunda->subtitle_changed = TRUE;
 	gst_toyunda_reset_subtitle_buffer_statut(toyunda);
 
 	return TRUE;
-	
+
 }
 
 static gboolean
@@ -490,9 +490,9 @@ void gst_toyunda_draw_grid(GstToyunda* toyunda, GstBuffer* video_frame)
 	if (buff == NULL)
 	{
 		buff = gst_buffer_new_and_alloc(4 * toyunda->video_height * toyunda->video_width);
-	
+
 		video_frame = gst_buffer_make_writable(video_frame);
-	
+
 		buff_data = GST_BUFFER_DATA(buff);
 		/* draw line */
 		for (cpt = 0; cpt < GST_BUFFER_SIZE(buff); cpt++)
@@ -515,9 +515,9 @@ void gst_toyunda_draw_grid(GstToyunda* toyunda, GstBuffer* video_frame)
 			buff_data[cpt * line_offset + line_offset / 2 + 2] = 0x00;
 			buff_data[cpt * line_offset + line_offset / 2 + 3] = 0xFF;
 		}
-		
+
 		comprect = gst_video_overlay_rectangle_new_argb(buff, toyunda->video_width, toyunda->video_height,
-			toyunda->video_width * 4, 0, 0, toyunda->video_width, toyunda->video_height, 
+			toyunda->video_width * 4, 0, 0, toyunda->video_width, toyunda->video_height,
 			GST_VIDEO_OVERLAY_FORMAT_FLAG_NONE);
 		comp = gst_video_overlay_composition_new(comprect);
 	}
@@ -527,7 +527,7 @@ void gst_toyunda_draw_grid(GstToyunda* toyunda, GstBuffer* video_frame)
 static	void	plop_show_data(unsigned char *data, int width, int height)
 {
 	uint cpt = 0;
-	
+
 	g_printf("====================Show Buffer=================\n");
 	for (cpt = 0; cpt < width * height * 4; cpt++)
 	{
@@ -560,7 +560,7 @@ void gst_toyunda_create_subtitle_buffers(GstToyunda* toyunda)
 
 	it = g_sequence_get_begin_iter(toyunda->current_subtitles);
 	it_end = g_sequence_get_end_iter(toyunda->current_subtitles);
-	
+
 	while (it != it_end)
 	{
 		new_size = 0;
@@ -619,7 +619,7 @@ void gst_toyunda_create_subtitle_buffers(GstToyunda* toyunda)
 			pango_layout_set_width(toyunda->pango_layout, -1);
 			pango_layout_set_text(toyunda->pango_layout, converted_text, -1);
 			pango_layout_get_pixel_extents (toyunda->pango_layout, &ink_rect, &logical_rect);
-			
+
 			/* if The text is too long and no position given */
 			if (sub->positionx == -1)
 			{
@@ -628,8 +628,8 @@ void gst_toyunda_create_subtitle_buffers(GstToyunda* toyunda)
 					actual_size = pango_font_description_get_size(toyunda->pango_fontdesc) / PANGO_SCALE;
 					new_size = actual_size * ((double)toyunda->video_width / logical_rect.width);
 					pango_font_description_set_size(toyunda->pango_fontdesc, new_size * PANGO_SCALE);
-					g_printf("text too long, resize : widht : %d lrectwidht : %d old_size : %d, new_size : %d real new_size : %d\n", 
-						toyunda->video_width, logical_rect.width, actual_size, new_size, 
+					g_printf("text too long, resize : widht : %d lrectwidht : %d old_size : %d, new_size : %d real new_size : %d\n",
+						toyunda->video_width, logical_rect.width, actual_size, new_size,
 						pango_font_description_get_size(toyunda->pango_fontdesc) / PANGO_SCALE);
 					pango_layout_set_font_description(toyunda->pango_layout, toyunda->pango_fontdesc);
 					pango_layout_set_width(toyunda->pango_layout, -1);
@@ -688,7 +688,7 @@ void gst_toyunda_create_subtitle_buffers(GstToyunda* toyunda)
 					if (sub->position2x != -1)
 						pos_x = sub->fadingpositionx * toyunda->video_width;
 					else
-						pos_x = sub->positionx * toyunda->video_width;	
+						pos_x = sub->positionx * toyunda->video_width;
 				if (sub_buff->overlay_rect != NULL)
 					gst_video_overlay_rectangle_unref(sub_buff->overlay_rect);
 				/*Can't create overlayrect with negative position*/
@@ -704,7 +704,7 @@ void gst_toyunda_create_subtitle_buffers(GstToyunda* toyunda)
 				sub_buff->to_change = FALSE;
 				gst_buffer_unref(buffer);
 			}
-			
+
 			/* Toyunda logo, let the wtf begins */
 			else
 			{
@@ -766,13 +766,13 @@ void gst_toyunda_blend_subtitles(GstToyunda* toyunda, GstBuffer* video_frame)
 	GstVideoOverlayComposition	*comp;
 	GstVideoOverlayRectangle	*rect;
 	toyunda_sub_and_buff_t		*sub_buff;
-	
+
 	it = g_sequence_get_begin_iter(toyunda->current_subtitles);
 	it_end = g_sequence_get_end_iter(toyunda->current_subtitles);
-	
+
 	comp = NULL;
 	video_frame = gst_buffer_make_writable(video_frame);
-	
+
 	//g_printf("some NB buff : %d\n", g_sequence_get_length(toyunda->current_subtitles));
 	while (it != it_end)
 	{
@@ -830,7 +830,7 @@ gst_toyunda_transform_ip (GstBaseTransform * trans, GstBuffer * buf)
 	float framerate;
 	int framenb;
 	gint64 start, stop, clip_start = 0, clip_stop = 0;
-	
+
 	toyunda = GST_TOYUNDA (trans);
 	GST_OBJECT_LOCK(toyunda);
 	start = GST_BUFFER_TIMESTAMP (buf);
@@ -891,9 +891,7 @@ gst_toyunda_before_transform (GstBaseTransform * trans, GstBuffer * buffer)
 static gboolean
 plugin_init (GstPlugin * plugin)
 {
-
-  return gst_element_register (plugin, "toyunda", GST_RANK_NONE,
-      GST_TYPE_TOYUNDA);
+	return gst_element_register (plugin, "toyunda", GST_RANK_NONE, GST_TYPE_TOYUNDA);
 }
 
 #ifndef VERSION
