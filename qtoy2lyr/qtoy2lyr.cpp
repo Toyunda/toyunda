@@ -4,9 +4,9 @@
 #include <QProcess>
 #include <QMessageBox>
 #include <QDebug>
-#include "../QToyTime/toyundagendialog.h"
-#include <lyrsyntaxhighlighter.h>
-#include <frmsyntaxhighlighter.h>
+#include "toyundagendialog.h"
+#include "lyrsyntaxhighlighter.h"
+#include "frmsyntaxhighlighter.h"
 
 QToy2lyr::QToy2lyr(QWidget *parent) :
     QWidget(parent),
@@ -30,9 +30,13 @@ QToy2lyr::QToy2lyr(QWidget *parent) :
     }
 #endif
     ui->perlPathEdit->setText(m_perl_exec);
-    loadFile("/media/sf_Karaoke/Lyrics/Slayers Next - OP - Give A Reason.txt");
-    m_video = "/media/sf_Karaoke/Videos/Slayers Next - OP - Give A Reason.avi";
+    /*loadFile("K:/Lyrics/Slayers Next - OP - Give A Reason.txt");
+    m_video = "K:/Videos/Slayers Next - OP - Give A Reason.avi";*/
     m_player = new QProcess(this);
+    QStringList env = QProcess::systemEnvironment();
+    env << "GST_PLUGIN_PATH=" + qApp->applicationDirPath() + "/gsttoyunda/";
+    m_player->setEnvironment(env);
+    m_player->setWorkingDirectory(qApp->applicationDirPath());
 
     LyrSyntaxHighlighter    *lyrSyn = new LyrSyntaxHighlighter(ui->lyrPlainTextEdit->document());
     frmSyntaxHighlighter    *frmSyn = new frmSyntaxHighlighter(ui->frmFileEdit->document());
@@ -151,4 +155,21 @@ void QToy2lyr::on_launchButton_clicked()
     arg << "-sub" << m_tmpTxt << m_video;
     qDebug() << m_toyunda_player << arg;
     m_player->start(m_toyunda_player, arg);
+}
+
+void QToy2lyr::on_saveButton_clicked()
+{
+    QString dir = QFileDialog::getExistingDirectory(this, "Choississez le répertoire pour sauvegarder", "", QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+    if (!dir.isEmpty())
+    {
+        QFile::copy(m_tmpTxt, dir + "/" + QFileInfo(m_file).fileName());
+        QFile f(dir + "/" + QFileInfo(m_file).baseName() + ".lyr");
+        f.open(QIODevice::WriteOnly | QIODevice::Text);
+        f.write(ui->lyrPlainTextEdit->toPlainText().toLocal8Bit());
+        f.close();
+        f.setFileName(dir + "/" + QFileInfo(m_file).baseName() + ".frm");
+        f.open(QIODevice::WriteOnly | QIODevice::Text);
+        f.write(ui->frmFileEdit->toPlainText().toLocal8Bit());
+        f.close();
+    }
 }

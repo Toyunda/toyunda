@@ -15,18 +15,22 @@ TEMPLATE = app
 
 DESTDIR = $$BASE_PATH
 
-SOURCES += main.cpp\
+SOURCES +=\
         qtoy2lyr.cpp\
         ../QToyTime/toyundagendialog.cpp \
         ../QToyTime/lyrsyntaxhighlighter.cpp \
-        ../QToyTime/frmsyntaxhighlighter.cpp
+        ../QToyTime/frmsyntaxhighlighter.cpp \
+        ../commons/sqhandlegstpath.cpp \
+    maintoy2lyr.cpp
 
 HEADERS  += qtoy2lyr.h \
             ../QToyTime/toyundagendialog.h \
             ../QToyTime/lyrsyntaxhighlighter.h \
-            ../QToyTime/frmsyntaxhighlighter.h
+            ../QToyTime/frmsyntaxhighlighter.h \
+            ../commons/sqhandlegstpath.h
 
-INCLUDEPATH += ../QToyTime
+INCLUDEPATH += ../QToyTime \
+               ../commons
 
 FORMS    += qtoy2lyr.ui \
             ../QToyTime/toyundagendialog.ui

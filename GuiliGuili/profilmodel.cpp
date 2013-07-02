@@ -148,6 +148,9 @@ bool ProfilModel::saveProfils()
         if (myProf->fileName.isEmpty())
             myProf->fileName = qApp->applicationDirPath().toLocal8Bit() + "/" + Profil::ProfilDirectory + "/" + myProf->name + ".ini";
         QSettings*  mConf = new QSettings(myProf->fileName, QSettings::IniFormat);
+        mConf->sync();
+        if (mConf->status() != QSettings::NoError)
+            return false;
         if (myProf->baseType == Profil::OSD)
             mConf->setValue(PROFIL_TYPE_STRING, PROFIL_TYPE_QOSD);
         if (myProf->baseType == Profil::MPLAYER)

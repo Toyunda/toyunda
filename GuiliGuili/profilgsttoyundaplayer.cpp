@@ -44,9 +44,9 @@ void ProfilGstToyundaPlayer::play(QString video, QString lyrics)
         arg << "--audioouput" << m_audiosink;
     if (!m_videosink.isEmpty())
         arg << "--videooutput" << m_videosink;
-    arg << video << lyrics;
+    arg << video << "-sub" << lyrics;
     QString tmp = qApp->applicationDirPath();
-    tmp.append("/qttoyunda-player");
+    tmp.append("/toyunda-player");
     qDebug() << "Starting : " << tmp << arg;
     m_process->start(tmp, arg);
 }

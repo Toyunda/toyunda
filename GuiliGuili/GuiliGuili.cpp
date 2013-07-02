@@ -68,8 +68,9 @@ void GuiliGuili::init()
         m_profilmodel = new ProfilModel();
         if (!m_profilmodel->loadProfils())
         {
-            m_errorHandler->addError(SQError(SQError::Fatal, "Ne peut charger les profils"));
-            emit error_and_quit();
+            m_errorHandler->addError(SQError(SQError::Fatal, "Ne peut charger les profils ou enregistrer les profils par defaut.\n"
+                                             "Si vous modifié les profils, les changements ne seront pas enregistrés"));
+            emit error_only();
         }
         if (!m_settings->value("CurrentProfil").toString().isEmpty())
             m_profilmodel->setDefaultProfil(m_settings->value("CurrentProfil").toString());

@@ -26,8 +26,8 @@ int main(int argc, char *argv[])
     QCoreApplication a(argc, argv);
     
     sq_set_gstlib_env();
-    freopen("qtoytime-out.txt","w", stdout);
+    //freopen("qtoytime-out.txt","w", stdout);
     _execv(QString(qApp->applicationDirPath() + "/_binQToyTime.exe").toLatin1().data(), argv);
-    fclose(stdout);
+    //fclose(stdout);
     return 0;
 }

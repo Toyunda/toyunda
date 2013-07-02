@@ -71,6 +71,8 @@ private slots:
 
     void on_fpreviewButton_clicked();
 
+    void on_actionQuit_triggered();
+
 private:
     struct  SylDesc;
     struct  lineSylDesc
@@ -136,11 +138,11 @@ private:
 
     void print_syldesc(const QToyTime::SylDesc& desc);
     void print_linedesc(const QToyTime::lineSylDesc& line);
+    void    checkActiveGenAndFP();
 
     void    clearCacheFrame();
 
     void    loadVideo();
-
 };
 
 #endif // QTOYTIME_H

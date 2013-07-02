@@ -112,9 +112,9 @@ Plateform notes :
 		If You want to compile QToyunda and co on Windows : ok you are crazy. 
 		DON'T MAKE RELEASE BUILD, QtGStreamer seems having a prob with QTimer (need futher investigation) 
 
-		I use Qtcreator + MSVC 10 (Visual Studio 2010) as compiler
+		I use Qtcreator + MSVC 10 (Visual Studio 2012) as compiler
 		
-		1/Download and install Qtcreator and Qt SDK compiled with Visual Studio 20010 (search on qt-project website)
+		1/Download and install Qtcreator and Qt SDK compiled with Visual Studio 2012 (search on qt-project website)
 		
 		2/Install the gstreamer sdk from gstreamer.com (not .net), runtime and developpement files
 		

@@ -22,6 +22,7 @@
 #include "videowidget.h"
 #include "../commons/sqhandlegstpath.h"
 #include "generatetoyundasubtitle.h"
+#include <QMessageBox>
 
 static QTextStream logfile;
 static QTextStream cout(stdout);
@@ -67,7 +68,11 @@ int main(int argc, char *argv[])
     QTranslator translator;
     translator.load(qApp->applicationDirPath() + "/i18n/" + locale + "_QToyTime.qm" );
     a.installTranslator(&translator);
-    VideoWidget::GstInit(argc, &argv);
+    if (VideoWidget::GstInit(argc, &argv) == false)
+    {
+        QMessageBox::warning(NULL, "Can't init gstreamer", "Can't init gstreamer");
+        return 0;
+    }
     QToyTime w;
 
     //generateToyundaSubtitle("&il &fait &beau\n&le &temps &sec\n&c'est &cool", "100 120\n200 220\n240 245\n250 255\n260 265\n270 280\n285 290\n291 297\n", "tmp.txt");

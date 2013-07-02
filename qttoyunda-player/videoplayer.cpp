@@ -17,6 +17,8 @@
 
 #include <QApplication>
 #include <QKeyEvent>
+#include <windows.h>
+#include <QDesktopWidget>
 
 
 void	VideoPlayer::calcScaledSize(int wanted_width, int wanted_height, int* m_scaled_widht, int* m_scaled_height)
@@ -24,7 +26,8 @@ void	VideoPlayer::calcScaledSize(int wanted_width, int wanted_height, int* m_sca
     float	aspect_ratio = (float) original_width / original_height;
     float 	wanted_ratio = (float) wanted_width / wanted_height;
 
-    qDebug() << QString("  calc_scaled_size : Original : %1x%2").arg(original_width).arg(original_height);
+    qDebug() << QString("  calc_scaled_size : Original : %1x%2 , Wanted : %3x%4").arg(original_width)
+                            .arg(original_height).arg(wanted_width).arg(wanted_height);
     if (wanted_ratio < aspect_ratio)
     {
         *m_scaled_widht = wanted_width;
@@ -40,7 +43,6 @@ void	VideoPlayer::calcScaledSize(int wanted_width, int wanted_height, int* m_sca
 VideoPlayer::VideoPlayer(QString videoSink, QWidget *parent)
     : QGst::Ui::VideoWidget(parent)
 {
-    qDebug() << "hello";
     QGst::BusPtr bus;
     QGst::ElementPtr conv, asink, queuea, queuev, resample, vscale, recolor;
 
@@ -121,8 +123,9 @@ VideoPlayer::VideoPlayer(QString videoSink, QWidget *parent)
     m_toyunda->setProperty("toyunda-logo", qApp->applicationDirPath().toUtf8() + "/toyunda.tga");
     m_videosink_set = false;
     m_vsink->setProperty("force-aspect-ratio", true);
-    setVideoSink(m_vsink);
-    //watchPipeline(m_pipeline);
+    //setVideoSink(m_vsink);
+    watchPipeline(m_pipeline);
+    fullscreenRequest = false;
     setFixedSize(800, 600);
 }
 
@@ -177,6 +180,11 @@ void VideoPlayer::keyPressEvent(QKeyEvent *ev)
     if (ev->key() == Qt::Key_F)
     {
         setWindowState(windowState() ^ Qt::WindowFullScreen);
+        qDebug() << "FULLSCREEN";
+        /*if (!(windowState() & Qt::WindowFullScreen))
+           resizeVideo(800, 600);
+        else
+           resizeVideo(qApp->desktop()->screenGeometry().width(), qApp->desktop()->screenGeometry().height());*/
     }
     if (ev->key() == Qt::Key_Q)
 	    close();
@@ -197,7 +205,13 @@ void VideoPlayer::closeEvent(QCloseEvent *)
 
 void VideoPlayer::resizeEvent(QResizeEvent *ev)
 {
-    //resizeVideo(ev->size().width(), ev->size().height());
+
+    /*qDebug() << "RESIZE";
+    if (fullscreenRequest)
+    {
+       resizeVideo(ev->size().width(), ev->size().height());
+       fullscreenRequest = false;
+    }*/
 }
 
 void VideoPlayer::onBusMessage(const QGst::MessagePtr &message)
@@ -233,6 +247,7 @@ void VideoPlayer::setSubFile(QString file)
 {
     m_subFile = file;
     m_toyunda->setProperty("subfile", file);
+    qDebug() << file;
 }
 
 void VideoPlayer::setToyundaImagePath(QString imgPath)
@@ -249,6 +264,7 @@ void VideoPlayer::resizeVideo(int ww, int wh)
     cp->setValue("width", w);
     cp->setValue("height", h);
     qDebug() << w << h;
+    //QGst::State = m_pipeline->getState();
     m_capsFilter->setProperty("caps", cp);
 }
 

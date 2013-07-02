@@ -32,6 +32,8 @@ private slots:
 
     void on_launchButton_clicked();
 
+    void on_saveButton_clicked();
+
 private:
     Ui::QToy2lyr *ui;
     QSettings*  m_settings;

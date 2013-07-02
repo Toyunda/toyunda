@@ -28,6 +28,7 @@ public:
     void    setSubFile(QString file);
     void    setToyundaImagePath(QString);
     void    resizeVideo(int, int);
+    bool    fullscreenRequest;
     //static  bool    GstInit(int& ac, char **ag[]);
     void    play();
 

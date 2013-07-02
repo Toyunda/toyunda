@@ -8,5 +8,6 @@
         <file>time-preview-quick.png</file>
         <file>time-preview-lastframe.png</file>
         <file>preferences-system-time.png</file>
+        <file>GuiliGuili.ico</file>
     </qresource>
 </RCC>

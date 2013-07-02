@@ -4,6 +4,7 @@
 #include <QApplication>
 #include <QDebug>
 #include "sqarg.h"
+#include <QMessageBox>
 
 void    defineOption(SQArgDescMap &optionDesc);
 
@@ -28,12 +29,13 @@ int main(int argc, char *argv[])
     if (vopt == false)
         return 1;
 
-    VideoPlayer w("ximagesink");
+    VideoPlayer w("dshowvideosink");
     qDebug() << option["base_image_path"].toString();
     if (!option["base_image_path"].toString().isEmpty())
         w.setToyundaImagePath(option["base_image_path"].toString());
     w.setVideoFile(arg[0]);
     w.setSubFile(option["subtitle"].toString());
+    w.show();
     w.play();
     w.show();
     return a.exec();

@@ -176,6 +176,12 @@ QToyTime::QToyTime(QWidget *parent) :
         m_marginInChangeMode = m_settings->value("marginframe").toInt();
     m_configDialog.setReplaceMode(m_replaceMode);
     m_configDialog.setFrameMargin(m_marginInChangeMode);
+    ui->lyrFileEdit->setWindowModified(false);
+    ui->frmFileEdit->setWindowModified(false);
+    checkActiveGenAndFP();
+    ui->lyrFileEdit->setEnabled(false);
+    ui->frmFileEdit->setEnabled(false);
+    setWindowIcon(QIcon(":/icons/GuiliGuili.ico"));
 }
 
 QToyTime::~QToyTime()
@@ -380,6 +386,29 @@ void QToyTime::closeEvent(QCloseEvent *ev)
 {
     m_settings->setValue("windowState", saveState());
     m_settings->setValue("windowGeometry", saveGeometry());
+    if (ui->lyrFileDock->isWindowModified() || ui->frmFileDock->isWindowModified())
+    {
+        QMessageBox msgBox;
+        msgBox.setText(tr("Lyr of frm file has non saved modification"));
+        msgBox.setInformativeText(tr("Do you want to save your changes?"));
+        msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+        msgBox.setDefaultButton(QMessageBox::Save);
+        int ret = msgBox.exec();
+        switch (ret) {
+          case QMessageBox::Save:
+                m_time->save(ui->frmFileEdit->toPlainText(), ui->lyrFileEdit->toPlainText());
+              break;
+          case QMessageBox::Discard:
+              // Don't Save was clicked
+              break;
+          case QMessageBox::Cancel:
+              return ;
+              break;
+          default:
+              // should never be reached
+              break;
+        }
+    }
     QMainWindow::closeEvent(ev);
 }
 
@@ -404,6 +433,16 @@ void QToyTime::print_linedesc(const QToyTime::lineSylDesc& line)
     foreach(const QToyTime::SylDesc& sylDesc, line.syls)
     {
         print_syldesc(sylDesc);
+    }
+}
+
+void QToyTime::checkActiveGenAndFP()
+{
+    if (!m_toyToolDir.isEmpty() && !m_rubyExec.isEmpty())
+    {
+        ui->actionFullPreview->setEnabled(true);
+        ui->fpreviewButton->setEnabled(true);
+        ui->actionGenerateSubtitle->setEnabled(true);
     }
 }
 
@@ -758,6 +797,7 @@ void QToyTime::on_actionConfiguration_triggered()
         m_settings->setValue("replacemode", m_replaceMode);
         m_marginInChangeMode = m_configDialog.frameMargin;
         m_settings->setValue("marginframe", m_marginInChangeMode);
+        checkActiveGenAndFP();
     }
 }
 
@@ -790,6 +830,8 @@ void QToyTime::loadProject()
     ui->statusBar->showMessage(QString(tr("Project : %1 loaded")).arg(m_time->iniFile()), 10000);
     ui->lyrFileDock->setWindowModified(false);
     ui->frmFileDock->setWindowModified(false);
+    ui->lyrFileEdit->setEnabled(true);
+    ui->frmFileEdit->setEnabled(true);
 }
 
 QString QToyTime::tryToFindRuby()
@@ -842,9 +884,9 @@ void QToyTime::on_actionQuickPreview_triggered()
     {
         m_gsttoyPlayerProcess->kill();
         QStringList arg;
-        arg << QDir::currentPath().toUtf8() + "/"  + m_time->videoFile() << tmpFile;
+        arg << QDir::currentPath() + "/"  + m_time->videoFile() << "-sub" << tmpFile;
         QString tmp = qApp->applicationDirPath();
-	tmp.append("/qttoyunda-player");
+        tmp.append("/qttoyunda-player");
         qDebug() << tmp << arg;
         m_gsttoyPlayerProcess->start(tmp, arg);
     }
@@ -875,6 +917,11 @@ void QToyTime::on_fpreviewButton_clicked()
     else
     {
         m_gsttoyPlayerProcess->kill();
-	m_gsttoyPlayerProcess->start(qApp->applicationDirPath() + "/qttoyunda-player", QStringList() << m_time->baseDir() + "/" + m_time->videoFile() << tmpSub);
+    m_gsttoyPlayerProcess->start(qApp->applicationDirPath() + "/qttoyunda-player", QStringList() << m_time->baseDir() + "/" + m_time->videoFile() << "-sub" << tmpSub);
     }
+}
+
+void QToyTime::on_actionQuit_triggered()
+{
+    close();
 }

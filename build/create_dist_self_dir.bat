@@ -8,7 +8,7 @@ mkdir %distDir%\i18n
 
 echo Copying proj File
 
-FOR %%p IN (GuiliGuili.exe toyunda-player.exe toyunda.tga VeraMoBd.ttf) DO xcopy /y %baseBuildDir%\%%p %distDir%
+FOR %%p IN (qttoyunda-player.exe qtoy2lyr.exe GuiliGuili.exe toyunda-player.exe toyunda.tga VeraMoBd.ttf) DO xcopy /y %baseBuildDir%\%%p %distDir%
 
 xcopy /y QToyTime.exe %distDir%\_binQToyTime.exe
 xcopy /y QToyTimeWinLauncher.exe %distDir%\QToyTime.exe

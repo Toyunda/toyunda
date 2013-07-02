@@ -185,7 +185,7 @@
   <widget class="QPushButton" name="launchButton">
    <property name="geometry">
     <rect>
-     <x>800</x>
+     <x>780</x>
      <y>520</y>
      <width>131</width>
      <height>23</height>
@@ -243,7 +243,7 @@
     <string>Video File</string>
    </property>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>30</x>
@@ -265,8 +265,20 @@
     </item>
    </layout>
   </widget>
-  <zorder>filePathEdit</zorder>
-  <zorder>fileChooseButton</zorder>
+  <widget class="QPushButton" name="saveButton">
+   <property name="geometry">
+    <rect>
+     <x>950</x>
+     <y>520</y>
+     <width>121</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Enregister les fichiers</string>
+   </property>
+  </widget>
+  <zorder>layoutWidget</zorder>
   <zorder>layoutWidget</zorder>
   <zorder>OriginalPlainTextEdit</zorder>
   <zorder>copyFileEdit</zorder>
@@ -283,8 +295,8 @@
   <zorder>launchButton</zorder>
   <zorder>infoLabel</zorder>
   <zorder>layoutWidget_2</zorder>
-  <zorder>videoPathEdit</zorder>
   <zorder>label_7</zorder>
+  <zorder>saveButton</zorder>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
