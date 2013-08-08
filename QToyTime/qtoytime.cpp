@@ -31,6 +31,7 @@
 #include "frmsyntaxhighlighter.h"
 #include "sqhandlegstpath.h"
 #include "toyundagendialog.h"
+#include "proj_handle_path.h"
 #include <QMessageBox>
 
 QToyTime::QToyTime(QWidget *parent) :
@@ -50,6 +51,7 @@ QToyTime::QToyTime(QWidget *parent) :
 
     m_settings = new QSettings("skarsnik.nyo.fr", "QToyTime");
     m_gen_settings = new QSettings("skarsnik.nyo.fr", "QToyunda");
+    m_time = NULL;
 
     ui->actionNew->setShortcut(QKeySequence::New);
     ui->actionOpen->setShortcut(QKeySequence::Open);
@@ -80,8 +82,8 @@ QToyTime::QToyTime(QWidget *parent) :
     env << "GST_PLUGIN_PATH=" + sq_get_gsttoyunda_plugin_path(qApp->applicationDirPath());
     m_gsttoyPlayerProcess->setEnvironment(env);
 
-    m_gsttoyPlayerProcess->setStandardOutputFile(qApp->applicationDirPath() + "/toyunda-player-out.log");
-    m_gsttoyPlayerProcess->setStandardErrorFile(qApp->applicationDirPath() + "/toyunda-player-err.log");
+    m_gsttoyPlayerProcess->setStandardOutputFile(proj_logs_path() + "/toyunda-player-out.log");
+    m_gsttoyPlayerProcess->setStandardErrorFile(proj_logs_path() + "/toyunda-player-err.log");
     m_gsttoyPlayerProcess->setWorkingDirectory(qApp->applicationDirPath());
 
 
@@ -117,6 +119,14 @@ QToyTime::QToyTime(QWidget *parent) :
         restoreState(m_settings->value("windowState").toByteArray());
     }
 
+    if (m_settings->contains("editfontfamily"))
+    {
+        QFont f = ui->lyrFileEdit->font();
+        f.setFamily(m_settings->value("editfontfamily").toString());
+        f.setPointSize(m_settings->value("editfontsize").toInt());
+        ui->lyrFileEdit->setFont(f);
+        ui->frmFileEdit->setFont(f);
+    }
     QString warningMsg;
     if (m_gen_settings->contains("rubyexec")  && !m_gen_settings->value("rubyexec").toString().isEmpty())
     {
@@ -176,12 +186,16 @@ QToyTime::QToyTime(QWidget *parent) :
         m_marginInChangeMode = m_settings->value("marginframe").toInt();
     m_configDialog.setReplaceMode(m_replaceMode);
     m_configDialog.setFrameMargin(m_marginInChangeMode);
+    m_configDialog.setEditFont(ui->lyrFileEdit->font());
     ui->lyrFileEdit->setWindowModified(false);
     ui->frmFileEdit->setWindowModified(false);
     checkActiveGenAndFP();
-    ui->lyrFileEdit->setEnabled(false);
-    ui->frmFileEdit->setEnabled(false);
+    /*ui->lyrFileEdit->setEnabled(false);
+    ui->frmFileEdit->setEnabled(false);*/
     setWindowIcon(QIcon(":/icons/GuiliGuili.ico"));
+
+    m_colorsDialog = new ColorsChooserDialog(this);
+    //m_colorsDialog->show();
 }
 
 QToyTime::~QToyTime()
@@ -386,30 +400,9 @@ void QToyTime::closeEvent(QCloseEvent *ev)
 {
     m_settings->setValue("windowState", saveState());
     m_settings->setValue("windowGeometry", saveGeometry());
-    if (ui->lyrFileDock->isWindowModified() || ui->frmFileDock->isWindowModified())
-    {
-        QMessageBox msgBox;
-        msgBox.setText(tr("Lyr of frm file has non saved modification"));
-        msgBox.setInformativeText(tr("Do you want to save your changes?"));
-        msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
-        msgBox.setDefaultButton(QMessageBox::Save);
-        int ret = msgBox.exec();
-        switch (ret) {
-          case QMessageBox::Save:
-                m_time->save(ui->frmFileEdit->toPlainText(), ui->lyrFileEdit->toPlainText());
-              break;
-          case QMessageBox::Discard:
-              // Don't Save was clicked
-              break;
-          case QMessageBox::Cancel:
-              return ;
-              break;
-          default:
-              // should never be reached
-              break;
-        }
-    }
-    QMainWindow::closeEvent(ev);
+
+    if (checkForUnsavedChange())
+        QMainWindow::closeEvent(ev);
 }
 
 void QToyTime::print_syldesc(const QToyTime::SylDesc& desc)
@@ -444,6 +437,36 @@ void QToyTime::checkActiveGenAndFP()
         ui->fpreviewButton->setEnabled(true);
         ui->actionGenerateSubtitle->setEnabled(true);
     }
+}
+
+bool QToyTime::checkForUnsavedChange()
+{
+    if (m_time == NULL)
+        return true;
+    if (ui->lyrFileDock->isWindowModified() || ui->frmFileDock->isWindowModified())
+    {
+        QMessageBox msgBox;
+        msgBox.setText(tr("Lyr of frm file has non saved modification"));
+        msgBox.setInformativeText(tr("Do you want to save your changes?"));
+        msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+        msgBox.setDefaultButton(QMessageBox::Save);
+        int ret = msgBox.exec();
+        switch (ret) {
+          case QMessageBox::Save:
+                m_time->save(ui->frmFileEdit->toPlainText(), ui->lyrFileEdit->toPlainText());
+              break;
+          case QMessageBox::Discard:
+              // Don't Save was clicked
+              break;
+          case QMessageBox::Cancel:
+              return false;
+              break;
+          default:
+              // should never be reached
+              break;
+        }
+    }
+    return true;
 }
 
 void QToyTime::clearCacheFrame()
@@ -797,6 +820,10 @@ void QToyTime::on_actionConfiguration_triggered()
         m_settings->setValue("replacemode", m_replaceMode);
         m_marginInChangeMode = m_configDialog.frameMargin;
         m_settings->setValue("marginframe", m_marginInChangeMode);
+        ui->lyrFileEdit->setFont(m_configDialog.editFont);
+        ui->frmFileEdit->setFont(m_configDialog.editFont);
+        m_settings->setValue("editfontfamily", m_configDialog.editFont.family());
+        m_settings->setValue("editfontsize", m_configDialog.editFont.pointSize());
         checkActiveGenAndFP();
     }
 }
@@ -813,6 +840,8 @@ void QToyTime::on_actionGenerateSubtitle_triggered()
 
 void QToyTime::loadProject()
 {
+    if (!checkForUnsavedChange())
+        return;
     m_settings->setValue("lastproject", m_time->baseDir() + "/" + m_time->iniFile());
     QDir::setCurrent(m_time->baseDir());
     ui->frmFileEdit->clear();
@@ -917,7 +946,7 @@ void QToyTime::on_fpreviewButton_clicked()
     else
     {
         m_gsttoyPlayerProcess->kill();
-    m_gsttoyPlayerProcess->start(qApp->applicationDirPath() + "/qttoyunda-player", QStringList() << m_time->baseDir() + "/" + m_time->videoFile() << "-sub" << tmpSub);
+    m_gsttoyPlayerProcess->start(QDir::toNativeSeparators(qApp->applicationDirPath() + "/qttoyunda-player"), QStringList() << QDir::toNativeSeparators(m_time->baseDir() + "/" + m_time->videoFile()) << "-sub" << QDir::toNativeSeparators(tmpSub));
     }
 }
 

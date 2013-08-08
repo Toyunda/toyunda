@@ -20,6 +20,7 @@
 #define CONFIGDIALOG_H
 
 #include <QDialog>
+#include <QModelIndex>
 
 namespace Ui {
 class configDialog;
@@ -37,12 +38,14 @@ public:
     QString toyToolDir;
     int     frameMargin;
     bool    replaceMode;
+    QFont   editFont;
 
     void    setReplaceMode(bool r);
     void    setVideoSink(QString vsink);
     void    setRubyExec(QString rbe);
     void    setToyToolDir(QString Tdir);
     void    setFrameMargin(int m);
+    void    setEditFont(QFont f);
     
 private slots:
     void on_buttonBox_accepted();
@@ -54,6 +57,14 @@ private slots:
     void on_classicCheckBox_stateChanged(int arg1);
 
     void on_replaceCheckBox_stateChanged(int arg1);
+
+    void on_listView_clicked(const QModelIndex &index);
+
+    void on_fontComboBox_currentIndexChanged(const QString &arg1);
+
+    void on_fontSizespinBox_valueChanged(int arg1);
+
+    void on_buttonBox_rejected();
 
 private:
     Ui::configDialog *ui;

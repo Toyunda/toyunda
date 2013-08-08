@@ -20,6 +20,7 @@ win32 {
 }
 
 
+
 TARGET = QToyTime
 TEMPLATE = app
 
@@ -40,7 +41,9 @@ SOURCES += main.cpp\
     toyundatime.cpp \
     lyredit.cpp \
     lyrsidebar.cpp \
-    mslider.cpp
+    mslider.cpp \
+    colorschooserdialog.cpp \
+    ../commons/proj_handle_path.cpp
 
 HEADERS  += qtoytime.h \
     videowidget.h \
@@ -56,7 +59,10 @@ HEADERS  += qtoytime.h \
     toyundatime.h \
     lyredit.h \
     lyrsidebar.h \
-    mslider.h
+    mslider.h \
+    colorschooserdialog.h \
+    ../commons/proj_handle_path.h \
+    ../commons/proj_config.h
 
 
 DESTDIR = $$BASE_PATH
@@ -65,7 +71,8 @@ FORMS    += qtoytime.ui \
     newtimedialog.ui \
     configdialog.ui \
     toyundagendialog.ui \
-    qgplayer.ui
+    qgplayer.ui \
+    colorschooserdialog.ui
 
 
 INCLUDEPATH += ../commons/
@@ -81,4 +88,12 @@ win32:DEPENDPATH += C:/qt-gstreamer/install/include/QtGStreamer/
 RESOURCES += \
     ../GuiliGuili/icone.qrc \
     ../icons/icons.qrc
+
+buildtranslation.depends = $$_PRO_FILE_PWD_/$$TRANSLATIONS
+buildtranslation.commands = lrelease $$_PRO_FILE_
+copytranslation.depends = buildtranslation
+copytranslation.commands = $(COPY) $$_PRO_FILE_PWD_/*.qm ${DESTDIR}/translations/
+
+QMAKE_EXTRA_TARGETS += copytranslation buildtranslation
+POST_TARGETDEPS += copytranslation
 

@@ -21,8 +21,10 @@
 #include <QTranslator>
 #include "videowidget.h"
 #include "../commons/sqhandlegstpath.h"
+#include "../commons/proj_handle_path.h"
 #include "generatetoyundasubtitle.h"
 #include <QMessageBox>
+#include <QObject>
 
 static QTextStream logfile;
 static QTextStream cout(stdout);
@@ -36,6 +38,8 @@ void myMessageOutput(QtMsgType type, const char *msg)
             break;
         case QtCriticalMsg:
             logfile << "Critical : " << msg;
+            QMessageBox::critical(NULL, QObject::tr("Critical error"), msg);
+            qApp->exit(1);
             break;
         case QtWarningMsg:
             logfile << "Warning : " << msg;
@@ -54,7 +58,7 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    QFile   mlog(qApp->applicationDirPath().toLocal8Bit() + "/qtoytimelog.txt");
+    QFile   mlog(proj_logs_path() + "/qtoytimelog.txt");
     logfile.setDevice(&mlog);
     if (mlog.open(QIODevice::WriteOnly | QIODevice::Text))
         qInstallMsgHandler(myMessageOutput);
@@ -66,12 +70,12 @@ int main(int argc, char *argv[])
     qDebug() << locale;
 
     QTranslator translator;
-    translator.load(qApp->applicationDirPath() + "/i18n/" + locale + "_QToyTime.qm" );
+    translator.load(proj_translation_path() + "/" + locale + "_QToyTime.qm");
     a.installTranslator(&translator);
     if (VideoWidget::GstInit(argc, &argv) == false)
     {
         QMessageBox::warning(NULL, "Can't init gstreamer", "Can't init gstreamer");
-        return 0;
+        return 1;
     }
     QToyTime w;
 

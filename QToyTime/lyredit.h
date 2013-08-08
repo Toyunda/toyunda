@@ -3,6 +3,7 @@
 
 #include <QPlainTextEdit>
 #include <QTextBlock>
+#include <QCompleter>
 
 class lyrEdit : public QPlainTextEdit
 {
@@ -29,11 +30,17 @@ signals:
 private slots:
     void    updateSideBarWidth(int newBlockCount);
     void    updateSideBar(const QRect& rec, int);
+    void    onModificationChanged(bool state);
+    void    insertKeywordCompletion(const QString&);
+    void    insertVariableCompletion(const QString&);
+    void    onTextChanged();
 
 private:
     QWidget*    m_sideBar;
     QImage      markImg;
     QTextBlock  markedBlock;
+    QCompleter* lyrKeywordCompletion;
+    QCompleter* lyrVariableCompletion;
 
     bool        currentSel;
     bool        currentSyl;
@@ -46,6 +53,13 @@ private:
     QTextEdit::ExtraSelection   preTimedSylSel;
 
     void        setSelections();
+    void        initCompletion();
+    void        insertCompletion(QCompleter *completer, QString toComp);
+    void        keyPressEvent(QKeyEvent *e);
+
+    QMap<QString, QString>  lyrKeywordDesc;
+    QMap<QString, QList<QString> >    lyrVariable;
+    QMap<QString, QString>  lyrVariableDesc;
 };
 
 #endif // LYREDIT_H

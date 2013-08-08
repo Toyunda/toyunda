@@ -29,6 +29,7 @@
 #include <QTextEdit>
 #include "qgplayer.h"
 #include "toyundatime.h"
+#include "colorschooserdialog.h"
 
 namespace Ui {
 class QToyTime;
@@ -113,6 +114,8 @@ private:
     QSettings*      m_settings;
     QSettings*      m_gen_settings;
     configDialog    m_configDialog;
+    ColorsChooserDialog* m_colorsDialog;
+
 
     bool            m_replaceMode;
     int             m_marginInChangeMode;
@@ -139,6 +142,7 @@ private:
     void print_syldesc(const QToyTime::SylDesc& desc);
     void print_linedesc(const QToyTime::lineSylDesc& line);
     void    checkActiveGenAndFP();
+    bool    checkForUnsavedChange();
 
     void    clearCacheFrame();
 

@@ -20,6 +20,7 @@
 #include "ui_configdialog.h"
 #include <QDebug>
 #include <QFileDialog>
+#include <QStandardItemModel>
 
 configDialog::configDialog(QWidget *parent) :
     QDialog(parent),
@@ -38,6 +39,16 @@ configDialog::configDialog(QWidget *parent) :
     ui->videosinkComboBox->addItem("glimagesink");
 #endif
     ui->videosinkComboBox->addItem("cluttersink");
+
+    QStandardItemModel*  mod = new QStandardItemModel();
+    QStandardItem*  settings = new QStandardItem(QIcon(":/icons/redhat-system_settings.png"), tr("Settings"));
+    QStandardItem*  behavior = new QStandardItem(QIcon(":/icons/xfce4-settings.png"), tr("Behavior"));
+    QStandardItem*  lookandfeel = new QStandardItem(QIcon(":/icons/format-stroke-color.png"), tr("Look and Feel"));
+    mod->appendRow(behavior);
+    mod->appendRow(lookandfeel);
+    mod->appendRow(settings);
+    ui->listView->setModel(mod);
+    ui->fontPreviewEdit->setText("Twilight is best pony");
 }
 
 configDialog::~configDialog()
@@ -83,13 +94,32 @@ void configDialog::setFrameMargin(int m)
     ui->frameMarginSpinBox->setValue(m);
 }
 
+void configDialog::setEditFont(QFont f)
+{
+    editFont = f;
+    ui->fontSizespinBox->setValue(f.pointSize());
+    for (int i = 0; i < ui->fontComboBox->count(); i++)
+    {
+        if (ui->fontComboBox->itemText(i) == f.family())
+        {
+            ui->fontComboBox->setCurrentIndex(i);
+            break;
+        }
+    }
+    ui->fontPreviewEdit->setFont(f);
+}
+
 void configDialog::on_buttonBox_accepted()
 {
+    qDebug() <<  "Nyo";
     videoSink = ui->videosinkComboBox->currentText();
     rubyExec = ui->rubyLineEdit->text();
     toyToolDir = ui->toyToolEdit->text();
     frameMargin = ui->frameMarginSpinBox->value();
     replaceMode = (ui->replaceCheckBox->checkState() == Qt::Checked);
+    editFont.setFamily(ui->fontComboBox->currentFont().family());
+    editFont.setPointSize(ui->fontSizespinBox->value());
+    accept();
 }
 
 void configDialog::on_rubyChooseButton_clicked()
@@ -129,4 +159,28 @@ void configDialog::on_replaceCheckBox_stateChanged(int arg1)
         ui->classicCheckBox->setChecked(false);
         ui->frameMarginSpinBox->setEnabled(true);
     }
+}
+
+void configDialog::on_listView_clicked(const QModelIndex &index)
+{
+    ui->stackedWidget->setCurrentIndex(index.row());
+}
+
+void configDialog::on_fontComboBox_currentIndexChanged(const QString &arg1)
+{
+    QFont f = ui->fontPreviewEdit->font();
+    f.setFamily(arg1);
+    ui->fontPreviewEdit->setFont(f);
+}
+
+void configDialog::on_fontSizespinBox_valueChanged(int arg1)
+{
+    QFont f = ui->fontPreviewEdit->font();
+    f.setPointSize(arg1);
+    ui->fontPreviewEdit->setFont(f);
+}
+
+void configDialog::on_buttonBox_rejected()
+{
+    reject();
 }

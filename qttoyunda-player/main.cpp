@@ -1,12 +1,35 @@
 #include "videoplayer.h"
 #include "sqhandlegstpath.h"
 #include <QGst/Init>
+#include <QGlib/Error>
+#include <QGst/Message>
 #include <QApplication>
 #include <QDebug>
 #include "sqarg.h"
 #include <QMessageBox>
+#include <iostream>
 
 void    defineOption(SQArgDescMap &optionDesc);
+
+void myMessageOutput(QtMsgType type, const char *msg)
+{
+    switch (type)
+    {
+        case QtDebugMsg:
+            std::cerr << "Debug : " << msg << std::endl;
+            break;
+        case QtCriticalMsg:
+            std::cerr << "Critical : " << msg << std::endl;
+            qApp->exit(1);
+            break;
+        case QtWarningMsg:
+            std::cerr << "Warning : " << msg << std::endl;
+            break;
+        case QtFatalMsg:
+            std::cerr << "Fatal : " << msg << std::endl;
+            break;
+    }
+}
 
 int main(int argc, char *argv[])
 {
@@ -14,14 +37,20 @@ int main(int argc, char *argv[])
     SQArgDescMap		optionDesc;
     QMap<QString, QVariant> option;
 
-    sq_add_gsttoyunda_plugin_path(qApp->applicationDirPath());
-    //try {
-        QGst::init(&argc, &argv);
-    /*} catch (QGlib::Error qgerr)
+    if (argc < 2)
     {
-        qCritical() << "Can't init gstreamer";
+        std::cerr << "Too few arguments, syntax is : -sub subfile videofile" << std::endl;
         return 1;
-    }*/
+    }
+    sq_add_gsttoyunda_plugin_path(qApp->applicationDirPath());
+    try {
+        QGst::init(&argc, &argv);
+    } catch (QGlib::Error qgerr)
+    {
+        std::cerr << "Can't init gstreamer" << std::endl;
+        return 1;
+    }
+    qInstallMsgHandler(myMessageOutput);
     defineOption(optionDesc);
     QStringList arg = a.arguments();
     arg.removeFirst();
@@ -29,10 +58,13 @@ int main(int argc, char *argv[])
     if (vopt == false)
         return 1;
 
-    VideoPlayer w("dshowvideosink");
+    VideoPlayer w("");
+
     qDebug() << option["base_image_path"].toString();
     if (!option["base_image_path"].toString().isEmpty())
         w.setToyundaImagePath(option["base_image_path"].toString());
+    std::cout << "Subtitle file : " << option["subtitle"].toString().constData() << std::endl;
+    std::cout << "Video File    : " << arg[0].constData() << std::endl;
     w.setVideoFile(arg[0]);
     w.setSubFile(option["subtitle"].toString());
     w.show();

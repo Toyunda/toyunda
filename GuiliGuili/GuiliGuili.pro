@@ -20,7 +20,10 @@ HEADERS += \
     songtreemodel.h \
     songtreeitem.h \
     gstplayerprofildialog.h \
-    ../commons/sqhandlegstpath.h
+    ../commons/sqhandlegstpath.h \
+    ../commons/toyundasong.h \
+    ../commons/proj_handle_path.h \
+    ../commons/proj_config.h
 
 
 SOURCES += \
@@ -41,7 +44,9 @@ SOURCES += \
     songtreemodel.cpp \
     songtreeitem.cpp \
     gstplayerprofildialog.cpp \
-    ../commons/sqhandlegstpath.cpp
+    ../commons/sqhandlegstpath.cpp \
+    ../commons/toyundasong.cpp \
+    ../commons/proj_handle_path.cpp
 
 FORMS += \
     GuiliGuili.ui \

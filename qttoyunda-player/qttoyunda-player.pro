@@ -21,9 +21,12 @@ unix {
 SOURCES += main.cpp\
         videoplayer.cpp \
         ../commons/sqhandlegstpath.cpp \
-        ../commons/sqarg.cpp
+        ../commons/sqarg.cpp \
+        ../commons/proj_handle_path.cpp
 
-HEADERS  += videoplayer.h
+HEADERS  += videoplayer.h \
+            ../commons/proj_handle_path.h \
+            ../commons/proj_config.h
 
 DESTDIR = $$BASE_PATH
 

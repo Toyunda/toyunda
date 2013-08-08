@@ -21,13 +21,16 @@ SOURCES +=\
         ../QToyTime/lyrsyntaxhighlighter.cpp \
         ../QToyTime/frmsyntaxhighlighter.cpp \
         ../commons/sqhandlegstpath.cpp \
-    maintoy2lyr.cpp
+        maintoy2lyr.cpp \
+        ../commons/proj_handle_path.cpp
 
 HEADERS  += qtoy2lyr.h \
             ../QToyTime/toyundagendialog.h \
             ../QToyTime/lyrsyntaxhighlighter.h \
             ../QToyTime/frmsyntaxhighlighter.h \
-            ../commons/sqhandlegstpath.h
+            ../commons/sqhandlegstpath.h \
+            ../commons/proj_handle_path.h \
+            ../commons/proj_config.h
 
 INCLUDEPATH += ../QToyTime \
                ../commons

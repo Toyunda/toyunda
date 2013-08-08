@@ -17,7 +17,6 @@
 
 #include <QApplication>
 #include <QKeyEvent>
-#include <windows.h>
 #include <QDesktopWidget>
 
 

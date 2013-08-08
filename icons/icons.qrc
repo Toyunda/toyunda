@@ -9,5 +9,8 @@
         <file>time-preview-lastframe.png</file>
         <file>preferences-system-time.png</file>
         <file>GuiliGuili.ico</file>
+        <file>xfce4-settings.png</file>
+        <file>redhat-system_settings.png</file>
+        <file>format-stroke-color.png</file>
     </qresource>
 </RCC>

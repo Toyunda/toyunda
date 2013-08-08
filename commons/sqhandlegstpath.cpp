@@ -20,6 +20,7 @@
 #include <QDebug>
 #include <QCoreApplication>
 #include "sqhandlegstpath.h"
+#include "proj_handle_path.h"
 
 void    sq_set_gstlib_env()
 {
@@ -52,5 +53,5 @@ void    sq_add_gsttoyunda_plugin_path(QString appPath)
 
 QString sq_get_gsttoyunda_plugin_path(QString appPath)
 {
-   return (appPath + "/gsttoyunda/");
+   return proj_gsttoyunda_plugin_path();
 }
