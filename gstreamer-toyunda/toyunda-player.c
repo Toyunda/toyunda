@@ -62,6 +62,7 @@ static	gchar*		video_output = NULL;
 static	gchar*		audio_output = AUDIO_SINK_DEF_OTHER;
 static	gchar*		base_image_path = NULL;
 static	gchar*		logo = NULL;
+static	gchar*		subfile_o = NULL;
 
 static	GOptionEntry	opt_entry[] = 
 {
@@ -71,6 +72,7 @@ static	GOptionEntry	opt_entry[] =
 	{"audiooutput", 'a', 0, G_OPTION_ARG_STRING, &audio_output, "Select the audio output (aka gstreamer audio sink element)" , "the audio sink element"},
 	{"base_image_path", 'b', 0, G_OPTION_ARG_STRING, &base_image_path, "Set the base image path for image balise", "the path to image (usualy the karaoke dir"},
 	{"logo", 'l', 0, G_OPTION_ARG_STRING, &logo, "Set the toyunda default logo", "the logo path"},
+	{"subtitle", 's', 0, G_OPTION_ARG_STRING, &subfile_o, "Subtitle", "the sub"},
 	{NULL}
 };
 
@@ -538,7 +540,7 @@ int	main(int ac, char *ag[])
 	g_printf("=======================%s===================", ag[1]);
 	create_ui();
 	gstreamer_create_pipeline();
-	gst_start(ag[1], ag[2]);
+	gst_start(ag[1], subfile_o);
 	gtk_main();
 	dispose_and_exit();
 	return 0;
