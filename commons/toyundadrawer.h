@@ -46,6 +46,7 @@ class ToyundaDrawer
     float		lineIntervalRatio;
     float               imageRatio;
     QImage		toyundaLogo;
+    QImage		originalLogo;
     QFont		s_font;
     float	horizontalRatio;
     float	verticalRatio;

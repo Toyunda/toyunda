@@ -23,7 +23,9 @@ HEADERS += \
     ../commons/sqhandlegstpath.h \
     ../commons/toyundasong.h \
     ../commons/proj_handle_path.h \
-    ../commons/proj_config.h
+    ../commons/proj_config.h \
+    ../commons/toyundadrawer.h \
+    qosdsamplewindow.h
 
 
 SOURCES += \
@@ -46,7 +48,9 @@ SOURCES += \
     gstplayerprofildialog.cpp \
     ../commons/sqhandlegstpath.cpp \
     ../commons/toyundasong.cpp \
-    ../commons/proj_handle_path.cpp
+    ../commons/proj_handle_path.cpp \
+    ../commons/toyundadrawer.cpp \
+    qosdsamplewindow.cpp
 
 FORMS += \
     GuiliGuili.ui \

@@ -26,6 +26,7 @@ osdprofildialog::osdprofildialog(QWidget *parent) :
     ui(new Ui::osdprofildialog)
 {
     ui->setupUi(this);
+    m_sampleWindow = new QOSDSampleWindow();
 }
 
 osdprofildialog::~osdprofildialog()
@@ -44,4 +45,22 @@ void osdprofildialog::on_colorButton_clicked()
         qDebug() << QString("background-color: rgb(%1,%2,%3)").arg(diag.currentColor().red()).arg(diag.currentColor().green()).arg(diag.currentColor().blue());
     }
 
+}
+
+
+void osdprofildialog::on_configWButton_clicked()
+{
+    m_sampleWindow->show();
+}
+
+void osdprofildialog::on_backgroundColorButton_clicked()
+{
+    QColorDialog    diag;
+
+    if (diag.exec() == QDialog::Accepted)
+    {
+        background_color = diag.currentColor();
+        ui->backgroundColorButton->setStyleSheet(QString("background-color: rgb(%1,%2,%3)").arg(diag.currentColor().red()).arg(diag.currentColor().green()).arg(diag.currentColor().blue()));
+        //qDebug() << QString("background-color: rgb(%1,%2,%3)").arg(diag.currentColor().red()).arg(diag.currentColor().green()).arg(diag.currentColor().blue());
+    }
 }

@@ -37,11 +37,8 @@ QOSD::QOSD(QWidget *parent) : ToyundaRenderer(), QWidget(parent)
   addOption("logo", "Toyunda logo.png", "Set the logo file");
   addOption("font", ToyundaFontName, "The font decription used to render subtitle, default : " + ToyundaFontName);
   addOption("fontsize", ToyundaFontSize, "The font size, default : " + ToyundaFontSize);
+  addOption("backgroundcolor", "none", "background color");
   setWindowFlags(Qt::Window | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
-  setAttribute(Qt::WA_NoBackground, true);
-  setAttribute(Qt::WA_NoSystemBackground, true);
-  setStyleSheet("background:transparent;");
-  setAttribute(Qt::WA_TranslucentBackground, true);
   setWindowTitle("QToyunda Overlay");
   setIdentifier("qosd");
 }
@@ -51,6 +48,17 @@ bool  QOSD::init(QStringList opt)
   handleOption(opt);
   QFont f(optionValue["font"].toString(), (int) optionValue["fontsize"].toDouble() * optionValue["ratio"].toDouble());
   f.setFixedPitch(true);
+  if (optionValue["backgroundcolor"].toString() == "none")
+  {
+      setAttribute(Qt::WA_NoBackground, true);
+      setAttribute(Qt::WA_NoSystemBackground, true);
+      setStyleSheet("background:transparent;");
+      setAttribute(Qt::WA_TranslucentBackground, true);
+  }
+  else
+  {
+      setStyleSheet("background-color:" + optionValue["backgroundcolor"].toString() + ";");
+  }
 #ifdef Q_WS_X11
   if (QX11Info::isCompositingManagerRunning() == false)
   {

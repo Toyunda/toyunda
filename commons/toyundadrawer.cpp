@@ -64,6 +64,7 @@ void	ToyundaDrawer::setFont(const QFont newFont)
 void	ToyundaDrawer::setLogo(const QImage img, double imgRatio = 0.8)
 {
   toyundaLogo = img;
+  originalLogo = img;
   imageRatio = imgRatio;
 }
 
@@ -74,15 +75,17 @@ void ToyundaDrawer::recalcMagic()
     m_height = ToyundaHeight * verticalRatio;
     lineInterval = int (m_height / 12) * lineIntervalRatio;
 
+    toyundaLogo = originalLogo;
     toyundaLogo = toyundaLogo.scaled(lineInterval * imageRatio, lineInterval * imageRatio);
 
     QFontMetrics fm(s_font);
     s_font.setBold(true);
     s_font.setStyleHint(QFont::Monospace);
     letterWidth = fm.size(Qt::TextSingleLine, "o").width();
-    letterHeight = fm.size(Qt::TextSingleLine, "o").height();
+    letterHeight = fm.size(Qt::TextSingleLine, "lp").height();
     maxLetterNumber = int (m_width / letterWidth);
-    qDebug() << maxLetterNumber;
+    qDebug() << "Size :     " << m_width << "x" << m_height;
+    qDebug() << "Max Letter : " << maxLetterNumber;
     qDebug() << "font key : " << s_font.key();
     qDebug() << "Letter height : " << letterHeight <<  "Letter width : " << letterWidth;
 }
@@ -100,7 +103,7 @@ void    ToyundaDrawer::drawGrid(QPainter &painter) const
 void	ToyundaDrawer::draw(QPainter &painter, const QList<ToyundaText> &textSub, const QList<ToyundaSyl> &sylSub) const
 {
     painter.setFont(s_font);
-    //drawGrid(painter);
+    drawGrid(painter);
     if (textSub.isEmpty() == false) {
         QListIterator<ToyundaText> ittext(textSub);
         while (ittext.hasNext())
@@ -136,7 +139,6 @@ void	ToyundaDrawer::draw(QPainter &painter, const QList<ToyundaText> &textSub, c
                         painter.setFont(cfont);
                         tmpLetterWidth = painter.fontMetrics().size(Qt::TextSingleLine, "o").width();
                     }
-
                 }
                 // Size
                 if (tmp.size != -1) {
@@ -148,7 +150,9 @@ void	ToyundaDrawer::draw(QPainter &painter, const QList<ToyundaText> &textSub, c
                     painter.setFont(cfont);
                     tmpLetterWidth = painter.fontMetrics().size(Qt::TextSingleLine, "o").width();
                 }
-                s.setY((tmp.pipeNumber) * lineInterval + painter.fontMetrics().size(Qt::TextSingleLine, "o").height());
+                int plop = (lineInterval - painter.fontMetrics().size(Qt::TextSingleLine, "o").height()) / 2;
+                qDebug() << "Piko:" << plop;
+                s.setY((tmp.pipeNumber + 1) * lineInterval - plop);// + painter.fontMetrics().size(Qt::TextSingleLine, "o").height());
                 s.setX((m_width - tmp.text.size() * tmpLetterWidth) / 2);
                 painter.save();
                 // Outline

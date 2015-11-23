@@ -84,6 +84,10 @@ bool ProfilOSD::load(QString sfileName)
 {
     QSettings conf(sfileName, QSettings::IniFormat);
     baseLoad(&conf);
+    m_backgroundColor.setNamedColor(conf.value("background-color").toString());
+    m_defaultFontColor.setNamedColor(conf.value("default-color").toString());
+    m_vratio = conf.value("vratio").toFloat();
+    m_hratio = conf.value("hratio").toFloat();
     return true;
 }
 
@@ -94,6 +98,10 @@ bool ProfilOSD::save()
     if (conf.status() != QSettings::NoError)
         return false;
     baseSave(&conf);
+    conf.setValue("background-color", m_backgroundColor.name());
+    conf.setValue("default-color", m_defaultFontColor.name());
+    conf.setValue("vratio", m_vratio);
+    conf.setValue("hratio", m_hratio);
     return true;
 }
 

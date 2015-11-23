@@ -42,6 +42,10 @@ public slots:
 
 private:
     QToyunda    *m_qtoyunda;
+    QColor      m_backgroundColor;
+    QColor      m_defaultFontColor;
+    float       m_vratio;
+    float       m_hratio;
 };
 
 #endif // PROFILOSD_H

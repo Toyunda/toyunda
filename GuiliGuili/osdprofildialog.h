@@ -20,6 +20,7 @@
 #define OSDPROFILDIALOG_H
 
 #include <QDialog>
+#include "qosdsamplewindow.h"
 
 namespace Ui {
 class osdprofildialog;
@@ -40,15 +41,21 @@ public:
     float           v_ratio;
     float           h_ratio;
     bool            altered_version;
+    QColor          background_color;
     QString         font;
     QString         default_toyunda_logo;
 
     
 private slots:
     void on_colorButton_clicked();
+    
+    void on_configWButton_clicked();
+
+    void on_backgroundColorButton_clicked();
 
 private:
     Ui::osdprofildialog *ui;
+    QOSDSampleWindow*   m_sampleWindow;
 };
 
 #endif // OSDPROFILDIALOG_H
