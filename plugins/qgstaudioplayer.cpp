@@ -44,9 +44,8 @@ QGstAudioPlayer::QGstAudioPlayer()
 }
 
 
-void	QGstAudioPlayer::new_decoded_pad(const QGst::PadPtr &pad, const int gbool) 
+void	QGstAudioPlayer::pad_added(const QGst::PadPtr &pad) 
 {
-    Q_UNUSED(gbool);
 	QGst::PadPtr	audiopad;
 	QGst::PadPtr	videopad;
 	QGst::CapsPtr	caps;
@@ -54,7 +53,7 @@ void	QGstAudioPlayer::new_decoded_pad(const QGst::PadPtr &pad, const int gbool)
 	
     audiopad = m_audiobin->getStaticPad("sink");
     videopad = m_videobin->getStaticPad("sink");
-	caps = pad->caps();
+	caps = pad->currentCaps();
 	str = caps->internalStructure(0);
     qDebug() << str->name();
 	if (str->name().contains("audio"))
@@ -133,7 +132,7 @@ bool	QGstAudioPlayer::init(const QStringList opt)
 
 	m_pipeline = QGst::Pipeline::create();
 	m_src = QGst::ElementFactory::make("filesrc");
-	m_dec = QGst::ElementFactory::make("decodebin2");
+	m_dec = QGst::ElementFactory::make("decodebin");
 	queuea = QGst::ElementFactory::make("queue", "Queue audio");
 
     conv = QGst::ElementFactory::make("audioconvert");
@@ -159,7 +158,7 @@ bool	QGstAudioPlayer::init(const QStringList opt)
 	bus->addSignalWatch();
     m_dec->setProperty<int>("connection-speed", 56);
 	QGlib::connect(bus, "message", this, &QGstAudioPlayer::onBusMessage);
-	QGlib::connect(m_dec, "new-decoded-pad", this, &QGstAudioPlayer::new_decoded_pad);
+	QGlib::connect(m_dec, "pad-added", this, &QGstAudioPlayer::pad_added);
 	QGlib::connect(m_dec, "autoplug_continue", this, &QGstAudioPlayer::autoplug_continue);
 	m_pipeline->add(m_src, m_dec);
 	m_src->link(m_dec);

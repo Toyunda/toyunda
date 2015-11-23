@@ -15,7 +15,7 @@ TEMPLATE = app
 
 unix {
     CONFIG += link_pkgconfig
-    PKGCONFIG += gstreamer-0.10 QtGStreamer-0.10 QtGStreamerUi-0.10
+    PKGCONFIG += gstreamer-1.0 QtGStreamer-1.0 QtGStreamerUi-1.0
 }
 
 SOURCES += main.cpp\

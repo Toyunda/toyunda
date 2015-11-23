@@ -75,7 +75,7 @@ private:
     void    onBusMessage(const QGst::MessagePtr & message);
     void    handlePipelineStateChange(const QGst::StateChangedMessagePtr & scm);
 
-    void    new_decoded_pad(const QGst::PadPtr &, const int);
+    void    pad_added(const QGst::PadPtr &);
     bool    autoplug_continue(const QGst::PadPtr &, const QGst::CapsPtr &);
     void    mousePressEvent(QMouseEvent *);
     void    mouseReleaseEvent(QMouseEvent *);

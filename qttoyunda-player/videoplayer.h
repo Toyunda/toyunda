@@ -37,7 +37,7 @@ public:
 private:
     void    onBusMessage(const QGst::MessagePtr & message);
 
-    void    new_decoded_pad(const QGst::PadPtr &, const int);
+    void    pad_added(const QGst::PadPtr &);
     bool    autoplug_continue(const QGst::PadPtr &, const QGst::CapsPtr &);
     void    keyPressEvent(QKeyEvent *ev);
     void    closeEvent(QCloseEvent *);

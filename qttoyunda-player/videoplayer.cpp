@@ -47,7 +47,7 @@ VideoPlayer::VideoPlayer(QString videoSink, QWidget *parent)
 
     m_pipeline = QGst::Pipeline::create();
     m_src = QGst::ElementFactory::make("filesrc");
-    m_dec = QGst::ElementFactory::make("decodebin2");
+    m_dec = QGst::ElementFactory::make("decodebin");
     queuea = QGst::ElementFactory::make("queue", "Queue audio");
 
     conv = QGst::ElementFactory::make("audioconvert");
@@ -68,7 +68,7 @@ VideoPlayer::VideoPlayer(QString videoSink, QWidget *parent)
     m_toyunda = QGst::ElementFactory::make("toyunda", "Toyunda");
     m_capsFilter = QGst::ElementFactory::make("capsfilter", "CapsFilter");
     vscale = QGst::ElementFactory::make("videoscale", "videoscale");
-    recolor = QGst::ElementFactory::make("ffmpegcolorspace", "ffmegcolorspace");
+    recolor = QGst::ElementFactory::make("videoconvert", "ffmegcolorspace");
     queuev = QGst::ElementFactory::make("queue", "Queue video");
 
 #define CHECK_GST_IS_NULL(gstElem) if (gstElem.isNull()) { qCritical() << "Error creating " << #gstElem;}
@@ -90,7 +90,7 @@ VideoPlayer::VideoPlayer(QString videoSink, QWidget *parent)
     bus->addSignalWatch();
     m_dec->setProperty<int>("connection-speed", 56);
     QGlib::connect(bus, "message", this, &VideoPlayer::onBusMessage);
-    QGlib::connect(m_dec, "new-decoded-pad", this, &VideoPlayer::new_decoded_pad);
+    QGlib::connect(m_dec, "added-pad", this, &VideoPlayer::pad_added);
     QGlib::connect(m_dec, "autoplug_continue", this, &VideoPlayer::autoplug_continue);
     m_pipeline->add(m_src, m_dec);
     m_src->link(m_dec);
@@ -128,9 +128,8 @@ VideoPlayer::VideoPlayer(QString videoSink, QWidget *parent)
     setFixedSize(800, 600);
 }
 
-void	VideoPlayer::new_decoded_pad(const QGst::PadPtr &pad, const int gbool)
+void	VideoPlayer::pad_added(const QGst::PadPtr &pad)
 {
-    Q_UNUSED(gbool);
     QGst::PadPtr	audiopad;
     QGst::PadPtr	videopad;
     QGst::CapsPtr	caps;
@@ -138,7 +137,7 @@ void	VideoPlayer::new_decoded_pad(const QGst::PadPtr &pad, const int gbool)
 
     audiopad = m_audiobin->getStaticPad("sink");
     videopad = m_videobin->getStaticPad("sink");
-    caps = pad->caps();
+    caps = pad->currentCaps();
     str = caps->internalStructure(0);
     qDebug() << str->name();
     if (str->name().contains("audio"))
