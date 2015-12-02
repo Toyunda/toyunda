@@ -64,6 +64,8 @@ RESOURCES += \
 
 DESTDIR = $$BASE_PATH
 
+QT += gui widgets
+
 win32 {
 	RC_FILE = GuiliGuili.rc
 }

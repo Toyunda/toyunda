@@ -5,6 +5,8 @@ TEMPLATE = lib
 
 CONFIG += plugin
 
+QT += widgets multimedia
+
 INCLUDEPATH += ../qtoyunda-lib ../commons/
 
 unix {
@@ -30,3 +32,6 @@ win32:LIBS += C:/qt-gstreamer/install/lib/QtGStreamer-0.10.lib \
 win32:INCLUDEPATH += C:/qt-gstreamer/install/include/QtGStreamer/
 win32:INCLUDEPATH += C:/boost_1_53_0/boost_1_53_0/
 win32:DEPENDPATH += C:/qt-gstreamer/install/include/QtGStreamer/
+
+DISTFILES += \
+    qgstaudio.json

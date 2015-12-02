@@ -18,7 +18,7 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp \
-            ../comons/sqhandlegstpath.cpp
+            ../commons/sqhandlegstpath.cpp
 
 DESTDIR = $$BASE_PATH
 

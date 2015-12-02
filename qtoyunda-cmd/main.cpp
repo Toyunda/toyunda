@@ -17,7 +17,7 @@
 */
 
 
-#include <QApplication>
+#include <QtWidgets/QApplication>
 #include <QTextStream>
 #include <QDir>
 #include "sqarg.h"

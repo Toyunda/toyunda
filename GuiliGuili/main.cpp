@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <QtGui/QApplication>
+#include <QApplication>
 #include "GuiliGuili.h"
 #include <QTextStream>
 #include "sqhandlegstpath.h"
@@ -24,7 +24,7 @@
 static QTextStream logfile;
 static QTextStream cout(stdout);
 
-void myMessageOutput(QtMsgType type, const char *msg)
+void myMessageOutput(QtMsgType type, const QMessageLogContext& context, const QString& msg)
 {
     switch (type)
     {
@@ -56,7 +56,7 @@ int main(int argc, char** argv)
     QFile   mlog(qApp->applicationDirPath().toLocal8Bit() + "/log.txt");
     logfile.setDevice(&mlog);
     if (mlog.open(QIODevice::WriteOnly | QIODevice::Text))
-        qInstallMsgHandler(myMessageOutput);
+        qInstallMessageHandler(myMessageOutput);
     sq_set_gstlib_env();
     GuiliGuili foo;
     foo.show();

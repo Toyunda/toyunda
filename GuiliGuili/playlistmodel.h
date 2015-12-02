@@ -38,8 +38,9 @@ public:
     QStringList     mimeTypes() const;
     QMimeData       *mimeData(const QModelIndexList &indexes) const;
     
-    Qt::DropActions	supportedDropActions() const;
-    
+    virtual Qt::DropActions	supportedDropActions() const;
+    virtual Qt::DropActions supportedDragActions() const;
+
     PlaylistModel(Playlist *pl);
     virtual ~PlaylistModel();
     void	setPlaylist(Playlist* pl);

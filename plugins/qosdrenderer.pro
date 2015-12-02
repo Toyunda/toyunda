@@ -1,6 +1,6 @@
 include(../proconfig.pri)
 
-QT += gui
+QT += gui widgets
 TEMPLATE = lib
 CONFIG += plugin
 
@@ -14,6 +14,8 @@ INCLUDEPATH += ../qtoyunda-lib ../commons/
 HEADERS = qosd.h \
           ../qtoyunda-lib/toyundasubstream.h
 
+OTHER_FILES += qosdrenderer.json
+
 SOURCES = qosd.cpp \
            ../qtoyunda-lib/toyundarenderer.cpp \
            ../commons/scomponent.cpp \
@@ -25,3 +27,6 @@ SOURCES = qosd.cpp \
 
 TARGET = $$qtLibraryTarget(qtoyunda_qosdrenderer)
 DESTDIR = $$PLUGIN_PATH
+
+DISTFILES += \
+    qosdrenderer.json

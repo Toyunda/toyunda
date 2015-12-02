@@ -99,6 +99,6 @@ bool FakePlayer::hasVolumeControl()
 }
 
 
-Q_EXPORT_PLUGIN2(qtoyunda_fakeplayer, FakePlayer)
+Q_PLUGIN_METADATA(IIDD "fr.nyo.qtoyunda.FakePlayer" FILE "fakeplayer.json")
 
 

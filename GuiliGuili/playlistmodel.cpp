@@ -45,7 +45,6 @@ int	PlaylistModel::rowCount(const QModelIndex& parent) const
 PlaylistModel::PlaylistModel(Playlist* pl)
 {
 	m_playlist = pl;
-    setSupportedDragActions(Qt::MoveAction);
 }
 
 PlaylistModel::~PlaylistModel()
@@ -56,7 +55,8 @@ PlaylistModel::~PlaylistModel()
 void PlaylistModel::setPlaylist(Playlist* pl)
 {
 	m_playlist = pl;
-    reset();
+    beginResetModel();
+    endResetModel();
 }
 
 
@@ -170,6 +170,11 @@ QMimeData *PlaylistModel::mimeData(const QModelIndexList &indexes) const
 Qt::DropActions PlaylistModel::supportedDropActions() const
 {
     return Qt::CopyAction | Qt::MoveAction;
+}
+
+Qt::DropActions PlaylistModel::supportedDragActions() const
+{
+    return Qt::MoveAction;
 }
 
 

@@ -12,10 +12,11 @@ SUBDIRS += \
 	GuiliGuili \
         QToyTime \
         qttoyunda-player \
-    qtoy2lyr
+        qtoy2lyr
 
 win32 {
         SUBDIRS += QToyTimeWinLauncher
 }
 
+QT += widgets
 

@@ -101,7 +101,7 @@ class ToyundaSubStream : public QObject
      * This signal is emit when something change in the current subtitle
      * like new subtitle to display or color changing.
      */
-    virtual void	currentSubChanged();
+    void	currentSubChanged();
 
   protected:
     QList<ToyundaText>  currentText; /*!< The current text list */

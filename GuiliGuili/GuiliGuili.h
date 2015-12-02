@@ -20,7 +20,7 @@
 #ifndef GuiliGuili_H
 #define GuiliGuili_H
 
-#include <QtGui/QMainWindow>
+#include <QMainWindow>
 #include <QSettings>
 #include <QStandardItem>
 #include "ui_GuiliGuili.h"

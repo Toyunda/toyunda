@@ -19,14 +19,14 @@
 
 #include "GuiliGuili.h"
 #include <QThread>
-#include <QtGui/QLabel>
+#include <QLabel>
 #include <QSettings>
 #include <QTimer>
 #include <stdio.h>
 #include <stdlib.h>
-#include <QtGui/QMenu>
-#include <QtGui/QMenuBar>
-#include <QtGui/QAction>
+#include <QMenu>
+#include <QMenuBar>
+#include <QAction>
 #include <QTreeWidgetItem>
 #include <QFileDialog>
 #include <qdir.h>

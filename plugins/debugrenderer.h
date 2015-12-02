@@ -36,6 +36,7 @@ class DebugRenderer : public QObject, public ToyundaRenderer, public AbstractRen
 {
     Q_OBJECT
     Q_INTERFACES(AbstractRenderer)
+
   public:
     DebugRenderer();
     void    dispose();

@@ -211,7 +211,8 @@ QModelIndex SongTreeModel::addSong(Song *sg, QString cat)
     else
         beginInsertRows(createIndex(0, 0, m_rootItem), m_rootItem->childs.indexOf(catItem), m_rootItem->childs.indexOf(catItem));
     endInsertRows();*/
-    reset();
+    beginResetModel();
+    endResetModel();
     return createIndex(catItem->childs.count() - 1, 0, newItem);
 }
 

@@ -18,7 +18,7 @@
 
 #include <QCoreApplication>
 #include <QProcess>
-#include "../comons/sqhandlegstpath.h"
+#include "../commons/sqhandlegstpath.h"
 #include "process.h"
 
 int main(int argc, char *argv[])

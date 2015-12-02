@@ -131,8 +131,6 @@ ToyundaRenderer*    QOSD::getMe()
     return this;
 }
 
-Q_EXPORT_PLUGIN2(qtoyunda_qosdrenderer, QOSD)
-
 void QOSD::setQWidgetParent(QWidget *qobj)
 {
     setParent(qobj);
@@ -142,3 +140,5 @@ void QOSD::dispose()
 {
     close();
 }
+
+Q_PLUGIN_METADATA(IIDD "fr.nyo.qtoyunda.QOSD" FILE "qosd.json")

@@ -22,7 +22,7 @@
 
 #include <QtCore/qabstractitemmodel.h>
 #include <QList>
-#include <song.h>
+#include "song.h"
 
 class SongListTreeItemModel : public QAbstractItemModel
 {

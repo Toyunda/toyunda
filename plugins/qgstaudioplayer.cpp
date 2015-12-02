@@ -278,6 +278,6 @@ void QGstAudioPlayer::setVolume(uint vol)
 }
 
 
-Q_EXPORT_PLUGIN2(qtoyunda_qgstaudioplayer, QGstAudioPlayer)
+Q_PLUGIN_METADATA(IIDD "fr.nyo.qtoyunda.QGstAudioPlayer" File "qgstaudio.json")
 
 

@@ -4,6 +4,7 @@ CONFIG += staticlib
 
 TARGET = qtoyunda_static
 
+QT += core gui widgets
 
 HEADERS += \
     toyundasubstream.h \

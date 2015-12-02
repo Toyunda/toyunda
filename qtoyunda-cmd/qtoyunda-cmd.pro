@@ -6,6 +6,8 @@ TARGET = qtoyunda-cmd
 
 DESTDIR = $$BASE_PATH
 
+QT += core gui widgets
+
 SOURCES += \
     main.cpp \
     qdebugerrorhandler.cpp \

@@ -6,6 +6,8 @@ CONFIG += plugin
 HEADERS = debugrenderer.h \
           ../qtoyunda-lib/toyundasubstream.h
 
+OTHER_FILES += debugrenderer.json
+
 SOURCES = debugrenderer.cpp \
            ../qtoyunda-lib/toyundarenderer.cpp \
            ../commons/scomponent.cpp \
@@ -19,3 +21,6 @@ INCLUDEPATH += ../qtoyunda-lib/ ../commons/
 TARGET = $$qtLibraryTarget(qtoyunda_debugrenderer)
 
 DESTDIR = $$PLUGIN_PATH
+
+DISTFILES += \
+    debugrenderer.json

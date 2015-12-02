@@ -75,6 +75,5 @@ void DebugRenderer::dispose()
     return;
 }
 
-
-Q_EXPORT_PLUGIN2(qtoyunda_debugrenderer, DebugRenderer)
+Q_PLUGIN_METADATA(IID "fr.nyo.qtoyunda.DebugRenderer" FILE "debugrenderer.json")
 
