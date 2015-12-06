@@ -36,6 +36,7 @@ class DebugRenderer : public QObject, public ToyundaRenderer, public AbstractRen
 {
     Q_OBJECT
     Q_INTERFACES(AbstractRenderer)
+    Q_PLUGIN_METADATA(IID "fr.nyo.qtoyunda.DebugRenderer" FILE "debugrenderer.json")
 
   public:
     DebugRenderer();

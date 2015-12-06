@@ -31,8 +31,10 @@
 
 class QGstAudioPlayer : public FilePlayer, public AbstractFilePlayer
 {
-        Q_OBJECT
+    Q_OBJECT
     Q_INTERFACES(AbstractFilePlayer)
+    Q_PLUGIN_METADATA(IID "fr.nyo.qtoyunda.QGstAudioPlayer" FILE "qgstaudio.json")
+
 	public:
 		QGstAudioPlayer();
 		bool	init(const QStringList optionList = QStringList());

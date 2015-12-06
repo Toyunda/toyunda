@@ -140,5 +140,3 @@ void QOSD::dispose()
 {
     close();
 }
-
-Q_PLUGIN_METADATA(IIDD "fr.nyo.qtoyunda.QOSD" FILE "qosd.json")

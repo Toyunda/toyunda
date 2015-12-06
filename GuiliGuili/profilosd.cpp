@@ -19,6 +19,8 @@
 #include <QApplication>
 #include "profilosd.h"
 #include "osdprofildialog.h"
+#include "../commons/sqhandlegstpath.h"
+#include "../commons/proj_handle_path.h"
 
 
 ProfilOSD::ProfilOSD() : Profil()

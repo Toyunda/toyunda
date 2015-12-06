@@ -35,8 +35,10 @@
 
 class QOSD : public QWidget, public ToyundaRenderer, public AbstractRenderer
 {
-  Q_OBJECT
+    Q_OBJECT
     Q_INTERFACES(AbstractRenderer)
+    Q_PLUGIN_METADATA(IID "fr.nyo.qtoyunda.QOSD" FILE "qosdrenderer.json")
+
   public:
     QOSD(QWidget *parent = 0);
     bool  init(QStringList opt = QStringList());

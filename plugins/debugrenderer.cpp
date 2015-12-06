@@ -75,5 +75,4 @@ void DebugRenderer::dispose()
     return;
 }
 
-Q_PLUGIN_METADATA(IID "fr.nyo.qtoyunda.DebugRenderer" FILE "debugrenderer.json")
 

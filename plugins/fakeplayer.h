@@ -33,6 +33,8 @@ class FakePlayer : public FilePlayer, public AbstractFilePlayer
 {
   Q_OBJECT
   Q_INTERFACES(AbstractFilePlayer)
+  Q_PLUGIN_METADATA(IID "fr.nyo.qtoyunda.FakePlayer" FILE "fakeplayer.json")
+
   public:
     FakePlayer();
 

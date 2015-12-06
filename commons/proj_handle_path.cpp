@@ -1,7 +1,7 @@
 #include "proj_handle_path.h"
 
-#include <QApplication>
-#include <QDesktopServices>
+#include <QCoreApplication>
+
 
 QString	proj_data_path()
 {

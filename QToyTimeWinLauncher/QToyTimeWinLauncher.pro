@@ -16,9 +16,11 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
+HEADERS += ../commons/sqhandlegstpath.h
 
 SOURCES += main.cpp \
-            ../commons/sqhandlegstpath.cpp
+            ../commons/sqhandlegstpath.cpp \
+            ../commons/proj_handle_path.cpp
 
 DESTDIR = $$BASE_PATH
 

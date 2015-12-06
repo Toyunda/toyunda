@@ -22,6 +22,7 @@
 #include <qregexp.h>
 #include <QFile>
 #include <QFileInfo>
+#include <QDataStream>
 
 quint64 Song::maxid = 0;
 

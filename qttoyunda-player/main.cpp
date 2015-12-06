@@ -11,22 +11,24 @@
 
 void    defineOption(SQArgDescMap &optionDesc);
 
-void myMessageOutput(QtMsgType type, const char *msg)
+void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
+    QByteArray localMsg = msg.toLocal8Bit();
     switch (type)
     {
         case QtDebugMsg:
-            std::cerr << "Debug : " << msg << std::endl;
+            std::cerr << QString("Debug: %s (%s:%u, %s)\n").arg(localMsg.constData()).arg(context.file).arg(context.line).arg(context.function).toUtf8().constData();
             break;
         case QtCriticalMsg:
-            std::cerr << "Critical : " << msg << std::endl;
+            std::cerr << QString("Critical: %s (%s:%u, %s)\n").arg(localMsg.constData()).arg(context.file).arg(context.line).arg(context.function).toUtf8().constData();
+            QMessageBox::critical(NULL, QObject::tr("Critical error"), msg);
             qApp->exit(1);
             break;
         case QtWarningMsg:
-            std::cerr << "Warning : " << msg << std::endl;
+            std::cerr << QString("Warning: %s (%s:%u, %s)\n").arg(localMsg.constData()).arg(context.file).arg(context.line).arg(context.function).toUtf8().constData();
             break;
         case QtFatalMsg:
-            std::cerr << "Fatal : " << msg << std::endl;
+            std::cerr << QString("Fatal: %s (%s:%u, %s)\n").arg(localMsg.constData()).arg(context.file).arg(context.line).arg(context.function).toUtf8().constData();
             break;
     }
 }
@@ -50,7 +52,7 @@ int main(int argc, char *argv[])
         std::cerr << "Can't init gstreamer" << std::endl;
         return 1;
     }
-    qInstallMsgHandler(myMessageOutput);
+    qInstallMessageHandler(myMessageOutput);
     defineOption(optionDesc);
     QStringList arg = a.arguments();
     arg.removeFirst();

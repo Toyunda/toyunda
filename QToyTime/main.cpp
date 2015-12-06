@@ -29,23 +29,25 @@
 static QTextStream logfile;
 static QTextStream cout(stdout);
 
-void myMessageOutput(QtMsgType type, const char *msg)
+void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
+    QByteArray localMsg = msg.toLocal8Bit();
+    cout << msg;
     switch (type)
     {
         case QtDebugMsg:
-            logfile << "Debug : " << msg;
+            logfile << QString("Debug: %1 (%2:%3, %4)\n").arg(localMsg.constData()).arg(context.file).arg(context.line).arg(context.function);
             break;
         case QtCriticalMsg:
-            logfile << "Critical : " << msg;
+            logfile << QString("Critical: %1 (%2:%3, %4)\n").arg(localMsg.constData()).arg(context.file).arg(context.line).arg(context.function);
             QMessageBox::critical(NULL, QObject::tr("Critical error"), msg);
             qApp->exit(1);
             break;
         case QtWarningMsg:
-            logfile << "Warning : " << msg;
+            logfile << QString("Warning: %1 (%2:%3, %4)\n").arg(localMsg.constData()).arg(context.file).arg(context.line).arg(context.function);
             break;
         case QtFatalMsg:
-            logfile << "Fatal : " << msg;
+            logfile << QString("Fatal: %1 (%2:%3, %4)\n").arg(localMsg.constData()).arg(context.file).arg(context.line).arg(context.function);
             break;
     }
     logfile << "\n";
@@ -58,10 +60,11 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
+    qDebug() << "Starting";
     QFile   mlog(proj_logs_path() + "/qtoytimelog.txt");
     logfile.setDevice(&mlog);
     if (mlog.open(QIODevice::WriteOnly | QIODevice::Text))
-        qInstallMsgHandler(myMessageOutput);
+        qInstallMessageHandler(myMessageOutput);
     sq_set_gstlib_env();
     sq_add_gsttoyunda_plugin_path(qApp->applicationDirPath());
     qDebug() << getenv("GST_PLUGIN_PATH");

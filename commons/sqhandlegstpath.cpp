@@ -27,10 +27,10 @@ void    sq_set_gstlib_env()
 #ifdef Q_WS_WIN32
         char    *mPath, *mGstRoot;
         mPath = getenv("PATH");
-        mGstRoot = getenv("GSTREAMER_SDK_ROOT_X86");
+        mGstRoot = getenv("GSTREAMER_1_0_ROOT_X86");
         if (mGstRoot == NULL)
         {
-            QString tmpL = qApp->applicationDirPath().toLocal8Bit() + "\\gstreamer-sdk\\0.10\\x86\\";
+            QString tmpL = qApp->applicationDirPath().toLocal8Bit() + "\\gstreamer\\1.0\\x86\\";
             mGstRoot = (char *)malloc(strlen(tmpL.toLocal8Bit().data()) + 1);
             strcpy(mGstRoot, tmpL.toLocal8Bit().data());
         }

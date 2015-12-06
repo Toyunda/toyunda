@@ -77,13 +77,13 @@ FORMS    += qtoytime.ui \
 
 INCLUDEPATH += ../commons/
 
-win32:LIBS += C:/qt-gstreamer/install/lib/QtGStreamer-0.10.lib \
-              C:/qt-gstreamer/install/lib/QtGLib-2.0.lib \
-              C:/qt-gstreamer/install/lib/QtGStreamerUi-0.10.lib
+win32:LIBS += C:/qt-gstreamer/install/lib/Qt5GStreamer-1.0.lib \
+              C:/qt-gstreamer/install/lib/Qt5GLib-2.0.lib \
+              C:/qt-gstreamer/install/lib/Qt5GStreamerUi-1.0.lib
 
-win32:INCLUDEPATH += C:/qt-gstreamer/install/include/QtGStreamer/
-win32:INCLUDEPATH += C:/boost_1_53_0/boost_1_53_0/
-win32:DEPENDPATH += C:/qt-gstreamer/install/include/QtGStreamer/
+win32:INCLUDEPATH += C:/qt-gstreamer/install/include/Qt5GStreamer/
+win32:INCLUDEPATH += C:/boost_1_59_0/
+win32:DEPENDPATH += C:/qt-gstreamer/install/include/Qt5GStreamer/
 
 RESOURCES += \
     ../GuiliGuili/icone.qrc \
@@ -92,7 +92,8 @@ RESOURCES += \
 buildtranslation.depends = $$_PRO_FILE_PWD_/$$TRANSLATIONS
 buildtranslation.commands = lrelease $$_PRO_FILE_
 copytranslation.depends = buildtranslation
-copytranslation.commands = $(COPY) $$_PRO_FILE_PWD_/*.qm ${DESTDIR}/translations/
+copytranslation.commands = $(COPY) $$shell_path($$_PRO_FILE_PWD_/*.qm) $$shell_path($${DESTDIR}/translations/)
+
 
 QMAKE_EXTRA_TARGETS += copytranslation buildtranslation
 POST_TARGETDEPS += copytranslation
